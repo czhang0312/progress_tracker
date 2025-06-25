@@ -12,7 +12,10 @@
             <p><%= goal.description %></p>
           </div>
           <div class="goal-actions">
-            <%= link_to "Edit", edit_goal_path(goal), class: "btn btn-secondary" %>
+            <%= button_to "Edit", edit_goal_path(goal), 
+                method: :get, 
+                class: "btn btn-secondary",
+                form: { style: 'display: inline;' } %>
             <%= button_to "Delete", goal_path(goal), 
                 method: :delete, 
                 class: "btn btn-danger delete-btn",
