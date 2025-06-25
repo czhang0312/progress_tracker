@@ -1,0 +1,101 @@
+<div class="container">
+  <h1>Edit Journal Entry</h1>
+  
+  <%= form_with model: @journal_entry, local: true do |form| %>
+    <% if @journal_entry.errors.any? %>
+      <div class="errors">
+        <h2><%= pluralize(@journal_entry.errors.count, "error") %> prohibited this journal entry from being saved:</h2>
+        <ul>
+          <% @journal_entry.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <div class="form-group">
+      <%= form.label :date %>
+      <%= form.date_field :date, class: "form-control" %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :content %>
+      <%= form.text_area :content, class: "form-control", rows: 8, placeholder: "Write your journal entry here..." %>
+    </div>
+    
+    <div class="form-actions">
+      <%= form.submit "Update Entry", class: "btn btn-primary" %>
+      <%= link_to "Cancel", monthly_progress_path(@journal_entry.date.year, @journal_entry.date.month), class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  .form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .errors {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+
+  .errors h2 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+  }
+
+  .errors ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .btn-primary {
+    background: #007bff;
+    color: white;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+</style>

@@ -1,0 +1,101 @@
+<div class="container">
+  <h1>New Goal</h1>
+  
+  <%= form_with model: @goal, local: true do |form| %>
+    <% if @goal.errors.any? %>
+      <div class="errors">
+        <h2><%= pluralize(@goal.errors.count, "error") %> prohibited this goal from being saved:</h2>
+        <ul>
+          <% @goal.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <div class="form-group">
+      <%= form.label :name %>
+      <%= form.text_field :name, class: "form-control" %>
+    </div>
+    
+    <div class="form-group">
+      <%= form.label :description %>
+      <%= form.text_area :description, class: "form-control", rows: 4 %>
+    </div>
+    
+    <div class="form-actions">
+      <%= form.submit "Create Goal", class: "btn btn-primary" %>
+      <%= link_to "Cancel", goals_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  .form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .errors {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+
+  .errors h2 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+  }
+
+  .errors ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .btn-primary {
+    background: #007bff;
+    color: white;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+</style>
