@@ -1,10 +1,20 @@
 class GoalsController < ApplicationController
   def index
     @goals = Goal.all
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @goals }
+    end
   end
 
   def show
     @goal = Goal.find(params[:id])
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @goal }
+    end
   end
 
   def new
@@ -13,11 +23,18 @@ class GoalsController < ApplicationController
 
   def create
     @goal = Goal.new(goal_params)
+    @goal.position = Goal.maximum(:position).to_i + 1
     
     if @goal.save
-      redirect_to goals_path, notice: 'Goal was successfully created.'
+      respond_to do |format|
+        format.html { redirect_to goals_path, notice: 'Goal was successfully created.' }
+        format.json { render json: @goal, status: :created }
+      end
     else
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { errors: @goal.errors }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -29,9 +46,15 @@ class GoalsController < ApplicationController
     @goal = Goal.find(params[:id])
     
     if @goal.update(goal_params)
-      redirect_to goals_path, notice: 'Goal was successfully updated.'
+      respond_to do |format|
+        format.html { redirect_to goals_path, notice: 'Goal was successfully updated.' }
+        format.json { render json: @goal }
+      end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: { errors: @goal.errors }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -39,7 +62,40 @@ class GoalsController < ApplicationController
     @goal = Goal.find(params[:id])
     @goal.destroy
     
-    redirect_to goals_path, notice: 'Goal was successfully deleted.'
+    respond_to do |format|
+      format.html { redirect_to goals_path, notice: 'Goal was successfully deleted.' }
+      format.json { head :no_content }
+    end
+  end
+
+  def move_up
+    @goal = Goal.find(params[:id])
+    Rails.logger.info "Move up requested for goal: #{@goal.name} (ID: #{@goal.id})"
+    if @goal.move_up
+      redirect_to goals_path, notice: 'Goal moved up successfully.'
+    else
+      redirect_to goals_path, alert: 'Goal is already at the top.'
+    end
+  end
+
+  def move_down
+    @goal = Goal.find(params[:id])
+    Rails.logger.info "Move down requested for goal: #{@goal.name} (ID: #{@goal.id})"
+    if @goal.move_down
+      redirect_to goals_path, notice: 'Goal moved down successfully.'
+    else
+      redirect_to goals_path, alert: 'Goal is already at the bottom.'
+    end
+  end
+
+  def reorder
+    goal_ids = params[:goal_ids]
+    if goal_ids.present?
+      Goal.reorder(goal_ids)
+      render json: { success: true }
+    else
+      render json: { success: false, error: 'No goal IDs provided' }
+    end
   end
 
   private

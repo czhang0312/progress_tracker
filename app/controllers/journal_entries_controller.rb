@@ -1,10 +1,20 @@
 class JournalEntriesController < ApplicationController
   def index
     @journal_entries = JournalEntry.order(date: :desc)
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @journal_entries }
+    end
   end
 
   def show
     @journal_entry = JournalEntry.find(params[:id])
+    
+    respond_to do |format|
+      format.html
+      format.json { render json: @journal_entry }
+    end
   end
 
   def new
@@ -16,10 +26,18 @@ class JournalEntriesController < ApplicationController
     @journal_entry = JournalEntry.new(journal_entry_params)
     
     if @journal_entry.save
-      redirect_to monthly_progress_path(@journal_entry.date.year, @journal_entry.date.month), 
-                  notice: 'Journal entry was successfully created.'
+      respond_to do |format|
+        format.html { 
+          redirect_to monthly_progress_path(@journal_entry.date.year, @journal_entry.date.month), 
+          notice: 'Journal entry was successfully created.'
+        }
+        format.json { render json: @journal_entry, status: :created }
+      end
     else
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { errors: @journal_entry.errors }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -31,10 +49,18 @@ class JournalEntriesController < ApplicationController
     @journal_entry = JournalEntry.find(params[:id])
     
     if @journal_entry.update(journal_entry_params)
-      redirect_to monthly_progress_path(@journal_entry.date.year, @journal_entry.date.month), 
-                  notice: 'Journal entry was successfully updated.'
+      respond_to do |format|
+        format.html { 
+          redirect_to monthly_progress_path(@journal_entry.date.year, @journal_entry.date.month), 
+          notice: 'Journal entry was successfully updated.'
+        }
+        format.json { render json: @journal_entry }
+      end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: { errors: @journal_entry.errors }, status: :unprocessable_entity }
+      end
     end
   end
 

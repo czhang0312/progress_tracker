@@ -10,6 +10,9 @@
 # Ignore all environment files.
 /.env*
 
+# Ignore asdf tool versions file
+.tool-versions
+
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
