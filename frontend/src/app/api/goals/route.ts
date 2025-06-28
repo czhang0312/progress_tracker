@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3000';
+const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
 
 export async function GET() {
   try {

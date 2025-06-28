@@ -1,4 +1,6 @@
 class ProgressController < ApplicationController
+  skip_before_action :verify_authenticity_token
+  
   def index
     # Redirect to current month
     redirect_to monthly_progress_path(Date.current.year, Date.current.month)
@@ -41,21 +43,29 @@ class ProgressController < ApplicationController
   end
 
   def update
+    Rails.logger.info "Progress update called with params: #{params.inspect}"
+    
     @goal = Goal.find(params[:goal_id])
     @date = Date.parse(params[:date])
     @status = params[:status].to_i
+    
+    Rails.logger.info "Goal: #{@goal.inspect}, Date: #{@date}, Status: #{@status}"
     
     @daily_progress = DailyProgress.find_or_initialize_by(
       goal: @goal,
       date: @date
     )
     
+    Rails.logger.info "DailyProgress: #{@daily_progress.inspect}"
+    
     @daily_progress.status = @status
     
     if @daily_progress.save
+      Rails.logger.info "Progress saved successfully"
       render json: { success: true, status: @status }
     else
-      render json: { success: false, errors: @daily_progress.errors.full_messages }
+      Rails.logger.error "Progress save failed: #{@daily_progress.errors.full_messages}"
+      render json: { success: false, errors: @daily_progress.errors.full_messages }, status: :unprocessable_entity
     end
   end
 end

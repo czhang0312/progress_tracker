@@ -7,7 +7,15 @@ Rails.application.routes.draw do
   patch "progress/:year/:month/:goal_id/:date", to: "progress#update", as: :update_progress
   
   # Goals management
-  resources :goals
+  resources :goals do
+    member do
+      patch :move_up
+      patch :move_down
+    end
+    collection do
+      patch :reorder
+    end
+  end
   
   # Journal entries
   resources :journal_entries

@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3000';
+const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}.json`);
+    const { id } = await params;
+    const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}.json`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch journal entry');
@@ -26,12 +27,13 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
-    const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}.json`, {
+    const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}.json`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

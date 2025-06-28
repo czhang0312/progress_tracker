@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3000';
+const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { year: string; month: string } }
+  { params }: { params: Promise<{ year: string; month: string }> }
 ) {
   try {
+    const { year, month } = await params;
     const response = await fetch(
-      `${RAILS_API_BASE}/progress/${params.year}/${params.month}.json`
+      `${RAILS_API_BASE}/progress/${year}/${month}.json`
     );
     
     if (!response.ok) {

@@ -1,6 +1,11 @@
 class GoalsController < ApplicationController
+  skip_before_action :verify_authenticity_token
+  
+  before_action :set_goal, only: [:show, :edit, :update, :destroy, :move_up, :move_down]
+
+  # GET /goals
   def index
-    @goals = Goal.all
+    @goals = Goal.order(:position)
     
     respond_to do |format|
       format.html
@@ -8,99 +13,111 @@ class GoalsController < ApplicationController
     end
   end
 
+  # GET /goals/1
   def show
-    @goal = Goal.find(params[:id])
-    
     respond_to do |format|
       format.html
       format.json { render json: @goal }
     end
   end
 
+  # GET /goals/new
   def new
     @goal = Goal.new
   end
 
+  # GET /goals/1/edit
+  def edit
+  end
+
+  # POST /goals
   def create
     @goal = Goal.new(goal_params)
     @goal.position = Goal.maximum(:position).to_i + 1
-    
-    if @goal.save
-      respond_to do |format|
-        format.html { redirect_to goals_path, notice: 'Goal was successfully created.' }
-        format.json { render json: @goal, status: :created }
-      end
-    else
-      respond_to do |format|
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: { errors: @goal.errors }, status: :unprocessable_entity }
-      end
-    end
-  end
 
-  def edit
-    @goal = Goal.find(params[:id])
-  end
-
-  def update
-    @goal = Goal.find(params[:id])
-    
-    if @goal.update(goal_params)
-      respond_to do |format|
-        format.html { redirect_to goals_path, notice: 'Goal was successfully updated.' }
-        format.json { render json: @goal }
-      end
-    else
-      respond_to do |format|
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: { errors: @goal.errors }, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  def destroy
-    @goal = Goal.find(params[:id])
-    @goal.destroy
-    
     respond_to do |format|
-      format.html { redirect_to goals_path, notice: 'Goal was successfully deleted.' }
+      if @goal.save
+        format.html { redirect_to goals_url, notice: 'Goal was successfully created.' }
+        format.json { render json: @goal, status: :created }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: @goal.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # PATCH/PUT /goals/1
+  def update
+    respond_to do |format|
+      if @goal.update(goal_params)
+        format.html { redirect_to goals_url, notice: 'Goal was successfully updated.' }
+        format.json { render json: @goal }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @goal.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # DELETE /goals/1
+  def destroy
+    @goal.destroy
+
+    respond_to do |format|
+      format.html { redirect_to goals_url, notice: 'Goal was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
+  # PATCH /goals/1/move_up
   def move_up
-    @goal = Goal.find(params[:id])
-    Rails.logger.info "Move up requested for goal: #{@goal.name} (ID: #{@goal.id})"
-    if @goal.move_up
-      redirect_to goals_path, notice: 'Goal moved up successfully.'
-    else
-      redirect_to goals_path, alert: 'Goal is already at the top.'
+    if @goal.position > 1
+      previous_goal = Goal.find_by(position: @goal.position - 1)
+      if previous_goal
+        previous_goal.update(position: @goal.position)
+        @goal.update(position: @goal.position - 1)
+      end
     end
+    
+    redirect_to goals_url
   end
 
+  # PATCH /goals/1/move_down
   def move_down
-    @goal = Goal.find(params[:id])
-    Rails.logger.info "Move down requested for goal: #{@goal.name} (ID: #{@goal.id})"
-    if @goal.move_down
-      redirect_to goals_path, notice: 'Goal moved down successfully.'
-    else
-      redirect_to goals_path, alert: 'Goal is already at the bottom.'
+    max_position = Goal.maximum(:position)
+    if @goal.position < max_position
+      next_goal = Goal.find_by(position: @goal.position + 1)
+      if next_goal
+        next_goal.update(position: @goal.position)
+        @goal.update(position: @goal.position + 1)
+      end
     end
+    
+    redirect_to goals_url
   end
 
+  # PATCH /goals/reorder
   def reorder
     goal_ids = params[:goal_ids]
-    if goal_ids.present?
-      Goal.reorder(goal_ids)
+    
+    if goal_ids.is_a?(Array)
+      goal_ids.each_with_index do |goal_id, index|
+        Goal.where(id: goal_id).update_all(position: index + 1)
+      end
       render json: { success: true }
     else
-      render json: { success: false, error: 'No goal IDs provided' }
+      render json: { error: 'Invalid goal_ids parameter' }, status: :bad_request
     end
   end
 
   private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_goal
+      @goal = Goal.find(params[:id])
+    end
 
-  def goal_params
-    params.require(:goal).permit(:name, :description)
-  end
+    # Only allow a list of trusted parameters through.
+    def goal_params
+      params.require(:goal).permit(:name, :description)
+    end
 end
