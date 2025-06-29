@@ -55,4 +55,29 @@ export async function PATCH(
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    
+    const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}.json`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete journal entry');
+    }
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting journal entry:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete journal entry' },
+      { status: 500 }
+    );
+  }
 } 

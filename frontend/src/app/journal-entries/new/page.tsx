@@ -49,8 +49,19 @@ export default function NewJournalEntryPage() {
       }
 
       const entry = await response.json();
-      const date = new Date(entry.date);
-      router.push(`/progress/${date.getFullYear()}/${date.getMonth() + 1}`);
+      
+      // Check if we should return to progress view
+      const returnTo = searchParams.get('returnTo');
+      const year = searchParams.get('year');
+      const month = searchParams.get('month');
+      
+      if (returnTo === 'progress' && year && month) {
+        router.push(`/progress/${year}/${month}`);
+      } else {
+        // Default behavior - go to progress view for the entry's month
+        const date = new Date(entry.date);
+        router.push(`/progress/${date.getFullYear()}/${date.getMonth() + 1}`);
+      }
     } catch (err) {
       console.error('Error creating journal entry:', err);
       alert('Failed to create journal entry');
@@ -68,6 +79,14 @@ export default function NewJournalEntryPage() {
   };
 
   const getBackUrl = () => {
+    const returnTo = searchParams.get('returnTo');
+    const year = searchParams.get('year');
+    const month = searchParams.get('month');
+    
+    if (returnTo === 'progress' && year && month) {
+      return `/progress/${year}/${month}`;
+    }
+    
     if (formData.date) {
       const date = new Date(formData.date);
       return `/progress/${date.getFullYear()}/${date.getMonth() + 1}`;

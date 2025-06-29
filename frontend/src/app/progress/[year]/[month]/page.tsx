@@ -108,6 +108,17 @@ export default function ProgressPage() {
     return data.journal_entries[date] || null;
   };
 
+  const handleJournalClick = (date: string) => {
+    const journalEntry = getJournalEntry(date);
+    if (journalEntry) {
+      // Edit existing entry
+      router.push(`/journal-entries/${journalEntry.id}/edit?returnTo=progress&year=${year}&month=${month}`);
+    } else {
+      // Create new entry
+      router.push(`/journal-entries/new?date=${date}&returnTo=progress&year=${year}&month=${month}`);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -183,12 +194,20 @@ export default function ProgressPage() {
           })}
         </Link>
         
-        <Link 
-          href="/goals"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-        >
-          Goals
-        </Link>
+        <div className="flex gap-2">
+          <Link 
+            href="/goals"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            Goals
+          </Link>
+          <Link 
+            href="/journal-entries"
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+          >
+            Journal Entries
+          </Link>
+        </div>
         
         <Link 
           href={`/progress/${nextMonth.year}/${nextMonth.month}`}
@@ -204,39 +223,60 @@ export default function ProgressPage() {
       {data.goals.length > 0 ? (
         <>
           {/* Progress Table */}
-          <div className="overflow-x-auto mb-8">
-            <table className="w-full border-collapse border border-gray-300 text-xs">
+          <div className="overflow-x-auto mb-8 border border-gray-300 rounded-lg sticky-table-container">
+            <table className="w-full border-collapse text-xs">
               <thead>
                 <tr>
-                  <th className="border border-gray-300 p-2 bg-gray-50 font-bold text-left min-w-[120px]">
-                    Goal
+                  <th className="border-r border-gray-300 p-2 bg-gray-50 font-bold text-left min-w-[150px] sticky left-0 z-10">
+                    Goals
                   </th>
-                  {Array.from({ length: data.days_in_month }, (_, i) => (
-                    <th key={i + 1} className="border border-gray-300 p-2 bg-gray-50 font-bold text-center">
-                      {i + 1}
-                    </th>
-                  ))}
+                  {Array.from({ length: data.days_in_month }, (_, i) => {
+                    const day = i + 1;
+                    const date = new Date(year, month - 1, day).toISOString().split('T')[0];
+                    const journalEntry = getJournalEntry(date);
+                    
+                    return (
+                      <th key={i + 1} className="border border-gray-300 p-2 bg-gray-50 font-bold text-center min-w-[40px] relative">
+                        <div className="flex flex-col items-center">
+                          <span className="mb-1">{day}</span>
+                          <button
+                            onClick={() => handleJournalClick(date)}
+                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-colors ${
+                              journalEntry 
+                                ? 'bg-green-500 text-white hover:bg-green-600' 
+                                : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                            }`}
+                            title={journalEntry ? `Edit journal entry for ${date}` : `Add journal entry for ${date}`}
+                          >
+                            {journalEntry ? '✏️' : '📝'}
+                          </button>
+                        </div>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
                 {data.goals.map((goal) => (
-                  <tr key={goal.id}>
-                    <td className="border border-gray-300 p-2 font-bold">
+                  <tr key={goal.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="border-r border-gray-300 p-2 font-bold bg-white sticky left-0 z-10 shadow-sm">
                       {goal.name}
                     </td>
                     {Array.from({ length: data.days_in_month }, (_, i) => {
                       const day = i + 1;
                       const date = new Date(year, month - 1, day).toISOString().split('T')[0];
                       const status = getProgressStatus(goal.id, date);
+                      const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
                       
                       return (
-                        <td key={day} className="border border-gray-300 p-1 w-10 h-10">
+                        <td key={day} className="border border-gray-300 p-1 w-12 h-12">
                           <div
                             className={`progress-circle status-${status}`}
                             onClick={() => updateProgress(goal.id, date, status)}
                             data-goal-id={goal.id}
                             data-date={date}
                             data-status={status}
+                            title={`${goal.name} - Day ${day}: ${statusText}`}
                           />
                         </td>
                       );
@@ -245,49 +285,6 @@ export default function ProgressPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-
-          {/* Journal Entries Section */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Journal Entries</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {Array.from({ length: data.days_in_month }, (_, i) => {
-                const day = i + 1;
-                const date = new Date(year, month - 1, day).toISOString().split('T')[0];
-                const journalEntry = getJournalEntry(date);
-                
-                return (
-                  <div key={day} className="border border-gray-300 p-3 rounded">
-                    <div className="font-bold mb-2">{day}</div>
-                    <div>
-                      {journalEntry ? (
-                        <>
-                          <div className="text-xs mb-2 text-gray-600">
-                            {journalEntry.content.length > 100 
-                              ? `${journalEntry.content.substring(0, 100)}...` 
-                              : journalEntry.content
-                            }
-                          </div>
-                          <Link 
-                            href={`/journal-entries/${journalEntry.id}/edit`}
-                            className="text-xs text-blue-500 hover:underline"
-                          >
-                            Edit
-                          </Link>
-                        </>
-                      ) : (
-                        <Link 
-                          href={`/journal-entries/new?date=${date}`}
-                          className="text-xs text-blue-500 hover:underline"
-                        >
-                          Add Entry
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </>
       ) : (

@@ -8,21 +8,35 @@ body {
 
 /* Custom styles for progress tracker */
 .progress-circle {
-  @apply w-8 h-8 rounded-full border-2 border-gray-300 cursor-pointer mx-auto transition-all duration-200;
+  @apply w-12 h-12 rounded-full border-2 border-gray-300 cursor-pointer mx-auto transition-all duration-200 hover:scale-110;
 }
 
 .progress-circle:hover {
-  @apply scale-110;
+  @apply shadow-md;
 }
 
 .progress-circle.status-0 {
-  @apply bg-white;
+  @apply bg-white hover:bg-gray-50;
 }
 
 .progress-circle.status-1 {
   background: linear-gradient(45deg, #28a745 50%, white 50%);
 }
 
+.progress-circle.status-1:hover {
+  background: linear-gradient(45deg, #218838 50%, #f8f9fa 50%);
+}
+
 .progress-circle.status-2 {
-  @apply bg-green-500;
+  @apply bg-green-500 hover:bg-green-600;
+}
+
+/* Sticky table improvements */
+.sticky-table-container {
+  @apply relative;
+}
+
+.sticky-table-container::after {
+  content: '';
+  @apply absolute top-0 right-0 w-1 h-full bg-gradient-to-r from-transparent to-gray-200 pointer-events-none;
 }

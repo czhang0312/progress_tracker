@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface JournalEntry {
@@ -12,6 +12,7 @@ interface JournalEntry {
 
 export default function EditJournalEntryPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [formData, setFormData] = useState({
     date: '',
@@ -26,7 +27,7 @@ export default function EditJournalEntryPage() {
 
   useEffect(() => {
     fetchJournalEntry();
-  }, [entryId]);
+  }, []);
 
   const fetchJournalEntry = async () => {
     try {
@@ -70,9 +71,18 @@ export default function EditJournalEntryPage() {
         return;
       }
 
-      const entry = await response.json();
-      const date = new Date(entry.date);
-      router.push(`/progress/${date.getFullYear()}/${date.getMonth() + 1}`);
+      // Check if we should return to progress view
+      const returnTo = searchParams.get('returnTo');
+      const year = searchParams.get('year');
+      const month = searchParams.get('month');
+      
+      if (returnTo === 'progress' && year && month) {
+        router.push(`/progress/${year}/${month}`);
+      } else {
+        // Default behavior - go to progress view for the entry's month
+        const date = new Date(formData.date);
+        router.push(`/progress/${date.getFullYear()}/${date.getMonth() + 1}`);
+      }
     } catch (err) {
       console.error('Error updating journal entry:', err);
       alert('Failed to update journal entry');
@@ -90,6 +100,14 @@ export default function EditJournalEntryPage() {
   };
 
   const getBackUrl = () => {
+    const returnTo = searchParams.get('returnTo');
+    const year = searchParams.get('year');
+    const month = searchParams.get('month');
+    
+    if (returnTo === 'progress' && year && month) {
+      return `/progress/${year}/${month}`;
+    }
+    
     if (formData.date) {
       const date = new Date(formData.date);
       return `/progress/${date.getFullYear()}/${date.getMonth() + 1}`;
@@ -170,7 +188,7 @@ export default function EditJournalEntryPage() {
             disabled={saving}
             className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Updating...' : 'Update Entry'}
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
           <Link 
             href={getBackUrl()}

@@ -219,15 +219,6 @@ export default function GoalsPage() {
       
       {goals.length > 0 ? (
         <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
-            <p className="text-blue-800 font-medium">
-              💡 Drag and drop goals to reorder them
-            </p>
-            <p className="text-blue-600 text-sm mt-1">
-              Click and drag the ⋮⋮ handle on the left of each goal
-            </p>
-          </div>
-          
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
