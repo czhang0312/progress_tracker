@@ -21,9 +21,6 @@ export default function EditJournalEntryPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [error, setError] = useState<string | null>(null);
-
-  const entryId = parseInt(params.id as string);
 
   useEffect(() => {
     fetchJournalEntry();
@@ -31,17 +28,18 @@ export default function EditJournalEntryPage() {
 
   const fetchJournalEntry = async () => {
     try {
-      const response = await fetch(`/api/journal-entries/${entryId}`);
+      const response = await fetch(`/api/journal-entries/${params.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch journal entry');
       }
-      const entry: JournalEntry = await response.json();
+      const entry = await response.json();
       setFormData({
         date: entry.date,
         content: entry.content
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Error fetching journal entry:', err);
+      alert('Failed to fetch journal entry');
     } finally {
       setLoading(false);
     }
@@ -53,15 +51,22 @@ export default function EditJournalEntryPage() {
     setErrors({});
 
     try {
-      const response = await fetch(`/api/journal-entries/${entryId}`, {
+      // Send update request - Rails backend will handle deletion if content is empty
+      const response = await fetch(`/api/journal-entries/${params.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          journal_entry: formData
+        }),
       });
 
-      if (!response.ok) {
+      // Handle both successful update (200) and successful deletion (204)
+      if (response.status === 204) {
+        // Entry was deleted due to empty content - this is successful
+        console.log('Journal entry deleted due to empty content');
+      } else if (!response.ok) {
         const errorData = await response.json();
         if (errorData.errors) {
           setErrors(errorData.errors);
@@ -117,20 +122,9 @@ export default function EditJournalEntryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="max-w-2xl mx-auto p-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Loading...</h1>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">Error</h1>
-          <p className="text-gray-600">{error}</p>
         </div>
       </div>
     );
@@ -171,15 +165,17 @@ export default function EditJournalEntryPage() {
             value={formData.content}
             onChange={handleChange}
             rows={8}
-            placeholder="Write your journal entry here..."
+            placeholder="Write your journal entry here... (Leave empty to delete this entry)"
             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.content ? 'border-red-500' : 'border-gray-300'
             }`}
-            required
           />
           {errors.content && (
             <p className="mt-1 text-sm text-red-600">{errors.content}</p>
           )}
+          <p className="mt-1 text-sm text-gray-500">
+            Leave the content empty to delete this journal entry.
+          </p>
         </div>
         
         <div className="flex gap-4">
@@ -188,7 +184,7 @@ export default function EditJournalEntryPage() {
             disabled={saving}
             className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : formData.content.trim() ? 'Save Changes' : 'Delete Entry'}
           </button>
           <Link 
             href={getBackUrl()}

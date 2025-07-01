@@ -46,6 +46,12 @@ export async function PATCH(
       return NextResponse.json(errorData, { status: response.status });
     }
     
+    // Handle 204 No Content (entry was deleted due to empty content)
+    if (response.status === 204) {
+      return new NextResponse(null, { status: 204 });
+    }
+    
+    // Handle normal update response
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {

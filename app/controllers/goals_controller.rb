@@ -1,12 +1,12 @@
 class GoalsController < ApplicationController
   skip_before_action :verify_authenticity_token
-  
-  before_action :set_goal, only: [:show, :edit, :update, :destroy, :move_up, :move_down]
+
+  before_action :set_goal, only: [ :show, :edit, :update, :destroy, :move_up, :move_down ]
 
   # GET /goals
   def index
     @goals = Goal.order(:position)
-    
+
     respond_to do |format|
       format.html
       format.json { render json: @goals }
@@ -37,7 +37,7 @@ class GoalsController < ApplicationController
 
     respond_to do |format|
       if @goal.save
-        format.html { redirect_to goals_url, notice: 'Goal was successfully created.' }
+        format.html { redirect_to goals_url, notice: "Goal was successfully created." }
         format.json { render json: @goal, status: :created }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -50,7 +50,7 @@ class GoalsController < ApplicationController
   def update
     respond_to do |format|
       if @goal.update(goal_params)
-        format.html { redirect_to goals_url, notice: 'Goal was successfully updated.' }
+        format.html { redirect_to goals_url, notice: "Goal was successfully updated." }
         format.json { render json: @goal }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -64,7 +64,7 @@ class GoalsController < ApplicationController
     @goal.destroy
 
     respond_to do |format|
-      format.html { redirect_to goals_url, notice: 'Goal was successfully destroyed.' }
+      format.html { redirect_to goals_url, notice: "Goal was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -78,7 +78,7 @@ class GoalsController < ApplicationController
         @goal.update(position: @goal.position - 1)
       end
     end
-    
+
     redirect_to goals_url
   end
 
@@ -92,21 +92,21 @@ class GoalsController < ApplicationController
         @goal.update(position: @goal.position + 1)
       end
     end
-    
+
     redirect_to goals_url
   end
 
   # PATCH /goals/reorder
   def reorder
     goal_ids = params[:goal_ids]
-    
+
     if goal_ids.is_a?(Array)
       goal_ids.each_with_index do |goal_id, index|
         Goal.where(id: goal_id).update_all(position: index + 1)
       end
       render json: { success: true }
     else
-      render json: { error: 'Invalid goal_ids parameter' }, status: :bad_request
+      render json: { error: "Invalid goal_ids parameter" }, status: :bad_request
     end
   end
 

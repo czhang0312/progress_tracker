@@ -1,12 +1,12 @@
 class JournalEntriesController < ApplicationController
   skip_before_action :verify_authenticity_token
-  
-  before_action :set_journal_entry, only: [:show, :edit, :update, :destroy]
+
+  before_action :set_journal_entry, only: [ :show, :edit, :update, :destroy ]
 
   # GET /journal_entries
   def index
     @journal_entries = JournalEntry.order(:date)
-    
+
     respond_to do |format|
       format.html
       format.json { render json: @journal_entries }
@@ -37,7 +37,7 @@ class JournalEntriesController < ApplicationController
 
     respond_to do |format|
       if @journal_entry.save
-        format.html { redirect_to journal_entries_url, notice: 'Journal entry was successfully created.' }
+        format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully created." }
         format.json { render json: @journal_entry, status: :created }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -48,13 +48,23 @@ class JournalEntriesController < ApplicationController
 
   # PATCH/PUT /journal_entries/1
   def update
-    respond_to do |format|
-      if @journal_entry.update(journal_entry_params)
-        format.html { redirect_to journal_entries_url, notice: 'Journal entry was successfully updated.' }
-        format.json { render json: @journal_entry }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @journal_entry.errors, status: :unprocessable_entity }
+    # If content is empty, delete the entry instead of updating
+    if journal_entry_params[:content].blank?
+      @journal_entry.destroy
+
+      respond_to do |format|
+        format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully deleted." }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        if @journal_entry.update(journal_entry_params)
+          format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully updated." }
+          format.json { render json: @journal_entry }
+        else
+          format.html { render :edit, status: :unprocessable_entity }
+          format.json { render json: @journal_entry.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -64,7 +74,7 @@ class JournalEntriesController < ApplicationController
     @journal_entry.destroy
 
     respond_to do |format|
-      format.html { redirect_to journal_entries_url, notice: 'Journal entry was successfully destroyed.' }
+      format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully destroyed." }
       format.json { head :no_content }
     end
   end
@@ -80,4 +90,3 @@ class JournalEntriesController < ApplicationController
       params.require(:journal_entry).permit(:date, :content)
     end
 end
-
