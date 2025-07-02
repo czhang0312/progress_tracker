@@ -8,8 +8,18 @@ export async function GET(
 ) {
   try {
     const { year, month } = await params;
+    
+    // Get the cookie from the incoming request
+    const cookie = request.headers.get('cookie');
+    
     const response = await fetch(
-      `${RAILS_API_BASE}/progress/${year}/${month}.json`
+      `${RAILS_API_BASE}/progress/${year}/${month}.json`,
+      {
+        credentials: 'include',
+        headers: {
+          ...(cookie && { cookie }), // Forward the cookie if it exists
+        },
+      }
     );
     
     if (!response.ok) {

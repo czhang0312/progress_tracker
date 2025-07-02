@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   DndContext,
   closestCenter,
@@ -93,6 +94,7 @@ export default function GoalsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { user, logout } = useAuth();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -102,13 +104,19 @@ export default function GoalsPage() {
   );
 
   useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
     fetchGoals();
-  }, []);
+  }, [user, router]);
 
   const fetchGoals = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/goals');
+      const response = await fetch('/api/goals', {
+        credentials: 'include',
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch goals');
       }
@@ -130,6 +138,7 @@ export default function GoalsPage() {
     try {
       const response = await fetch(`/api/goals/${goalId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -173,6 +182,7 @@ export default function GoalsPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ goal_ids: goalIds }),
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -183,6 +193,11 @@ export default function GoalsPage() {
     } catch (err) {
       console.error('Error updating goal order:', err);
     }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
   };
 
   if (loading) {
@@ -208,7 +223,19 @@ export default function GoalsPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Goals</h1>
+      {/* Header with user info and logout */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Goals</h1>
+        <div className="flex items-center space-x-4">
+          <span className="text-sm text-gray-600">Welcome, {user?.email}</span>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
       
       <Link 
         href="/goals/new"

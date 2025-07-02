@@ -2,9 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const response = await fetch(`${RAILS_API_BASE}/journal_entries.json`);
+    // Get the cookie from the incoming request
+    const cookie = request.headers.get('cookie');
+    
+    const response = await fetch(`${RAILS_API_BASE}/journal_entries.json`, {
+      credentials: 'include',
+      headers: {
+        ...(cookie && { cookie }), // Forward the cookie if it exists
+      },
+    });
     
     if (!response.ok) {
       throw new Error('Failed to fetch journal entries');
@@ -25,12 +33,17 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    // Get the cookie from the incoming request
+    const cookie = request.headers.get('cookie');
+    
     const response = await fetch(`${RAILS_API_BASE}/journal_entries.json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(cookie && { cookie }), // Forward the cookie if it exists
       },
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     
     if (!response.ok) {

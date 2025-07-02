@@ -8,7 +8,16 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}.json`);
+    
+    // Get the cookie from the incoming request
+    const cookie = request.headers.get('cookie');
+    
+    const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}.json`, {
+      credentials: 'include',
+      headers: {
+        ...(cookie && { cookie }), // Forward the cookie if it exists
+      },
+    });
     
     if (!response.ok) {
       throw new Error('Failed to fetch journal entry');
@@ -33,12 +42,17 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
     
+    // Get the cookie from the incoming request
+    const cookie = request.headers.get('cookie');
+    
     const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}.json`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        ...(cookie && { cookie }), // Forward the cookie if it exists
       },
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     
     if (!response.ok) {
@@ -70,8 +84,15 @@ export async function DELETE(
   try {
     const { id } = await params;
     
+    // Get the cookie from the incoming request
+    const cookie = request.headers.get('cookie');
+    
     const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}.json`, {
       method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        ...(cookie && { cookie }), // Forward the cookie if it exists
+      },
     });
     
     if (!response.ok) {

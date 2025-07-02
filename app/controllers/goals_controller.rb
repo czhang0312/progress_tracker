@@ -5,7 +5,7 @@ class GoalsController < ApplicationController
 
   # GET /goals
   def index
-    @goals = Goal.order(:position)
+    @goals = current_user.goals.order(:position)
 
     respond_to do |format|
       format.html
@@ -23,7 +23,7 @@ class GoalsController < ApplicationController
 
   # GET /goals/new
   def new
-    @goal = Goal.new
+    @goal = current_user.goals.build
   end
 
   # GET /goals/1/edit
@@ -32,8 +32,8 @@ class GoalsController < ApplicationController
 
   # POST /goals
   def create
-    @goal = Goal.new(goal_params)
-    @goal.position = Goal.maximum(:position).to_i + 1
+    @goal = current_user.goals.build(goal_params)
+    @goal.position = current_user.goals.maximum(:position).to_i + 1
 
     respond_to do |format|
       if @goal.save
@@ -72,7 +72,7 @@ class GoalsController < ApplicationController
   # PATCH /goals/1/move_up
   def move_up
     if @goal.position > 1
-      previous_goal = Goal.find_by(position: @goal.position - 1)
+      previous_goal = current_user.goals.find_by(position: @goal.position - 1)
       if previous_goal
         previous_goal.update(position: @goal.position)
         @goal.update(position: @goal.position - 1)
@@ -84,9 +84,9 @@ class GoalsController < ApplicationController
 
   # PATCH /goals/1/move_down
   def move_down
-    max_position = Goal.maximum(:position)
+    max_position = current_user.goals.maximum(:position)
     if @goal.position < max_position
-      next_goal = Goal.find_by(position: @goal.position + 1)
+      next_goal = current_user.goals.find_by(position: @goal.position + 1)
       if next_goal
         next_goal.update(position: @goal.position)
         @goal.update(position: @goal.position + 1)
@@ -102,7 +102,7 @@ class GoalsController < ApplicationController
 
     if goal_ids.is_a?(Array)
       goal_ids.each_with_index do |goal_id, index|
-        Goal.where(id: goal_id).update_all(position: index + 1)
+        current_user.goals.where(id: goal_id).update_all(position: index + 1)
       end
       render json: { success: true }
     else
@@ -113,7 +113,7 @@ class GoalsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_goal
-      @goal = Goal.find(params[:id])
+      @goal = current_user.goals.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

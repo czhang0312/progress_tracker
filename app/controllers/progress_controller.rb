@@ -1,6 +1,6 @@
 class ProgressController < ApplicationController
   skip_before_action :verify_authenticity_token
-  
+
   def index
     # Redirect to current month
     redirect_to monthly_progress_path(Date.current.year, Date.current.month)
@@ -10,18 +10,18 @@ class ProgressController < ApplicationController
     @year = params[:year].to_i
     @month = params[:month].to_i
     @date = Date.new(@year, @month, 1)
-    
-    @goals = Goal.all
+
+    @goals = current_user.goals
     @days_in_month = @date.end_of_month.day
-    
+
     # Get all daily progress for this month
     @daily_progresses = DailyProgress.where(
       goal: @goals,
       date: @date.beginning_of_month..@date.end_of_month
-    ).index_by { |dp| [dp.goal_id, dp.date] }
-    
+    ).index_by { |dp| [ dp.goal_id, dp.date ] }
+
     # Get journal entries for this month
-    @journal_entries = JournalEntry.where(
+    @journal_entries = current_user.journal_entries.where(
       date: @date.beginning_of_month..@date.end_of_month
     ).index_by(&:date)
 
@@ -44,22 +44,22 @@ class ProgressController < ApplicationController
 
   def update
     Rails.logger.info "Progress update called with params: #{params.inspect}"
-    
-    @goal = Goal.find(params[:goal_id])
+
+    @goal = current_user.goals.find(params[:goal_id])
     @date = Date.parse(params[:date])
     @status = params[:status].to_i
-    
+
     Rails.logger.info "Goal: #{@goal.inspect}, Date: #{@date}, Status: #{@status}"
-    
+
     @daily_progress = DailyProgress.find_or_initialize_by(
       goal: @goal,
       date: @date
     )
-    
+
     Rails.logger.info "DailyProgress: #{@daily_progress.inspect}"
-    
+
     @daily_progress.status = @status
-    
+
     if @daily_progress.save
       Rails.logger.info "Progress saved successfully"
       render json: { success: true, status: @status }

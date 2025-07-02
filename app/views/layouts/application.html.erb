@@ -23,6 +23,35 @@
   </head>
 
   <body>
+    <% if user_signed_in? %>
+      <nav class="bg-blue-600 text-white p-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+          <div class="flex items-center space-x-6">
+            <h1 class="text-xl font-bold">Progress Tracker</h1>
+            <%= link_to "Progress", root_path, class: "hover:text-blue-200" %>
+            <%= link_to "Goals", goals_path, class: "hover:text-blue-200" %>
+            <%= link_to "Journal", journal_entries_path, class: "hover:text-blue-200" %>
+          </div>
+          <div class="flex items-center space-x-4">
+            <span class="text-sm">Welcome, <%= current_user.email %></span>
+            <%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded text-sm" %>
+          </div>
+        </div>
+      </nav>
+    <% end %>
+    
+    <% if notice %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+        <span class="block sm:inline"><%= notice %></span>
+      </div>
+    <% end %>
+    
+    <% if alert %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <span class="block sm:inline"><%= alert %></span>
+      </div>
+    <% end %>
+    
     <%= yield %>
   </body>
 </html>

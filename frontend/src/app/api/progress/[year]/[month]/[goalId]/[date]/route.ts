@@ -10,6 +10,9 @@ export async function PATCH(
     const { year, month, goalId, date } = await params;
     const body = await request.json();
     
+    // Get the cookie from the incoming request
+    const cookie = request.headers.get('cookie');
+    
     console.log('Updating progress:', { year, month, goalId, date, body });
     
     const response = await fetch(
@@ -18,8 +21,10 @@ export async function PATCH(
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          ...(cookie && { cookie }), // Forward the cookie if it exists
         },
         body: JSON.stringify(body),
+        credentials: 'include',
       }
     );
     

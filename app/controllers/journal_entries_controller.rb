@@ -5,7 +5,7 @@ class JournalEntriesController < ApplicationController
 
   # GET /journal_entries
   def index
-    @journal_entries = JournalEntry.order(:date)
+    @journal_entries = current_user.journal_entries.order(:date)
 
     respond_to do |format|
       format.html
@@ -23,7 +23,7 @@ class JournalEntriesController < ApplicationController
 
   # GET /journal_entries/new
   def new
-    @journal_entry = JournalEntry.new
+    @journal_entry = current_user.journal_entries.build
     @journal_entry.date = params[:date] if params[:date]
   end
 
@@ -33,7 +33,7 @@ class JournalEntriesController < ApplicationController
 
   # POST /journal_entries
   def create
-    @journal_entry = JournalEntry.new(journal_entry_params)
+    @journal_entry = current_user.journal_entries.build(journal_entry_params)
 
     respond_to do |format|
       if @journal_entry.save
@@ -82,7 +82,7 @@ class JournalEntriesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_journal_entry
-      @journal_entry = JournalEntry.find(params[:id])
+      @journal_entry = current_user.journal_entries.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.

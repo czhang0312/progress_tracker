@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { useAuth } from '../../../../contexts/AuthContext';
 
 interface Goal {
   id: number;
@@ -36,6 +37,7 @@ interface ProgressData {
 export default function ProgressPage() {
   const params = useParams();
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,13 +46,19 @@ export default function ProgressPage() {
   const month = parseInt(params.month as string);
 
   useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
     fetchProgressData();
-  }, [year, month]);
+  }, [year, month, user, router]);
 
   const fetchProgressData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/progress/${year}/${month}`);
+      const response = await fetch(`/api/progress/${year}/${month}`, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch progress data');
       }
@@ -73,6 +81,7 @@ export default function ProgressPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status: newStatus }),
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -142,6 +151,11 @@ export default function ProgressPage() {
     };
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -178,9 +192,21 @@ export default function ProgressPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">
-        Progress Tracker - {formatDate(data.date)}
-      </h1>
+      {/* Header with navigation and user info */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">
+          Progress Tracker - {formatDate(data.date)}
+        </h1>
+        <div className="flex items-center space-x-4">
+          <span className="text-sm text-gray-600">Welcome, {user?.email}</span>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
       
       {/* Navigation */}
       <div className="flex justify-between items-center mb-6">
