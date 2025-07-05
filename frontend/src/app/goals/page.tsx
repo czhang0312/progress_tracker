@@ -51,39 +51,41 @@ function SortableGoalItem({ goal, onDelete }: { goal: Goal; onDelete: (id: numbe
     <div
       ref={setNodeRef}
       style={style}
-      className="border border-gray-300 p-4 rounded flex justify-between items-center bg-white hover:shadow-md transition-shadow"
+      className="card hover:shadow-medium transition-all duration-200"
     >
-      <div className="flex items-center gap-3">
-        <div 
-          className="text-gray-800 text-2xl cursor-move p-2 hover:bg-blue-100 rounded border border-gray-300 bg-gray-50"
-          {...attributes}
-          {...listeners}
-          title="Drag to reorder"
-        >
-          ⋮⋮
+      <div className="card-body">
+        <div className="flex items-center gap-4">
+          <div 
+            className="text-neutral-400 text-2xl cursor-move p-3 hover:bg-neutral-100 rounded-lg border border-neutral-200 bg-neutral-50 transition-colors duration-200"
+            {...attributes}
+            {...listeners}
+            title="Drag to reorder"
+          >
+            ⋮⋮
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-neutral-900 mb-2">{goal.name}</h3>
+            <p className="text-neutral-600 leading-relaxed">{goal.description}</p>
+          </div>
+          <div className="flex gap-2">
+            <Link 
+              href={`/goals/${goal.id}/edit`}
+              className="btn-outline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Edit
+            </Link>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(goal.id);
+              }}
+              className="btn bg-error-600 text-white hover:bg-error-700 focus:ring-error-500"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-        <div>
-          <h3 className="text-xl font-bold mb-2">{goal.name}</h3>
-          <p className="text-gray-600">{goal.description}</p>
-        </div>
-      </div>
-      <div className="flex gap-3">
-        <Link 
-          href={`/goals/${goal.id}/edit`}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-          onClick={(e) => e.stopPropagation()}
-        >
-          Edit
-        </Link>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(goal.id);
-          }}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-        >
-          Delete
-        </button>
       </div>
     </div>
   );
@@ -202,9 +204,11 @@ export default function GoalsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Loading Goals</h1>
+          <p className="text-neutral-600">Getting your goals ready...</p>
         </div>
       </div>
     );
@@ -212,70 +216,114 @@ export default function GoalsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">Error</h1>
-          <p className="text-gray-600">{error}</p>
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-error-600 text-2xl">⚠️</span>
+          </div>
+          <h1 className="text-2xl font-bold text-error-600 mb-2">Something went wrong</h1>
+          <p className="text-neutral-600 mb-4">{error}</p>
+          <button 
+            onClick={fetchGoals}
+            className="btn-primary"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header with user info and logout */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Goals</h1>
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">Welcome, {user?.email}</span>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-          >
-            Sign Out
-          </button>
+    <div className="min-h-screen bg-neutral-50">
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Header */}
+        <div className="card mb-6">
+          <div className="card-body">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+              <div>
+                <h1 className="text-4xl font-bold text-gradient mb-2">Goals</h1>
+                <p className="text-lg text-neutral-600">Manage and organize your goals</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-sm text-neutral-500">Welcome back</p>
+                  <p className="font-medium text-neutral-900">{user?.email}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="btn-outline"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      
-      <Link 
-        href="/goals/new"
-        className="inline-block px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors mb-6"
-      >
-        New Goal
-      </Link>
-      
-      {goals.length > 0 ? (
-        <div className="space-y-4">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
+        
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          <Link 
+            href="/goals/new"
+            className="btn-primary text-lg px-6 py-3"
           >
-            <SortableContext
-              items={goals.map(goal => goal.id)}
-              strategy={verticalListSortingStrategy}
+            <span className="mr-2">+</span>
+            Create New Goal
+          </Link>
+          
+          <Link 
+            href="/"
+            className="btn-ghost"
+          >
+            ← Back to Progress
+          </Link>
+        </div>
+        
+        {/* Goals List */}
+        {goals.length > 0 ? (
+          <div className="space-y-4 animate-fade-in">
+            <div className="text-center mb-6">
+              <p className="text-neutral-600">
+                Drag and drop to reorder your goals
+              </p>
+            </div>
+            
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              {goals.map((goal) => (
-                <SortableGoalItem
-                  key={goal.id}
-                  goal={goal}
-                  onDelete={deleteGoal}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
-        </div>
-      ) : (
-        <p className="text-gray-600">No goals have been created yet.</p>
-      )}
-      
-      <div className="mt-8">
-        <Link 
-          href="/"
-          className="text-blue-500 hover:underline"
-        >
-          Back to Progress
-        </Link>
+              <SortableContext
+                items={goals.map(goal => goal.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {goals.map((goal) => (
+                  <SortableGoalItem
+                    key={goal.id}
+                    goal={goal}
+                    onDelete={deleteGoal}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          </div>
+        ) : (
+          <div className="card text-center py-16 animate-fade-in">
+            <div className="w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-neutral-400 text-4xl">🎯</span>
+            </div>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-4">No goals yet</h2>
+            <p className="text-neutral-600 mb-6 max-w-md mx-auto">
+              Create your first goal to start tracking your progress. Goals help you stay focused and motivated on what matters most.
+            </p>
+            <Link 
+              href="/goals/new"
+              className="btn-primary text-lg px-8 py-3"
+            >
+              Create Your First Goal
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
