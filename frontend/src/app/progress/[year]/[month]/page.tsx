@@ -292,7 +292,7 @@ export default function ProgressPage() {
                 <table className="table-modern">
                   <thead>
                     <tr>
-                      <th className="sticky left-0 z-10 bg-neutral-100 min-w-[200px]">
+                      <th className="sticky left-0 z-20 bg-neutral-100 min-w-[200px]">
                         <div className="flex items-center gap-2">
                           <span className="text-lg">🎯</span>
                           <span>Goals</span>
@@ -330,7 +330,7 @@ export default function ProgressPage() {
                   <tbody>
                     {data.goals.map((goal) => (
                       <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
-                        <td className="sticky left-0 z-10 bg-white shadow-sm">
+                        <td className="sticky left-0 z-20 bg-white shadow-sm">
                           <div className="p-4">
                             <h3 className="font-semibold text-neutral-900 mb-1">{goal.name}</h3>
                             <p className="text-sm text-neutral-600 line-clamp-2">{goal.description}</p>
