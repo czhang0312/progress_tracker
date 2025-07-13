@@ -271,12 +271,20 @@ export default function GoalsPage() {
             Create New Goal
           </Link>
           
-          <Link 
-            href="/"
-            className="btn-ghost"
-          >
-            ← Back to Progress
-          </Link>
+          <div className="flex gap-2">
+            <Link 
+              href="/"
+              className="btn-ghost"
+            >
+              ← Back to Progress
+            </Link>
+            <Link 
+              href="/settings"
+              className="btn-ghost"
+            >
+              Settings
+            </Link>
+          </div>
         </div>
         
         {/* Goals List */}

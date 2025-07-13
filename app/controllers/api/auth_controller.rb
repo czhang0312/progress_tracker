@@ -74,12 +74,23 @@ class Api::AuthController < ApplicationController
     end
   end
 
+  
+
   # Test endpoint for debugging authentication
   def whoami
     if user_signed_in?
-      render json: { authenticated: true, email: current_user.email }
+      render json: {
+        authenticated: true,
+        user: {
+          id: current_user.id,
+          email: current_user.email
+        }
+      }
     else
-      render json: { authenticated: false }, status: :unauthorized
+      render json: {
+        authenticated: false,
+        message: "No user is currently signed in"
+      }
     end
   end
 end

@@ -264,6 +264,12 @@ export default function ProgressPage() {
                 >
                   Journal Entries
                 </Link>
+                <Link 
+                  href="/settings"
+                  className="btn-ghost"
+                >
+                  Settings
+                </Link>
               </div>
               
               <Link 

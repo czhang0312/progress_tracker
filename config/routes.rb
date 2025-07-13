@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     get "auth/current_user", to: "auth#current_user_info"
     post "auth/register", to: "auth#register"
     get "auth/whoami", to: "auth#whoami"
+    post "passwords", to: "passwords#create"
   end
 
   # Root route - redirect to current month progress for authenticated users
