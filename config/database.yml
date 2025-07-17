@@ -1,10 +1,12 @@
 default: &default
   adapter: postgresql
-  encoding: unicode
+  url: <%= ENV['DATABASE_URL'] %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
-  host: localhost
-  port: 5432
+
+
+production:
+  <<: *default
 
 development:
   <<: *default
@@ -14,17 +16,11 @@ test:
   <<: *default
   database: progress_tracker_test
 
-production:
-  adapter: postgresql
-  url: <%= ENV['DATABASE_URL'] %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-
 cable:
-  adapter: postgresql
-  url: <%= ENV['DATABASE_URL'] %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  <<: *default
 
 queue:
-  adapter: postgresql
-  url: <%= ENV['DATABASE_URL'] %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  <<: *default
+
+cache:
+  <<: *default
