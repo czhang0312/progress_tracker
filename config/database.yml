@@ -15,7 +15,8 @@ test:
   database: progress_tracker_test
 
 production:
-  <<: *default
-  database: your_app_name_production
-  username: your_app_name
-  password: <%= ENV["YOUR_APP_NAME_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  cable:
+    url: <%= ENV['DATABASE_URL'] %>
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
