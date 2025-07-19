@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
@@ -45,15 +45,9 @@ export default function ProgressPage() {
   const year = parseInt(params.year as string);
   const month = parseInt(params.month as string);
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    fetchProgressData();
-  }, [year, month, user, router]);
 
-  const fetchProgressData = async () => {
+
+  const fetchProgressData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/progress/${year}/${month}`, {
@@ -69,7 +63,15 @@ export default function ProgressPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [year, month]);
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    fetchProgressData();
+  }, [user, router, fetchProgressData]);
 
   const updateProgress = async (goalId: number, date: string, currentStatus: number) => {
     const newStatus = (currentStatus + 1) % 3;

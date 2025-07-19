@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null);
       }
-    } catch (error) {
+    } catch {
       setUser(null);
     } finally {
       setLoading(false);
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         return false;
       }
-    } catch (error) {
+    } catch {
       return false;
     }
   };
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         return false;
       }
-    } catch (error) {
+    } catch {
       return false;
     }
   };
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: 'POST',
         credentials: 'include',
       });
-    } catch (error) {
+    } catch {
       // Ignore errors during logout
     } finally {
       setUser(null);

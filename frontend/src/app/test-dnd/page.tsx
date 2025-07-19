@@ -116,7 +116,7 @@ export default function TestDndPage() {
       <div className="mt-6">
         <h2 className="text-xl font-bold mb-2">Current Order:</h2>
         <ol className="list-decimal list-inside">
-          {items.map((item, index) => (
+          {items.map((item) => (
             <li key={item.id}>{item.name}</li>
           ))}
         </ol>

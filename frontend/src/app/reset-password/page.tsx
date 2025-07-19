@@ -95,7 +95,7 @@ export default function ResetPasswordPage() {
                     <div>
                       <h3 className="font-semibold">Email Sent!</h3>
                       <p className="text-sm">
-                        We've sent password reset instructions to your email address. 
+                        We&apos;ve sent password reset instructions to your email address. 
                         The link will expire in 6 hours.
                       </p>
                     </div>
@@ -104,7 +104,7 @@ export default function ResetPasswordPage() {
 
                 <div className="text-center space-y-4">
                   <p className="text-sm text-neutral-600">
-                    Didn't receive the email? Check your spam folder or try again.
+                    Didn&apos;t receive the email? Check your spam folder or try again.
                   </p>
                   <button
                     onClick={() => setSuccess(false)}

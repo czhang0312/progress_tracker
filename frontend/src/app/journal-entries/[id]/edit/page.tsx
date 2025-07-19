@@ -24,7 +24,7 @@ export default function EditJournalEntryPage() {
 
   useEffect(() => {
     fetchJournalEntry();
-  }, []);
+  }, [params.id]);
 
   const fetchJournalEntry = async () => {
     try {
