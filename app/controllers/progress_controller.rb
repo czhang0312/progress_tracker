@@ -7,6 +7,14 @@ class ProgressController < ApplicationController
   end
 
   def show
+    # Debug authentication
+    Rails.logger.info "=== Progress Show Debug ==="
+    Rails.logger.info "user_signed_in?: #{user_signed_in?}"
+    Rails.logger.info "current_user: #{current_user&.email}"
+    Rails.logger.info "session: #{session.to_h}"
+    Rails.logger.info "cookies: #{cookies.to_h}"
+    Rails.logger.info "================================"
+    
     @year = params[:year].to_i
     @month = params[:month].to_i
     @date = Date.new(@year, @month, 1)

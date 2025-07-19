@@ -2,6 +2,6 @@
 
 Rails.application.config.session_store :cookie_store,
   key: "_progress_tracker_session",
-  same_site: :lax,
-  secure: false, # Set to true in production with HTTPS
+  same_site: :none, # Allow cross-origin requests
+  secure: Rails.env.production?, # Secure cookies in production
   path: "/"
