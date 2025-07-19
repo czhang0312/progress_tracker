@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -10,7 +10,7 @@ interface JournalEntryData {
   content: string;
 }
 
-export default function EditJournalEntryPage() {
+function EditJournalEntryForm() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -197,5 +197,20 @@ export default function EditJournalEntryPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function EditJournalEntryPage() {
+  return (
+    <Suspense fallback={
+      <div className="max-w-2xl mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">Edit Journal Entry</h1>
+        <div className="text-center">
+          <p>Loading...</p>
+        </div>
+      </div>
+    }>
+      <EditJournalEntryForm />
+    </Suspense>
   );
 } 
