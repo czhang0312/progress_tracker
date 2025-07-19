@@ -19,7 +19,17 @@ export async function GET(request: NextRequest) {
     }
     
     const data = await response.json();
-    return NextResponse.json(data);
+    
+    // Create the response
+    const nextResponse = NextResponse.json(data);
+    
+    // Forward any Set-Cookie headers from Rails to the client
+    const setCookieHeader = response.headers.get('set-cookie');
+    if (setCookieHeader) {
+      nextResponse.headers.set('set-cookie', setCookieHeader);
+    }
+    
+    return nextResponse;
   } catch (error) {
     console.error('Error fetching goals:', error);
     return NextResponse.json(
@@ -52,7 +62,17 @@ export async function POST(request: NextRequest) {
     }
     
     const data = await response.json();
-    return NextResponse.json(data, { status: 201 });
+    
+    // Create the response
+    const nextResponse = NextResponse.json(data, { status: 201 });
+    
+    // Forward any Set-Cookie headers from Rails to the client
+    const setCookieHeader = response.headers.get('set-cookie');
+    if (setCookieHeader) {
+      nextResponse.headers.set('set-cookie', setCookieHeader);
+    }
+    
+    return nextResponse;
   } catch (error) {
     console.error('Error creating goal:', error);
     return NextResponse.json(

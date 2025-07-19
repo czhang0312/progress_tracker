@@ -2,33 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const body = await request.json();
-    
     // Get the cookie from the incoming request
     const cookie = request.headers.get('cookie');
     
-    // Use our custom password reset endpoint
-    const response = await fetch(`${RAILS_API_BASE}/api/passwords`, {
-      method: 'POST',
+    const response = await fetch(`${RAILS_API_BASE}/api/auth/whoami`, {
+      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
         ...(cookie && { cookie }), // Forward the cookie if it exists
       },
-      body: JSON.stringify({ email: body.email }),
-      credentials: 'include',
     });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json(errorData, { status: response.status });
-    }
     
     const data = await response.json();
     
     // Create the response
-    const nextResponse = NextResponse.json(data);
+    const nextResponse = NextResponse.json(data, { status: response.status });
     
     // Forward any Set-Cookie headers from Rails to the client
     const setCookieHeader = response.headers.get('set-cookie');
@@ -38,9 +27,9 @@ export async function POST(request: NextRequest) {
     
     return nextResponse;
   } catch (error) {
-    console.error('Error sending password reset:', error);
+    console.error('Error checking authentication:', error);
     return NextResponse.json(
-      { error: 'Failed to send password reset email' },
+      { error: 'Failed to check authentication' },
       { status: 500 }
     );
   }

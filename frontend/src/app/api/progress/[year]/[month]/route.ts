@@ -27,7 +27,17 @@ export async function GET(
     }
     
     const data = await response.json();
-    return NextResponse.json(data);
+    
+    // Create the response
+    const nextResponse = NextResponse.json(data);
+    
+    // Forward any Set-Cookie headers from Rails to the client
+    const setCookieHeader = response.headers.get('set-cookie');
+    if (setCookieHeader) {
+      nextResponse.headers.set('set-cookie', setCookieHeader);
+    }
+    
+    return nextResponse;
   } catch (error) {
     console.error('Error fetching progress data:', error);
     return NextResponse.json(

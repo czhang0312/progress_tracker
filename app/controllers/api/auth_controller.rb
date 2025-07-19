@@ -78,6 +78,14 @@ class Api::AuthController < ApplicationController
 
   # Test endpoint for debugging authentication
   def whoami
+    Rails.logger.info "=== Whoami Debug ==="
+    Rails.logger.info "user_signed_in?: #{user_signed_in?}"
+    Rails.logger.info "current_user: #{current_user&.email}"
+    Rails.logger.info "session: #{session.to_h}"
+    Rails.logger.info "cookies: #{cookies.to_h}"
+    Rails.logger.info "request.headers['cookie']: #{request.headers['cookie']}"
+    Rails.logger.info "================================"
+    
     if user_signed_in?
       render json: {
         authenticated: true,

@@ -13,8 +13,9 @@ class ProgressController < ApplicationController
     Rails.logger.info "current_user: #{current_user&.email}"
     Rails.logger.info "session: #{session.to_h}"
     Rails.logger.info "cookies: #{cookies.to_h}"
+    Rails.logger.info "request.headers['cookie']: #{request.headers['cookie']}"
     Rails.logger.info "================================"
-    
+
     @year = params[:year].to_i
     @month = params[:month].to_i
     @date = Date.new(@year, @month, 1)
