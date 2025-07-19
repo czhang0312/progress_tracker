@@ -11,15 +11,8 @@ Rails.application.routes.draw do
     post "passwords", to: "passwords#create"
   end
 
-  # Root route - redirect to current month progress for authenticated users
-  authenticated :user do
-    root "progress#index", as: :authenticated_root
-  end
-
-  # Root route for unauthenticated users - redirect to login
-  unauthenticated do
-    root "devise/sessions#new", as: :unauthenticated_root
-  end
+  # Root route for API - return simple status
+  root "application#health_check"
 
   # Progress tracking by month
   get "progress/:year/:month", to: "progress#show", as: :monthly_progress
