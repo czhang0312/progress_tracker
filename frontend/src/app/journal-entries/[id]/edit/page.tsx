@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-interface JournalEntry {
+interface JournalEntryData {
   id: number;
   date: string;
   content: string;
@@ -22,17 +22,15 @@ export default function EditJournalEntryPage() {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    fetchJournalEntry();
-  }, [params.id]);
 
-  const fetchJournalEntry = async () => {
+
+  const fetchJournalEntry = useCallback(async () => {
     try {
       const response = await fetch(`/api/journal-entries/${params.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch journal entry');
       }
-      const entry = await response.json();
+      const entry: JournalEntryData = await response.json();
       setFormData({
         date: entry.date,
         content: entry.content
@@ -43,7 +41,11 @@ export default function EditJournalEntryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id]);
+
+  useEffect(() => {
+    fetchJournalEntry();
+  }, [fetchJournalEntry]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

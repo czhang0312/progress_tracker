@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -25,11 +25,9 @@ export default function EditGoalPage() {
 
   const goalId = parseInt(params.id as string);
 
-  useEffect(() => {
-    fetchGoal();
-  }, [goalId]);
 
-  const fetchGoal = async () => {
+
+  const fetchGoal = useCallback(async () => {
     try {
       const response = await fetch(`/api/goals/${goalId}`);
       if (!response.ok) {
@@ -45,7 +43,11 @@ export default function EditGoalPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [goalId]);
+
+  useEffect(() => {
+    fetchGoal();
+  }, [fetchGoal]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
