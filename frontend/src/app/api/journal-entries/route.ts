@@ -6,7 +6,8 @@ export async function GET(request: NextRequest) {
   try {
     // Get the cookie from the incoming request
     const cookie = request.headers.get('cookie');
-    
+
+    console.log('rails api base', RAILS_API_BASE);
     const response = await fetch(`${RAILS_API_BASE}/journal_entries.json`, {
       credentials: 'include',
       headers: {

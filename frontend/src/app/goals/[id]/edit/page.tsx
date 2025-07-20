@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
+const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
+
 interface Goal {
   id: number;
   name: string;
@@ -29,7 +31,9 @@ export default function EditGoalPage() {
 
   const fetchGoal = useCallback(async () => {
     try {
-      const response = await fetch(`/goals/${goalId}`);
+      const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch goal');
       }
@@ -55,12 +59,13 @@ export default function EditGoalPage() {
     setErrors({});
 
     try {
-      const response = await fetch(`/goals/${goalId}`, {
+      const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
+        credentials: 'include',
       });
 
       if (!response.ok) {

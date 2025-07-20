@@ -10,6 +10,8 @@ interface JournalEntryData {
   content: string;
 }
 
+const RAILS_API_BASE = process.env.NEXT_PUBLIC_RAILS_API_BASE || 'http://localhost:3001';
+
 function EditJournalEntryForm() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -26,7 +28,9 @@ function EditJournalEntryForm() {
 
   const fetchJournalEntry = useCallback(async () => {
     try {
-      const response = await fetch(`/journal_entries/${params.id}`);
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}`, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch journal entry');
       }
@@ -54,7 +58,7 @@ function EditJournalEntryForm() {
 
     try {
       // Send update request - Rails backend will handle deletion if content is empty
-      const response = await fetch(`/journal_entries/${params.id}`, {
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -62,6 +66,7 @@ function EditJournalEntryForm() {
         body: JSON.stringify({
           journal_entry: formData
         }),
+        credentials: 'include',
       });
 
       // Handle both successful update (200) and successful deletion (204)

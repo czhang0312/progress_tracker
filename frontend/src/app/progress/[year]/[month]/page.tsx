@@ -263,7 +263,7 @@ export default function ProgressPage() {
                   Manage Goals
                 </Link>
                 <Link 
-                  href="/journal_entries"
+                  href="/journal-entries"
                   className="btn-accent"
                 >
                   Journal Entries

@@ -16,7 +16,8 @@ export default function JournalEntriesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
-  const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
+  const RAILS_API_BASE = process.env.NEXT_PUBLIC_RAILS_API_BASE || 'http://localhost:3001';
+  console.log('process rails api base', process.env.NEXT_PUBLIC_RAILS_API_BASE);
 
   useEffect(() => {
     fetchJournalEntries();
@@ -25,7 +26,10 @@ export default function JournalEntriesPage() {
   const fetchJournalEntries = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${RAILS_API_BASE}/journal_entries`);
+      console.log('rails api base', RAILS_API_BASE);
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries`, {
+        credentials: 'include',
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch journal entries');
       }
@@ -46,6 +50,7 @@ export default function JournalEntriesPage() {
     try {
       const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (!response.ok) {

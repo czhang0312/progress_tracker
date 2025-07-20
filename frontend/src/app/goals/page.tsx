@@ -99,6 +99,7 @@ export default function GoalsPage() {
   const { user, logout } = useAuth();
 
   const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
+  console.log('process rails api base', process.env.RAILS_API_BASE);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -125,6 +126,7 @@ export default function GoalsPage() {
         throw new Error('Failed to fetch goals');
       }
       const data = await response.json();
+      console.log('rails api base', RAILS_API_BASE);
       console.log('Fetched goals:', data); // Debug log
       setGoals(data);
     } catch (err) {
