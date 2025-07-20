@@ -19,7 +19,7 @@ export default function NewGoalPage() {
     setErrors({});
 
     try {
-      const response = await fetch('/api/goals', {
+      const response = await fetch(`${RAILS_API_BASE}/goals`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

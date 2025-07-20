@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const cookie = request.headers.get('cookie');
     
     // Use our custom password reset endpoint
-    const response = await fetch(`${RAILS_API_BASE}/api/passwords`, {
+    const response = await fetch(`${RAILS_API_BASE}/passwords`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

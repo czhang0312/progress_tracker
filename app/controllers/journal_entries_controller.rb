@@ -1,48 +1,24 @@
 class JournalEntriesController < ApplicationController
-  skip_before_action :verify_authenticity_token
-
-  before_action :set_journal_entry, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_journal_entry, only: [ :show, :update, :destroy ]
 
   # GET /journal_entries
   def index
-    @journal_entries = current_user.journal_entries.order(:date)
-
-    respond_to do |format|
-      format.html
-      format.json { render json: @journal_entries }
-    end
+    journal_entries = current_user.journal_entries.order(:date)
+    render json: journal_entries
   end
 
   # GET /journal_entries/1
   def show
-    respond_to do |format|
-      format.html
-      format.json { render json: @journal_entry }
-    end
-  end
-
-  # GET /journal_entries/new
-  def new
-    @journal_entry = current_user.journal_entries.build
-    @journal_entry.date = params[:date] if params[:date]
-  end
-
-  # GET /journal_entries/1/edit
-  def edit
+    render json: @journal_entry
   end
 
   # POST /journal_entries
   def create
-    @journal_entry = current_user.journal_entries.build(journal_entry_params)
-
-    respond_to do |format|
-      if @journal_entry.save
-        format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully created." }
-        format.json { render json: @journal_entry, status: :created }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @journal_entry.errors, status: :unprocessable_entity }
-      end
+    journal_entry = current_user.journal_entries.build(journal_entry_params)
+    if journal_entry.save
+      render json: journal_entry, status: :created
+    else
+      render json: journal_entry.errors, status: :unprocessable_entity
     end
   end
 
@@ -51,20 +27,12 @@ class JournalEntriesController < ApplicationController
     # If content is empty, delete the entry instead of updating
     if journal_entry_params[:content].blank?
       @journal_entry.destroy
-
-      respond_to do |format|
-        format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully deleted." }
-        format.json { head :no_content }
-      end
+      head :no_content
     else
-      respond_to do |format|
-        if @journal_entry.update(journal_entry_params)
-          format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully updated." }
-          format.json { render json: @journal_entry }
-        else
-          format.html { render :edit, status: :unprocessable_entity }
-          format.json { render json: @journal_entry.errors, status: :unprocessable_entity }
-        end
+      if @journal_entry.update(journal_entry_params)
+        render json: @journal_entry
+      else
+        render json: @journal_entry.errors, status: :unprocessable_entity
       end
     end
   end
@@ -72,20 +40,14 @@ class JournalEntriesController < ApplicationController
   # DELETE /journal_entries/1
   def destroy
     @journal_entry.destroy
-
-    respond_to do |format|
-      format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_journal_entry
       @journal_entry = current_user.journal_entries.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def journal_entry_params
       params.require(:journal_entry).permit(:date, :content)
     end

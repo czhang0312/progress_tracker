@@ -21,7 +21,7 @@ export default function SettingsPage() {
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/auth/password-reset', {
+      const response = await fetch('/passwords', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

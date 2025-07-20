@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     // Get the cookie from the incoming request
     const cookie = request.headers.get('cookie');
     
-    const response = await fetch(`${RAILS_API_BASE}/api/auth/whoami`, {
+    const response = await fetch(`${RAILS_API_BASE}/auth/whoami`, {
       credentials: 'include',
       headers: {
         ...(cookie && { cookie }), // Forward the cookie if it exists

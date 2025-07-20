@@ -1,72 +1,41 @@
 class GoalsController < ApplicationController
-  skip_before_action :verify_authenticity_token
-
-  before_action :set_goal, only: [ :show, :edit, :update, :destroy, :move_up, :move_down ]
+  before_action :set_goal, only: [ :show, :update, :destroy, :move_up, :move_down ]
 
   # GET /goals
   def index
-    @goals = current_user.goals.order(:position)
-
-    respond_to do |format|
-      format.html
-      format.json { render json: @goals }
-    end
+    goals = current_user.goals.order(:position)
+    render json: goals
   end
 
   # GET /goals/1
   def show
-    respond_to do |format|
-      format.html
-      format.json { render json: @goal }
-    end
-  end
-
-  # GET /goals/new
-  def new
-    @goal = current_user.goals.build
-  end
-
-  # GET /goals/1/edit
-  def edit
+    render json: @goal
   end
 
   # POST /goals
   def create
-    @goal = current_user.goals.build(goal_params)
-    @goal.position = current_user.goals.maximum(:position).to_i + 1
-
-    respond_to do |format|
-      if @goal.save
-        format.html { redirect_to goals_url, notice: "Goal was successfully created." }
-        format.json { render json: @goal, status: :created }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @goal.errors, status: :unprocessable_entity }
-      end
+    goal = current_user.goals.build(goal_params)
+    goal.position = current_user.goals.maximum(:position).to_i + 1
+    if goal.save
+      render json: goal, status: :created
+    else
+      render json: goal.errors, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /goals/1
   def update
-    respond_to do |format|
-      if @goal.update(goal_params)
-        format.html { redirect_to goals_url, notice: "Goal was successfully updated." }
-        format.json { render json: @goal }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @goal.errors, status: :unprocessable_entity }
-      end
+    if @goal.update(goal_params)
+      render json: @goal
+    else
+      render json: @goal.errors, status: :unprocessable_entity
     end
   end
 
   # DELETE /goals/1
   def destroy
     @goal.destroy
-
-    respond_to do |format|
-      format.html { redirect_to goals_url, notice: "Goal was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   # PATCH /goals/1/move_up
@@ -78,8 +47,7 @@ class GoalsController < ApplicationController
         @goal.update(position: @goal.position - 1)
       end
     end
-
-    redirect_to goals_url
+    render json: { success: true }
   end
 
   # PATCH /goals/1/move_down
@@ -92,14 +60,12 @@ class GoalsController < ApplicationController
         @goal.update(position: @goal.position + 1)
       end
     end
-
-    redirect_to goals_url
+    render json: { success: true }
   end
 
   # PATCH /goals/reorder
   def reorder
     goal_ids = params[:goal_ids]
-
     if goal_ids.is_a?(Array)
       goal_ids.each_with_index do |goal_id, index|
         current_user.goals.where(id: goal_id).update_all(position: index + 1)
@@ -111,12 +77,10 @@ class GoalsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_goal
       @goal = current_user.goals.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def goal_params
       params.require(:goal).permit(:name, :description)
     end

@@ -50,7 +50,8 @@ export default function ProgressPage() {
   const fetchProgressData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/progress/${year}/${month}`, {
+      const RAILS_API_BASE = process.env.NEXT_PUBLIC_RAILS_API_BASE || 'http://localhost:3001';
+      const response = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}`, {
         credentials: 'include',
       });
       if (!response.ok) {
@@ -77,7 +78,8 @@ export default function ProgressPage() {
     const newStatus = (currentStatus + 1) % 3;
     
     try {
-      const response = await fetch(`/api/progress/${year}/${month}/${goalId}/${date}`, {
+      const RAILS_API_BASE = process.env.NEXT_PUBLIC_RAILS_API_BASE || 'http://localhost:3001';
+      const response = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}/${goalId}/${date}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -123,10 +125,10 @@ export default function ProgressPage() {
     const journalEntry = getJournalEntry(date);
     if (journalEntry) {
       // Edit existing entry
-      router.push(`/journal-entries/${journalEntry.id}/edit?returnTo=progress&year=${year}&month=${month}`);
+      router.push(`/journal_entries/${journalEntry.id}/edit?returnTo=progress&year=${year}&month=${month}`);
     } else {
       // Create new entry
-      router.push(`/journal-entries/new?date=${date}&returnTo=progress&year=${year}&month=${month}`);
+      router.push(`/journal_entries/new?date=${date}&returnTo=progress&year=${year}&month=${month}`);
     }
   };
 
@@ -261,7 +263,7 @@ export default function ProgressPage() {
                   Manage Goals
                 </Link>
                 <Link 
-                  href="/journal-entries"
+                  href="/journal_entries"
                   className="btn-accent"
                 >
                   Journal Entries

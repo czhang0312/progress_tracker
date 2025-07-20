@@ -26,7 +26,7 @@ function EditJournalEntryForm() {
 
   const fetchJournalEntry = useCallback(async () => {
     try {
-      const response = await fetch(`/api/journal-entries/${params.id}`);
+      const response = await fetch(`/journal_entries/${params.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch journal entry');
       }
@@ -54,7 +54,7 @@ function EditJournalEntryForm() {
 
     try {
       // Send update request - Rails backend will handle deletion if content is empty
-      const response = await fetch(`/api/journal-entries/${params.id}`, {
+      const response = await fetch(`/journal_entries/${params.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

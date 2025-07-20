@@ -98,6 +98,8 @@ export default function GoalsPage() {
   const router = useRouter();
   const { user, logout } = useAuth();
 
+  const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -116,7 +118,7 @@ export default function GoalsPage() {
   const fetchGoals = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/goals', {
+      const response = await fetch(`${RAILS_API_BASE}/goals`, {
         credentials: 'include',
       });
       if (!response.ok) {
@@ -138,7 +140,7 @@ export default function GoalsPage() {
     }
 
     try {
-      const response = await fetch(`/api/goals/${goalId}`, {
+      const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -178,7 +180,7 @@ export default function GoalsPage() {
   const updateGoalOrder = async (goalIds: number[]) => {
     try {
       console.log('Updating goal order:', goalIds); // Debug log
-      const response = await fetch('/api/goals/reorder', {
+      const response = await fetch(`${RAILS_API_BASE}/goals/reorder`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

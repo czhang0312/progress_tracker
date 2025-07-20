@@ -29,7 +29,7 @@ export default function EditGoalPage() {
 
   const fetchGoal = useCallback(async () => {
     try {
-      const response = await fetch(`/api/goals/${goalId}`);
+      const response = await fetch(`/goals/${goalId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch goal');
       }
@@ -55,7 +55,7 @@ export default function EditGoalPage() {
     setErrors({});
 
     try {
-      const response = await fetch(`/api/goals/${goalId}`, {
+      const response = await fetch(`/goals/${goalId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

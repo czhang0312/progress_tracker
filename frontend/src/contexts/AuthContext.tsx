@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch(`${RAILS_API_BASE}/api/auth/current_user`, {
+      const response = await fetch(`${RAILS_API_BASE}/auth/current_user`, {
         credentials: 'include',
       });
       
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${RAILS_API_BASE}/api/auth/login`, {
+      const response = await fetch(`${RAILS_API_BASE}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (email: string, password: string, password_confirmation: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${RAILS_API_BASE}/api/auth/register`, {
+      const response = await fetch(`${RAILS_API_BASE}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch(`${RAILS_API_BASE}/api/auth/logout`, {
+      await fetch(`${RAILS_API_BASE}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });

@@ -1,6 +1,5 @@
-class Api::AuthController < ApplicationController
+class AuthController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :login, :register, :current_user_info, :whoami ]
-  skip_before_action :verify_authenticity_token
 
   def login
     user = User.find_by(email: params[:email])
@@ -74,7 +73,7 @@ class Api::AuthController < ApplicationController
     end
   end
 
-  
+
 
   # Test endpoint for debugging authentication
   def whoami
@@ -85,7 +84,7 @@ class Api::AuthController < ApplicationController
     Rails.logger.info "cookies: #{cookies.to_h}"
     Rails.logger.info "request.headers['cookie']: #{request.headers['cookie']}"
     Rails.logger.info "================================"
-    
+
     if user_signed_in?
       render json: {
         authenticated: true,

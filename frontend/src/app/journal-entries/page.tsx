@@ -16,6 +16,8 @@ export default function JournalEntriesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
+  const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
+
   useEffect(() => {
     fetchJournalEntries();
   }, []);
@@ -23,7 +25,7 @@ export default function JournalEntriesPage() {
   const fetchJournalEntries = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/journal-entries');
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries`);
       if (!response.ok) {
         throw new Error('Failed to fetch journal entries');
       }
@@ -42,7 +44,7 @@ export default function JournalEntriesPage() {
     }
 
     try {
-      const response = await fetch(`/api/journal-entries/${id}`, {
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}`, {
         method: 'DELETE',
       });
 
@@ -107,7 +109,7 @@ export default function JournalEntriesPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Journal Entries</h1>
         <Link 
-          href="/journal-entries/new"
+          href="/journal_entries/new"
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         >
           New Entry
@@ -161,7 +163,7 @@ export default function JournalEntriesPage() {
                 </div>
                 <div className="flex gap-2">
                   <Link
-                    href={`/journal-entries/${entry.id}/edit`}
+                    href={`/journal_entries/${entry.id}/edit`}
                     className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
                   >
                     Edit
@@ -182,7 +184,7 @@ export default function JournalEntriesPage() {
               </div>
               {entry.content.length > 300 && (
                 <Link
-                  href={`/journal-entries/${entry.id}/edit`}
+                  href={`/journal_entries/${entry.id}/edit`}
                   className="text-blue-500 hover:underline text-sm mt-2 inline-block"
                 >
                   Read more
@@ -197,7 +199,7 @@ export default function JournalEntriesPage() {
             <>
               <p className="text-gray-600 mb-4">No journal entries yet.</p>
               <Link 
-                href="/journal-entries/new"
+                href="/journal_entries/new"
                 className="inline-block px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
               >
                 Create your first journal entry
