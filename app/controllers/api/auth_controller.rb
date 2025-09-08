@@ -1,5 +1,5 @@
 class Api::AuthController < ApplicationController
-  skip_before_action :authenticate_user!, only: [ :login, :register, :current_user_info, :whoami ]
+  # skip_before_action :authenticate_user!, only: [ :login, :register, :current_user_info, :whoami ]  # Not needed when auth is disabled
   skip_before_action :verify_authenticity_token
 
   def login

@@ -3,13 +3,13 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   # Require authentication for all controllers
-  before_action :authenticate_user!
+  # before_action :authenticate_user!  # Temporarily disabled
 
   # Add helper methods for views
   helper_method :current_user
 
   # Skip authentication for API endpoints that need to handle unauthenticated requests
-  skip_before_action :authenticate_user!, only: [ :health_check ]
+  # skip_before_action :authenticate_user!, only: [ :health_check ]  # Not needed when auth is disabled
 
   def health_check
     render json: { status: "ok" }
