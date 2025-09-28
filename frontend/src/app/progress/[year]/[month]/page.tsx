@@ -128,8 +128,8 @@ export default function ProgressPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', { 
+  const formatDate = (year: number, month: number) => {
+    return new Date(year, month - 1).toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'long' 
     });
@@ -217,7 +217,7 @@ export default function ProgressPage() {
                   Progress Tracker
                 </h1>
                 <p className="text-xl text-neutral-600">
-                  {formatDate(data.date)}
+                  {formatDate(year, month)}
                 </p>
               </div>
               <div className="flex items-center gap-4">
