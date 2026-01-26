@@ -24,7 +24,7 @@ class DailyProgressTest < ActiveSupport::TestCase
 
   test "should belong to goal" do
     progress = DailyProgress.new(goal: goals(:one), date: Date.today, status: 1)
-    assert_respond_to progress, :goal
+    assert_equal goals(:one), progress.goal
   end
 
   test "should return status text" do

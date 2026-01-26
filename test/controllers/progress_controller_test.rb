@@ -4,10 +4,15 @@ class ProgressControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:one)
     @goal = goals(:one)
-    sign_in @user
+  end
+
+  test "should get 401 when not signed in" do
+    get monthly_progress_url(year: 2024, month: 6), as: :json
+    assert_response :unauthorized
   end
 
   test "should update progress" do
+    sign_in @user
     date = Date.today
     patch update_progress_url(
       year: date.year, 
@@ -17,14 +22,5 @@ class ProgressControllerTest < ActionDispatch::IntegrationTest
     ), params: { status: 1 }, as: :json
     
     assert_response :success
-  end
-  
-  test "progress belongs to goal" do
-    progress = DailyProgress.create!(
-      goal: @goal,
-      date: Date.today,
-      status: 1
-    )
-    assert_equal @goal, progress.goal
   end
 end
