@@ -1,33 +1,32 @@
 require "test_helper"
 
 class JournalEntriesControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
-    get journal_entries_index_url
-    assert_response :success
+  setup do
+    @user = users(:one)
+    @journal_entry = journal_entries(:one)
+    sign_in @user
   end
 
-  test "should get show" do
-    get journal_entries_show_url
-    assert_response :success
+  test "should create journal entry" do
+    assert_difference("JournalEntry.count") do
+      post journal_entries_url, params: { 
+        journal_entry: { 
+          date: Date.tomorrow, 
+          content: "Test content" 
+        } 
+      }
+    end
   end
 
-  test "should get new" do
-    get journal_entries_new_url
-    assert_response :success
+  test "should update journal entry" do
+    patch journal_entry_url(@journal_entry), params: { 
+      journal_entry: { content: "Updated content" } 
+    }
+    @journal_entry.reload
+    assert_equal "Updated content", @journal_entry.content
   end
 
-  test "should get create" do
-    get journal_entries_create_url
-    assert_response :success
-  end
-
-  test "should get edit" do
-    get journal_entries_edit_url
-    assert_response :success
-  end
-
-  test "should get update" do
-    get journal_entries_update_url
-    assert_response :success
+  test "journal entry belongs to user" do
+    assert_equal @user, @journal_entry.user
   end
 end

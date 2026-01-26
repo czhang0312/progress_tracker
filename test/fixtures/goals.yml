@@ -1,9 +1,14 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  name: MyString
-  description: MyText
+  name: Learn Ruby
+  description: Master Ruby programming
+  user: one
 
 two:
-  name: MyString
-  description: MyText
+  name: Exercise Daily
+  description: Build a healthy habit
+  user: one
+
+three:
+  name: Read Books
+  description: Read at least one book per month
+  user: two
