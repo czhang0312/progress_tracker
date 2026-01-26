@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   # Require authentication for all controllers
-  # before_action :authenticate_user!  # Temporarily disabled
+  before_action :authenticate_user!
 
   # Add helper methods for views
   helper_method :current_user

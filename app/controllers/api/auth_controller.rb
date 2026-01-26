@@ -1,6 +1,6 @@
 class Api::AuthController < ApplicationController
-  # skip_before_action :authenticate_user!, only: [ :login, :register, :current_user_info, :whoami ]  # Not needed when auth is disabled
-  skip_before_action :verify_authenticity_token
+  skip_before_action :verify_authenticity_token # verify_authenticity_token used for CSRF protection, but we disable it for API endpoints
+  skip_before_action :authenticate_user!, only: [:login, :register]
 
   def login
     user = User.find_by(email: params[:email])
