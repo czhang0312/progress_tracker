@@ -4,12 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-interface JournalEntry {
-  id: number;
-  date: string;
-  content: string;
-}
-
 export default function EditJournalEntryPage() {
   const params = useParams();
   const searchParams = useSearchParams();

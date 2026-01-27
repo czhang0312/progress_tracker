@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function NewJournalEntryPage() {
+function NewJournalEntryForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -157,5 +157,13 @@ export default function NewJournalEntryPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewJournalEntryPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewJournalEntryForm />
+    </Suspense>
   );
 } 
