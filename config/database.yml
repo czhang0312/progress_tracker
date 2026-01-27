@@ -13,6 +13,9 @@ development:
 test:
   <<: *default
   database: progress_tracker_test
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+  username: <%= ENV.fetch("DATABASE_USERNAME", ENV["USER"]) %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
 
 production:
   <<: *default
