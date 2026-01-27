@@ -26,19 +26,19 @@ class JournalEntriesControllerTest < ActionDispatch::IntegrationTest
   test "should create journal entry" do
     sign_in @user
     assert_difference("JournalEntry.count") do
-      post journal_entries_url, params: { 
-        journal_entry: { 
-          date: Date.tomorrow, 
-          content: "Test content" 
-        } 
+      post journal_entries_url, params: {
+        journal_entry: {
+          date: Date.tomorrow,
+          content: "Test content"
+        }
       }
     end
   end
 
   test "should update journal entry" do
     sign_in @user
-    patch journal_entry_url(@journal_entry), params: { 
-      journal_entry: { content: "Updated content" } 
+    patch journal_entry_url(@journal_entry), params: {
+      journal_entry: { content: "Updated content" }
     }
     @journal_entry.reload
     assert_equal "Updated content", @journal_entry.content

@@ -15,12 +15,12 @@ class ProgressControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     date = Date.today
     patch update_progress_url(
-      year: date.year, 
+      year: date.year,
       month: date.month,
-      goal_id: @goal.id, 
+      goal_id: @goal.id,
       date: date.day
     ), params: { status: 1 }, as: :json
-    
+
     assert_response :success
   end
 end

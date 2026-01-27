@@ -30,10 +30,10 @@ class DailyProgressTest < ActiveSupport::TestCase
   test "should return status text" do
     progress = DailyProgress.new(goal: goals(:one), date: Date.today, status: 0)
     assert_equal "Empty", progress.status_text
-    
+
     progress.status = 1
     assert_equal "Half", progress.status_text
-    
+
     progress.status = 2
     assert_equal "Filled", progress.status_text
   end
