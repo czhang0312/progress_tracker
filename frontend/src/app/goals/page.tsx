@@ -97,7 +97,7 @@ export default function GoalsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -107,12 +107,14 @@ export default function GoalsPage() {
   );
 
   useEffect(() => {
+    if (authLoading) return; // Wait for auth check to complete
+    
     if (!user) {
       router.push('/login');
       return;
     }
     fetchGoals();
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   const fetchGoals = async () => {
     try {

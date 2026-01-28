@@ -38,7 +38,7 @@ interface ProgressData {
 export default function ProgressPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +47,14 @@ export default function ProgressPage() {
   const month = parseInt(params.month as string);
 
   useEffect(() => {
+    if (authLoading) return; // Wait for auth check to complete
+    
     if (!user) {
       router.push('/login');
       return;
     }
     fetchProgressData();
-  }, [year, month, user, router]);
+  }, [year, month, user, authLoading, router]);
 
   const fetchProgressData = async () => {
     try {
