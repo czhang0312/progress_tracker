@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { RAILS_API_BASE } from '@/lib/config';
 
 export default function NewGoalPage() {
   const [formData, setFormData] = useState({
@@ -19,9 +20,11 @@ export default function NewGoalPage() {
     setErrors({});
 
     try {
-      const response = await fetch('/api/goals', {
+      const response = await fetch(`${RAILS_API_BASE}/goals`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),

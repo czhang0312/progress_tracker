@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { RAILS_API_BASE } from '@/lib/config';
 
 function NewJournalEntryForm() {
   const searchParams = useSearchParams();
@@ -30,9 +31,11 @@ function NewJournalEntryForm() {
     setErrors({});
 
     try {
-      const response = await fetch('/api/journal-entries', {
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
