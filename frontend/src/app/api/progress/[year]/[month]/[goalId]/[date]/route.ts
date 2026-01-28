@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
+import { RAILS_API_BASE } from '@/lib/config';
 
 export async function PATCH(
   request: NextRequest,

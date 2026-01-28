@@ -1,8 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
-const RAILS_API_BASE = process.env.RAILS_API_BASE || 'http://localhost:3001';
+import { RAILS_API_BASE_CLIENT as RAILS_API_BASE } from '@/lib/config';
 
 interface User {
   id: number;
