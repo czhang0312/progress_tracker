@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { RAILS_API_BASE } from '@/lib/config';
 
 export default function EditJournalEntryPage() {
   const params = useParams();
@@ -22,7 +23,7 @@ export default function EditJournalEntryPage() {
 
   const fetchJournalEntry = async () => {
     try {
-      const response = await fetch(`/api/journal-entries/${params.id}`);
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch journal entry');
       }
@@ -46,7 +47,7 @@ export default function EditJournalEntryPage() {
 
     try {
       // Send update request - Rails backend will handle deletion if content is empty
-      const response = await fetch(`/api/journal-entries/${params.id}`, {
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

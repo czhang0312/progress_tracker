@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import { RAILS_API_BASE } from '@/lib/config';
 
 interface Goal {
   id: number;
@@ -31,7 +32,7 @@ export default function EditGoalPage() {
 
   const fetchGoal = async () => {
     try {
-      const response = await fetch(`/api/goals/${goalId}`);
+      const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch goal');
       }
@@ -53,7 +54,7 @@ export default function EditGoalPage() {
     setErrors({});
 
     try {
-      const response = await fetch(`/api/goals/${goalId}`, {
+      const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

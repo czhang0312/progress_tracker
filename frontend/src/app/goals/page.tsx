@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import { RAILS_API_BASE } from '@/lib/config';
 import {
   DndContext,
   closestCenter,
@@ -116,7 +117,7 @@ export default function GoalsPage() {
   const fetchGoals = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/goals', {
+      const response = await fetch(`${RAILS_API_BASE}/goals`, {
         credentials: 'include',
       });
       if (!response.ok) {
@@ -138,7 +139,7 @@ export default function GoalsPage() {
     }
 
     try {
-      const response = await fetch(`/api/goals/${goalId}`, {
+      const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -178,7 +179,7 @@ export default function GoalsPage() {
   const updateGoalOrder = async (goalIds: number[]) => {
     try {
       console.log('Updating goal order:', goalIds); // Debug log
-      const response = await fetch('/api/goals/reorder', {
+      const response = await fetch(`${RAILS_API_BASE}/goals/reorder`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

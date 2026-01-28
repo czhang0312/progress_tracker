@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { RAILS_API_BASE } from '@/lib/config';
 
 interface JournalEntry {
   id: number;
@@ -23,7 +24,7 @@ export default function JournalEntriesPage() {
   const fetchJournalEntries = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/journal-entries');
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries`);
       if (!response.ok) {
         throw new Error('Failed to fetch journal entries');
       }
@@ -42,7 +43,7 @@ export default function JournalEntriesPage() {
     }
 
     try {
-      const response = await fetch(`/api/journal-entries/${id}`, {
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}`, {
         method: 'DELETE',
       });
 

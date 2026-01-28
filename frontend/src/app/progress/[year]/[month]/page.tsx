@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
+import { RAILS_API_BASE } from '@/lib/config';
 
 interface Goal {
   id: number;
@@ -56,7 +57,7 @@ export default function ProgressPage() {
   const fetchProgressData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/progress/${year}/${month}`, {
+      const response = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}.json`, {
         credentials: 'include',
       });
       if (!response.ok) {
@@ -75,7 +76,7 @@ export default function ProgressPage() {
     const newStatus = (currentStatus + 1) % 3;
     
     try {
-      const response = await fetch(`/api/progress/${year}/${month}/${goalId}/${date}`, {
+      const response = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}/${goalId}/${date}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
