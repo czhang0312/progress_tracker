@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { RAILS_API_BASE_CLIENT as RAILS_API_BASE } from '@/lib/config';
+import { RAILS_API_BASE } from '@/lib/config';
 
 interface User {
   id: number;
