@@ -59,6 +59,9 @@ export default function ProgressPage() {
       setLoading(true);
       const response = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}.json`, {
         credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
       });
       if (!response.ok) {
         throw new Error('Failed to fetch progress data');
@@ -79,6 +82,7 @@ export default function ProgressPage() {
       const response = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}/${goalId}/${date}`, {
         method: 'PATCH',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ status: newStatus }),

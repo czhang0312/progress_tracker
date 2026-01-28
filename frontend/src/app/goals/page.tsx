@@ -119,6 +119,9 @@ export default function GoalsPage() {
       setLoading(true);
       const response = await fetch(`${RAILS_API_BASE}/goals`, {
         credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
       });
       if (!response.ok) {
         throw new Error('Failed to fetch goals');
@@ -142,6 +145,9 @@ export default function GoalsPage() {
       const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
       if (!response.ok) {
@@ -182,6 +188,7 @@ export default function GoalsPage() {
       const response = await fetch(`${RAILS_API_BASE}/goals/reorder`, {
         method: 'PATCH',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ goal_ids: goalIds }),

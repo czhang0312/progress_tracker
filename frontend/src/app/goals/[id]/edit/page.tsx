@@ -32,7 +32,12 @@ export default function EditGoalPage() {
 
   const fetchGoal = async () => {
     try {
-      const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`);
+      const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch goal');
       }
@@ -56,7 +61,9 @@ export default function EditGoalPage() {
     try {
       const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),

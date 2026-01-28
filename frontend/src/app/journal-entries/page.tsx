@@ -24,7 +24,12 @@ export default function JournalEntriesPage() {
   const fetchJournalEntries = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${RAILS_API_BASE}/journal_entries`);
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries`, {
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch journal entries');
       }
@@ -45,6 +50,10 @@ export default function JournalEntriesPage() {
     try {
       const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
       if (!response.ok) {

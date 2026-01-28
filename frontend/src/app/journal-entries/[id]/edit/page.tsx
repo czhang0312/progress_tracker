@@ -23,7 +23,12 @@ export default function EditJournalEntryPage() {
 
   const fetchJournalEntry = async () => {
     try {
-      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}`);
+      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}`, {
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch journal entry');
       }
@@ -49,7 +54,9 @@ export default function EditJournalEntryPage() {
       // Send update request - Rails backend will handle deletion if content is empty
       const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
