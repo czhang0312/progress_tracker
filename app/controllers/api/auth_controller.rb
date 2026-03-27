@@ -1,6 +1,6 @@
 class Api::AuthController < ApplicationController
   skip_before_action :verify_authenticity_token # verify_authenticity_token used for CSRF protection, but we disable it for API endpoints
-  skip_before_action :authenticate_user!, only: [ :login, :register ]
+  skip_before_action :authenticate_user!, only: [ :login, :logout, :current_user_info, :register, :whoami ]
 
   def login
     user = User.find_by(email: params[:email])
@@ -20,7 +20,8 @@ class Api::AuthController < ApplicationController
         success: true,
         user: {
           id: user.id,
-          email: user.email
+          email: user.email,
+          is_guest: false
         }
       }
     else
@@ -42,11 +43,15 @@ class Api::AuthController < ApplicationController
         success: true,
         user: {
           id: current_user.id,
-          email: current_user.email
+          email: current_user.email,
+          is_guest: false
         }
       }
     else
-      render json: { success: false }, status: :unauthorized
+      render json: {
+        success: true,
+        user: guest_user_payload
+      }
     end
   end
 
@@ -63,7 +68,8 @@ class Api::AuthController < ApplicationController
         success: true,
         user: {
           id: user.id,
-          email: user.email
+          email: user.email,
+          is_guest: false
         }
       }, status: :created
     else
@@ -77,9 +83,9 @@ class Api::AuthController < ApplicationController
   # Test endpoint for debugging authentication
   def whoami
     if user_signed_in?
-      render json: { authenticated: true, email: current_user.email }
+      render json: { authenticated: true, email: current_user.email, is_guest: false }
     else
-      render json: { authenticated: false }, status: :unauthorized
+      render json: { authenticated: false, is_guest: true, user: guest_user_payload }
     end
   end
 end

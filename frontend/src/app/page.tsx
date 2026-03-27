@@ -10,16 +10,10 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        // User is authenticated, redirect to current month progress
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth() + 1; // getMonth() returns 0-11
-        router.push(`/progress/${year}/${month}`);
-      } else {
-        // User is not authenticated, redirect to login
-        router.push('/login');
-      }
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1; // getMonth() returns 0-11
+      router.push(`/progress/${year}/${month}`);
     }
   }, [user, loading, router]);
 

@@ -15,9 +15,9 @@ Rails.application.routes.draw do
     root "progress#index", as: :authenticated_root
   end
 
-  # Root route for unauthenticated users - redirect to login
+  # Root route for unauthenticated users - allow guest dashboard access
   unauthenticated do
-    root "devise/sessions#new", as: :unauthenticated_root
+    root "progress#index", as: :unauthenticated_root
   end
 
   # Progress tracking by month

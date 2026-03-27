@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { RAILS_API_BASE } from '@/lib/config';
+import { useAuth } from '@/contexts/AuthContext';
+import { createGuestGoal } from '@/lib/guestStorage';
 
 export default function NewGoalPage() {
   const [formData, setFormData] = useState({
@@ -13,11 +15,22 @@ export default function NewGoalPage() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setErrors({});
+
+    if (user?.is_guest) {
+      createGuestGoal({
+        name: formData.name,
+        description: formData.description,
+      });
+      router.push('/goals');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${RAILS_API_BASE}/goals`, {

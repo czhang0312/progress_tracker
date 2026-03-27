@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { RAILS_API_BASE } from '@/lib/config';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../contexts/AuthContext';
+import { deleteGuestJournalEntry, getGuestJournalEntries } from '@/lib/guestStorage';
 
 interface JournalEntry {
   id: number;
@@ -11,6 +14,8 @@ interface JournalEntry {
 }
 
 export default function JournalEntriesPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,10 +23,17 @@ export default function JournalEntriesPage() {
   const [dateFilter, setDateFilter] = useState('');
 
   useEffect(() => {
+    if (authLoading) return;
     fetchJournalEntries();
-  }, []);
+  }, [authLoading, user]);
 
   const fetchJournalEntries = async () => {
+    if (user?.is_guest) {
+      setEntries(getGuestJournalEntries());
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`${RAILS_API_BASE}/journal_entries`, {
@@ -43,6 +55,12 @@ export default function JournalEntriesPage() {
   };
 
   const handleDelete = async (id: number) => {
+    if (user?.is_guest) {
+      deleteGuestJournalEntry(id);
+      setEntries(getGuestJournalEntries());
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this journal entry?')) {
       return;
     }
@@ -57,6 +75,13 @@ export default function JournalEntriesPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          const body = await response.json().catch(() => null);
+          if (body?.code === 'AUTH_REQUIRED') {
+            router.push('/login');
+            return;
+          }
+        }
         throw new Error('Failed to delete journal entry');
       }
 
@@ -116,7 +141,7 @@ export default function JournalEntriesPage() {
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Journal Entries</h1>
-        <Link 
+        <Link
           href="/journal-entries/new"
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
         >
@@ -206,7 +231,7 @@ export default function JournalEntriesPage() {
           {entries.length === 0 ? (
             <>
               <p className="text-gray-600 mb-4">No journal entries yet.</p>
-              <Link 
+              <Link
                 href="/journal-entries/new"
                 className="inline-block px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
               >

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { RAILS_API_BASE } from '@/lib/config';
+import { useAuth } from '@/contexts/AuthContext';
+import { getGuestGoal, updateGuestGoal } from '@/lib/guestStorage';
 
 interface Goal {
   id: number;
@@ -23,14 +25,32 @@ export default function EditGoalPage() {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
+  const { user, loading: authLoading } = useAuth();
 
   const goalId = parseInt(params.id as string);
 
   useEffect(() => {
+    if (authLoading) return;
     fetchGoal();
-  }, [goalId]);
+  }, [goalId, user, authLoading]);
 
   const fetchGoal = async () => {
+    if (user?.is_guest) {
+      const goal = getGuestGoal(goalId);
+      if (!goal) {
+        setError('Goal not found');
+        setLoading(false);
+        return;
+      }
+
+      setFormData({
+        name: goal.name,
+        description: goal.description,
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {
         credentials: 'include',
@@ -57,6 +77,21 @@ export default function EditGoalPage() {
     e.preventDefault();
     setSaving(true);
     setErrors({});
+
+    if (user?.is_guest) {
+      const updated = updateGuestGoal(goalId, {
+        name: formData.name,
+        description: formData.description,
+      });
+
+      if (!updated) {
+        setError('Goal not found');
+      } else {
+        router.push('/goals');
+      }
+      setSaving(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${RAILS_API_BASE}/goals/${goalId}`, {

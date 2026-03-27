@@ -1,11 +1,12 @@
 class JournalEntriesController < ApplicationController
   skip_before_action :verify_authenticity_token
 
+  before_action :require_auth_for_write!, except: [ :index, :show ]
   before_action :set_journal_entry, only: [ :show, :edit, :update, :destroy ]
 
   # GET /journal_entries
   def index
-    @journal_entries = current_user.journal_entries.order(:date)
+    @journal_entries = scoped_journal_entries.order(:date)
 
     respond_to do |format|
       format.html
@@ -82,7 +83,13 @@ class JournalEntriesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_journal_entry
-      @journal_entry = current_user.journal_entries.find(params[:id])
+      @journal_entry = scoped_journal_entries.find(params[:id])
+    end
+
+    def scoped_journal_entries
+      return JournalEntry.none unless user_signed_in?
+
+      current_user.journal_entries
     end
 
     # Only allow a list of trusted parameters through.

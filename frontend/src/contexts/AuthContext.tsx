@@ -3,13 +3,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { RAILS_API_BASE } from '@/lib/config';
 
-interface User {
-  id: number;
+export interface User {
+  id: number | null;
   email: string;
+  is_guest: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
+  isGuest: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, password_confirmation: string) => Promise<boolean>;
@@ -23,6 +25,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const guestUser: User = {
+    id: null,
+    email: 'guest',
+    is_guest: true,
+  };
+
   const checkAuth = async () => {
     try {
       const response = await fetch(`${RAILS_API_BASE}/api/auth/current_user`, {
@@ -31,8 +39,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
-          setUser(data.user);
+        if (data.success && data.user) {
+          setUser({
+            id: data.user.id ?? null,
+            email: data.user.email,
+            is_guest: Boolean(data.user.is_guest),
+          });
         } else {
           setUser(null);
         }
@@ -59,8 +71,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
 
-      if (data.success) {
-        setUser(data.user);
+      if (data.success && data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email,
+          is_guest: Boolean(data.user.is_guest),
+        });
         return true;
       } else {
         return false;
@@ -83,8 +99,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
 
-      if (data.success) {
-        setUser(data.user);
+      if (data.success && data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email,
+          is_guest: Boolean(data.user.is_guest),
+        });
         return true;
       } else {
         return false;
@@ -103,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore errors during logout
     } finally {
-      setUser(null);
+      setUser(guestUser);
     }
   };
 
@@ -113,6 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     user,
+    isGuest: user?.is_guest === true,
     loading,
     login,
     register,

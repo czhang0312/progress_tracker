@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { RAILS_API_BASE } from '@/lib/config';
+import { useAuth } from '@/contexts/AuthContext';
+import { deleteGuestJournalEntry, getGuestJournalEntry, updateGuestJournalEntry } from '@/lib/guestStorage';
 
 export default function EditJournalEntryPage() {
   const params = useParams();
@@ -16,12 +18,30 @@ export default function EditJournalEntryPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
+    if (authLoading) return;
     fetchJournalEntry();
-  }, []);
+  }, [authLoading, user, params.id]);
 
   const fetchJournalEntry = async () => {
+    if (user?.is_guest) {
+      const entry = getGuestJournalEntry(parseInt(params.id as string));
+      if (!entry) {
+        alert('Journal entry not found');
+        router.push('/journal-entries');
+        return;
+      }
+
+      setFormData({
+        date: entry.date,
+        content: entry.content,
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(`${RAILS_API_BASE}/journal_entries/${params.id}`, {
         credentials: 'include',
@@ -49,6 +69,37 @@ export default function EditJournalEntryPage() {
     e.preventDefault();
     setSaving(true);
     setErrors({});
+
+    if (user?.is_guest) {
+      const entryId = parseInt(params.id as string);
+      if (formData.content.trim() === '') {
+        deleteGuestJournalEntry(entryId);
+      } else {
+        const updated = updateGuestJournalEntry(entryId, {
+          date: formData.date,
+          content: formData.content,
+        });
+
+        if (!updated) {
+          alert('Journal entry not found');
+          setSaving(false);
+          return;
+        }
+      }
+
+      const returnTo = searchParams.get('returnTo');
+      const year = searchParams.get('year');
+      const month = searchParams.get('month');
+
+      if (returnTo === 'progress' && year && month) {
+        router.push(`/progress/${year}/${month}`);
+      } else {
+        const date = new Date(formData.date);
+        router.push(`/progress/${date.getFullYear()}/${date.getMonth() + 1}`);
+      }
+      setSaving(false);
+      return;
+    }
 
     try {
       // Send update request - Rails backend will handle deletion if content is empty

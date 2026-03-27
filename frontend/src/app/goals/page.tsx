@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { RAILS_API_BASE } from '@/lib/config';
+import { deleteGuestGoal, getGuestGoals, reorderGuestGoals } from '@/lib/guestStorage';
 import {
   DndContext,
   closestCenter,
@@ -69,7 +70,7 @@ function SortableGoalItem({ goal, onDelete }: { goal: Goal; onDelete: (id: numbe
             <p className="text-neutral-600 leading-relaxed">{goal.description}</p>
           </div>
           <div className="flex gap-2">
-            <Link 
+            <Link
               href={`/goals/${goal.id}/edit`}
               className="btn-outline"
               onClick={(e) => e.stopPropagation()}
@@ -108,15 +109,17 @@ export default function GoalsPage() {
 
   useEffect(() => {
     if (authLoading) return; // Wait for auth check to complete
-    
-    if (!user) {
-      router.push('/login');
-      return;
-    }
+
     fetchGoals();
   }, [user, authLoading, router]);
 
   const fetchGoals = async () => {
+    if (user?.is_guest) {
+      setGoals(getGuestGoals());
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`${RAILS_API_BASE}/goals`, {
@@ -139,6 +142,12 @@ export default function GoalsPage() {
   };
 
   const deleteGoal = async (goalId: number) => {
+    if (user?.is_guest) {
+      deleteGuestGoal(goalId);
+      setGoals(getGuestGoals());
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this goal?')) {
       return;
     }
@@ -153,6 +162,13 @@ export default function GoalsPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          const body = await response.json().catch(() => null);
+          if (body?.code === 'AUTH_REQUIRED') {
+            router.push('/login');
+            return;
+          }
+        }
         throw new Error('Failed to delete goal');
       }
 
@@ -185,6 +201,11 @@ export default function GoalsPage() {
   };
 
   const updateGoalOrder = async (goalIds: number[]) => {
+    if (user?.is_guest) {
+      reorderGuestGoals(goalIds);
+      return;
+    }
+
     try {
       console.log('Updating goal order:', goalIds); // Debug log
       const response = await fetch(`${RAILS_API_BASE}/goals/reorder`, {
@@ -198,6 +219,13 @@ export default function GoalsPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          const body = await response.json().catch(() => null);
+          if (body?.code === 'AUTH_REQUIRED') {
+            router.push('/login');
+            return;
+          }
+        }
         console.error('Failed to update goal order');
       } else {
         console.log('Goal order updated successfully');
@@ -256,16 +284,23 @@ export default function GoalsPage() {
                 <p className="text-lg text-neutral-600">Manage and organize your goals</p>
               </div>
               <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-sm text-neutral-500">Welcome back</p>
-                  <p className="font-medium text-neutral-900">{user?.email}</p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="btn-outline"
-                >
-                  Sign Out
-                </button>
+                {!user?.is_guest && user?.email ? (
+                  <div className="text-right">
+                    <p className="font-medium text-neutral-900">{user.email}</p>
+                  </div>
+                ) : null}
+                {user?.is_guest ? (
+                  <Link href="/login" className="btn-outline">
+                    Sign In
+                  </Link>
+                ) : (
+                  <button
+                    onClick={handleLogout}
+                    className="btn-outline"
+                  >
+                    Sign Out
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -273,7 +308,7 @@ export default function GoalsPage() {
         
         {/* Actions */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <Link 
+          <Link
             href="/goals/new"
             className="btn-primary text-lg px-6 py-3"
           >
@@ -326,7 +361,7 @@ export default function GoalsPage() {
             <p className="text-neutral-600 mb-6 max-w-md mx-auto">
               Create your first goal to start tracking your progress. Goals help you stay focused and motivated on what matters most.
             </p>
-            <Link 
+            <Link
               href="/goals/new"
               className="btn-primary text-lg px-8 py-3"
             >

@@ -1,5 +1,6 @@
 class ProgressController < ApplicationController
   skip_before_action :verify_authenticity_token
+  before_action :require_auth_for_write!, only: [ :update ]
 
   def index
     # Redirect to current month
@@ -11,7 +12,7 @@ class ProgressController < ApplicationController
     @month = params[:month].to_i
     @date = Date.new(@year, @month, 1)
 
-    @goals = current_user.goals
+    @goals = user_signed_in? ? current_user.goals : Goal.none
     @days_in_month = @date.end_of_month.day
 
     # Get all daily progress for this month
@@ -21,9 +22,13 @@ class ProgressController < ApplicationController
     ).index_by { |dp| [ dp.goal_id, dp.date ] }
 
     # Get journal entries for this month
-    @journal_entries = current_user.journal_entries.where(
-      date: @date.beginning_of_month..@date.end_of_month
-    ).index_by(&:date)
+    @journal_entries = if user_signed_in?
+      current_user.journal_entries.where(
+        date: @date.beginning_of_month..@date.end_of_month
+      ).index_by(&:date)
+    else
+      {}
+    end
 
     # Return JSON for API requests
     respond_to do |format|

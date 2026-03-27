@@ -1,11 +1,12 @@
 class GoalsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
+  before_action :require_auth_for_write!, except: [ :index, :show ]
   before_action :set_goal, only: [ :show, :edit, :update, :destroy, :move_up, :move_down ]
 
   # GET /goals
   def index
-    @goals = current_user.goals.order(:position)
+    @goals = scoped_goals.order(:position)
 
     respond_to do |format|
       format.html
@@ -113,7 +114,13 @@ class GoalsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_goal
-      @goal = current_user.goals.find(params[:id])
+      @goal = scoped_goals.find(params[:id])
+    end
+
+    def scoped_goals
+      return Goal.none unless user_signed_in?
+
+      current_user.goals
     end
 
     # Only allow a list of trusted parameters through.

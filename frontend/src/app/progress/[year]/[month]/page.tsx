@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { RAILS_API_BASE } from '@/lib/config';
+import { getGuestMonthlyProgress, setGuestProgressStatus } from '@/lib/guestStorage';
 
 interface Goal {
   id: number;
@@ -48,15 +49,18 @@ export default function ProgressPage() {
 
   useEffect(() => {
     if (authLoading) return; // Wait for auth check to complete
-    
-    if (!user) {
-      router.push('/login');
-      return;
-    }
+
     fetchProgressData();
   }, [year, month, user, authLoading, router]);
 
   const fetchProgressData = async () => {
+    if (user?.is_guest) {
+      setLoading(true);
+      setData(getGuestMonthlyProgress(year, month));
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}.json`, {
@@ -79,6 +83,22 @@ export default function ProgressPage() {
 
   const updateProgress = async (goalId: number, date: string, currentStatus: number) => {
     const newStatus = (currentStatus + 1) % 3;
+
+    if (user?.is_guest) {
+      setGuestProgressStatus(goalId, date, newStatus);
+      setData(prev => {
+        if (!prev) return prev;
+        const key = `${goalId}-${date}`;
+        return {
+          ...prev,
+          daily_progresses: {
+            ...prev.daily_progresses,
+            [key]: { goal_id: goalId, date, status: newStatus }
+          }
+        };
+      });
+      return;
+    }
     
     try {
       const response = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}/${goalId}/${date}`, {
@@ -92,6 +112,16 @@ export default function ProgressPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          const body = await response.json().catch(() => null);
+          if (body?.code === 'AUTH_REQUIRED') {
+            const shouldNavigate = window.confirm('Sign in to save your data. Go to the login page now?');
+            if (shouldNavigate) {
+              router.push('/login');
+            }
+            return;
+          }
+        }
         throw new Error('Failed to update progress');
       }
 
@@ -228,16 +258,23 @@ export default function ProgressPage() {
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-sm text-neutral-500">Welcome back</p>
-                  <p className="font-medium text-neutral-900">{user?.email}</p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="btn-outline"
-                >
-                  Sign Out
-                </button>
+                {!user?.is_guest && user?.email ? (
+                  <div className="text-right">
+                    <p className="font-medium text-neutral-900">{user.email}</p>
+                  </div>
+                ) : null}
+                {user?.is_guest ? (
+                  <Link href="/login" className="btn-outline">
+                    Sign In
+                  </Link>
+                ) : (
+                  <button
+                    onClick={handleLogout}
+                    className="btn-outline"
+                  >
+                    Sign Out
+                  </button>
+                )}
               </div>
             </div>
           </div>

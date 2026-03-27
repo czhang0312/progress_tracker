@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { RAILS_API_BASE } from '@/lib/config';
+import { useAuth } from '@/contexts/AuthContext';
+import { createGuestJournalEntry } from '@/lib/guestStorage';
 
 function NewJournalEntryForm() {
   const searchParams = useSearchParams();
@@ -14,6 +16,7 @@ function NewJournalEntryForm() {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { user } = useAuth();
 
   useEffect(() => {
     const dateParam = searchParams.get('date');
@@ -29,6 +32,26 @@ function NewJournalEntryForm() {
     e.preventDefault();
     setLoading(true);
     setErrors({});
+
+    if (user?.is_guest) {
+      const entry = createGuestJournalEntry({
+        date: formData.date,
+        content: formData.content,
+      });
+
+      const returnTo = searchParams.get('returnTo');
+      const year = searchParams.get('year');
+      const month = searchParams.get('month');
+
+      if (returnTo === 'progress' && year && month) {
+        router.push(`/progress/${year}/${month}`);
+      } else {
+        const date = new Date(entry.date);
+        router.push(`/progress/${date.getFullYear()}/${date.getMonth() + 1}`);
+      }
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${RAILS_API_BASE}/journal_entries`, {
