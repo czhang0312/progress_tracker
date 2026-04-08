@@ -118,9 +118,11 @@ export default function JournalEntriesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Loading Journal Entries</h1>
+          <p className="text-neutral-600">Getting your journal entries ready...</p>
         </div>
       </div>
     );
@@ -128,131 +130,162 @@ export default function JournalEntriesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">Error</h1>
-          <p className="text-gray-600">{error}</p>
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-error-600 text-2xl">⚠️</span>
+          </div>
+          <h1 className="text-2xl font-bold text-error-600 mb-2">Something went wrong</h1>
+          <p className="text-neutral-600 mb-4">{error}</p>
+          <button onClick={fetchJournalEntries} className="btn-primary">
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Journal Entries</h1>
-        <Link
-          href="/journal-entries/new"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-        >
-          New Entry
-        </Link>
-      </div>
-
-      {/* Search and Filter */}
-      <div className="mb-6 flex gap-4">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Search journal content..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <button
-          onClick={() => {
-            setSearchTerm('');
-            setDateFilter('');
-          }}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-        >
-          Clear
-        </button>
-      </div>
-
-      {/* Results count */}
-      <div className="mb-4 text-sm text-gray-600">
-        {filteredEntries.length} of {entries.length} entries
-      </div>
-
-      {/* Journal Entries List */}
-      {filteredEntries.length > 0 ? (
-        <div className="space-y-4">
-          {filteredEntries.map((entry) => (
-            <div key={entry.id} className="border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="font-semibold text-lg">{formatDate(entry.date)}</h3>
-                  <p className="text-sm text-gray-500">{getMonthYear(entry.date)}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Link
-                    href={`/journal-entries/${entry.id}/edit`}
-                    className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(entry.id)}
-                    className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-                  >
-                    Delete
-                  </button>
-                </div>
+    <div className="min-h-screen bg-neutral-50">
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="card mb-6">
+          <div className="card-body">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div>
+                <h1 className="text-4xl font-bold text-gradient mb-2">Journal Entries</h1>
+                <p className="text-lg text-neutral-600">Review, search, and manage your entries</p>
               </div>
-              <div className="text-gray-700 whitespace-pre-wrap">
-                {entry.content.length > 300 
-                  ? `${entry.content.substring(0, 300)}...` 
-                  : entry.content
-                }
-              </div>
-              {entry.content.length > 300 && (
-                <Link
-                  href={`/journal-entries/${entry.id}/edit`}
-                  className="text-blue-500 hover:underline text-sm mt-2 inline-block"
-                >
-                  Read more
-                </Link>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          {entries.length === 0 ? (
-            <>
-              <p className="text-gray-600 mb-4">No journal entries yet.</p>
               <Link
                 href="/journal-entries/new"
-                className="inline-block px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                className="btn-primary text-lg px-6 py-3"
               >
-                Create your first journal entry
+                <span className="mr-2">+</span>
+                New Entry
               </Link>
-            </>
-          ) : (
-            <p className="text-gray-600">No entries match your search criteria.</p>
-          )}
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Navigation */}
-      <div className="mt-8 flex justify-center">
-        <Link 
-          href="/"
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-        >
-          Back to Progress Tracker
-        </Link>
+        {/* Search and Filter */}
+        <div className="card mb-6">
+          <div className="card-body">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Search journal content..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                />
+              </div>
+              <div>
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="w-full md:w-auto px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setDateFilter('');
+                }}
+                className="btn-outline"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Results count */}
+        <div className="mb-4 text-sm text-neutral-600">
+          {filteredEntries.length} of {entries.length} entries
+        </div>
+
+        {/* Journal Entries List */}
+        {filteredEntries.length > 0 ? (
+          <div className="space-y-4 animate-fade-in">
+            {filteredEntries.map((entry) => (
+              <div
+                key={entry.id}
+                className="card hover:shadow-medium transition-all duration-200"
+              >
+                <div className="card-body">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-neutral-900">{formatDate(entry.date)}</h3>
+                      <p className="text-sm text-neutral-500">{getMonthYear(entry.date)}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Link
+                        href={`/journal-entries/${entry.id}/edit`}
+                        className="btn-outline"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(entry.id)}
+                        className="btn-outline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-neutral-700 whitespace-pre-wrap leading-relaxed">
+                    {entry.content.length > 300
+                      ? `${entry.content.substring(0, 300)}...`
+                      : entry.content
+                    }
+                  </div>
+                  {entry.content.length > 300 && (
+                    <Link
+                      href={`/journal-entries/${entry.id}/edit`}
+                      className="inline-block mt-3 text-primary-600 hover:text-primary-700 font-medium"
+                    >
+                      Read more
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="card text-center py-16 animate-fade-in">
+            {entries.length === 0 ? (
+              <>
+                <div className="w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-neutral-400 text-4xl">📝</span>
+                </div>
+                <h2 className="text-2xl font-bold text-neutral-900 mb-4">No journal entries yet</h2>
+                <p className="text-neutral-600 mb-6 max-w-md mx-auto">
+                  Create your first journal entry to capture your thoughts and reflect on your progress.
+                </p>
+                <Link
+                  href="/journal-entries/new"
+                  className="btn-primary text-lg px-8 py-3"
+                >
+                  Create your first journal entry
+                </Link>
+              </>
+            ) : (
+              <p className="text-neutral-600">No entries match your search criteria.</p>
+            )}
+          </div>
+        )}
+
+        {/* Navigation */}
+        <div className="mt-8 flex justify-center">
+          <Link
+            href="/"
+            className="btn-primary"
+          >
+            Back to Progress Tracker
+          </Link>
+        </div>
       </div>
     </div>
   );
-} 
+}

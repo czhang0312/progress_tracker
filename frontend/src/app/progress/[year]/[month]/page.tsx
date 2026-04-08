@@ -304,7 +304,7 @@ export default function ProgressPage() {
                 </Link>
                 <Link 
                   href="/journal-entries"
-                  className="btn-accent"
+                  className="btn-primary"
                 >
                   Journal Entries
                 </Link>

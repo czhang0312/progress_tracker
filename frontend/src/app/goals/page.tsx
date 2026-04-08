@@ -82,7 +82,7 @@ function SortableGoalItem({ goal, onDelete }: { goal: Goal; onDelete: (id: numbe
                 e.stopPropagation();
                 onDelete(goal.id);
               }}
-              className="btn bg-error-600 text-white hover:bg-error-700 focus:ring-error-500"
+              className="btn-outline"
             >
               Delete
             </button>
@@ -318,7 +318,7 @@ export default function GoalsPage() {
           
           <Link 
             href="/"
-            className="btn-ghost"
+            className="btn-primary"
           >
             ← Back to Progress
           </Link>
