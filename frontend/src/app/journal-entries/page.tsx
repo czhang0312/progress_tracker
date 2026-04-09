@@ -100,8 +100,18 @@ export default function JournalEntriesPage() {
     return matchesSearch && matchesDate;
   });
 
+  const parseLocalDate = (dateString: string) => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    // just for safety - if the date string is not in the expected format, fallback to Date parsing
+    if (!year || !month || !day) {
+      return new Date(dateString);
+    }
+    // subtract 1 because JavaScript months are 0-indexed
+    return new Date(year, month - 1, day);
+  };
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return parseLocalDate(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -110,7 +120,7 @@ export default function JournalEntriesPage() {
   };
 
   const getMonthYear = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return parseLocalDate(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long'
     });

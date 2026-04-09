@@ -18,6 +18,14 @@ function NewJournalEntryForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { user } = useAuth();
 
+  const parseLocalDate = (dateString: string) => {
+    const [year, month, day] = dateString.split('-').map(Number);
+    if (!year || !month || !day) {
+      return new Date(dateString);
+    }
+    return new Date(year, month - 1, day);
+  };
+
   useEffect(() => {
     const dateParam = searchParams.get('date');
     if (dateParam) {
@@ -46,7 +54,7 @@ function NewJournalEntryForm() {
       if (returnTo === 'progress' && year && month) {
         router.push(`/progress/${year}/${month}`);
       } else {
-        const date = new Date(entry.date);
+        const date = parseLocalDate(entry.date);
         router.push(`/progress/${date.getFullYear()}/${date.getMonth() + 1}`);
       }
       setLoading(false);
@@ -85,7 +93,7 @@ function NewJournalEntryForm() {
         router.push(`/progress/${year}/${month}`);
       } else {
         // Default behavior - go to progress view for the entry's month
-        const date = new Date(entry.date);
+        const date = parseLocalDate(entry.date);
         router.push(`/progress/${date.getFullYear()}/${date.getMonth() + 1}`);
       }
     } catch (err) {
@@ -114,7 +122,7 @@ function NewJournalEntryForm() {
     }
     
     if (formData.date) {
-      const date = new Date(formData.date);
+      const date = parseLocalDate(formData.date);
       return `/progress/${date.getFullYear()}/${date.getMonth() + 1}`;
     }
     return '/';
