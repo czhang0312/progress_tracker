@@ -282,7 +282,7 @@ export default function JournalEntriesPage() {
             href="/"
             className="btn-primary"
           >
-            Back to Progress Tracker
+            Back to Progress
           </Link>
         </div>
       </div>

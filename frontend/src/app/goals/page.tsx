@@ -98,7 +98,7 @@ export default function GoalsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { user, logout, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -235,11 +235,6 @@ export default function GoalsPage() {
     }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
@@ -278,50 +273,20 @@ export default function GoalsPage() {
         {/* Header */}
         <div className="card mb-6">
           <div className="card-body">
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <h1 className="text-4xl font-bold text-gradient mb-2">Goals</h1>
                 <p className="text-lg text-neutral-600">Manage and organize your goals</p>
               </div>
-              <div className="flex items-center gap-4">
-                {!user?.is_guest && user?.email ? (
-                  <div className="text-right">
-                    <p className="font-medium text-neutral-900">{user.email}</p>
-                  </div>
-                ) : null}
-                {user?.is_guest ? (
-                  <Link href="/login" className="btn-outline">
-                    Sign In
-                  </Link>
-                ) : (
-                  <button
-                    onClick={handleLogout}
-                    className="btn-outline"
-                  >
-                    Sign Out
-                  </button>
-                )}
-              </div>
+              <Link
+                href="/goals/new"
+                className="btn-primary text-lg px-6 py-3"
+              >
+                <span className="mr-2">+</span>
+                Create New Goal
+              </Link>
             </div>
           </div>
-        </div>
-        
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-          <Link
-            href="/goals/new"
-            className="btn-primary text-lg px-6 py-3"
-          >
-            <span className="mr-2">+</span>
-            Create New Goal
-          </Link>
-          
-          <Link 
-            href="/"
-            className="btn-primary"
-          >
-            ← Back to Progress
-          </Link>
         </div>
         
         {/* Goals List */}
@@ -369,6 +334,15 @@ export default function GoalsPage() {
             </Link>
           </div>
         )}
+        <div className="mt-8 flex justify-center">
+          <Link 
+            href="/"
+            className="btn-primary"
+          >
+            Back to Progress
+          </Link>
+        </div>
+        
       </div>
     </div>
   );
