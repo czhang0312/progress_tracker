@@ -24,6 +24,6 @@ class JournalEntryTest < ActiveSupport::TestCase
       user: existing.user
     )
     assert_not duplicate.valid?
-    assert_includes duplicate.errors[:date], "has already been taken"
+    assert_includes duplicate.errors[:date], "There is already a journal entry for this date. Choose a different date or edit the existing entry."
   end
 end
