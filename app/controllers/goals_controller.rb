@@ -41,8 +41,8 @@ class GoalsController < ApplicationController
         format.html { redirect_to goals_url, notice: "Goal was successfully created." }
         format.json { render json: @goal, status: :created }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @goal.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @goal.errors, status: :unprocessable_content }
       end
     end
   end
@@ -54,8 +54,8 @@ class GoalsController < ApplicationController
         format.html { redirect_to goals_url, notice: "Goal was successfully updated." }
         format.json { render json: @goal }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @goal.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @goal.errors, status: :unprocessable_content }
       end
     end
   end

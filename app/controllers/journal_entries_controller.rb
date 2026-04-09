@@ -28,7 +28,6 @@ class JournalEntriesController < ApplicationController
     @journal_entry.date = params[:date] if params[:date]
   end
 
-  # GET /journal_entries/1/edit
   def edit
   end
 
@@ -41,8 +40,13 @@ class JournalEntriesController < ApplicationController
         format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully created." }
         format.json { render json: @journal_entry, status: :created }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @journal_entry.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json do
+          render json: {
+            message: "Unable to create journal entry.",
+            errors: formatted_errors(@journal_entry)
+          }, status: :unprocessable_content
+        end
       end
     end
   end
@@ -63,8 +67,13 @@ class JournalEntriesController < ApplicationController
           format.html { redirect_to journal_entries_url, notice: "Journal entry was successfully updated." }
           format.json { render json: @journal_entry }
         else
-          format.html { render :edit, status: :unprocessable_entity }
-          format.json { render json: @journal_entry.errors, status: :unprocessable_entity }
+          format.html { render :edit, status: :unprocessable_content }
+          format.json do
+            render json: {
+              message: "Unable to update journal entry.",
+              errors: formatted_errors(@journal_entry)
+            }, status: :unprocessable_content
+          end
         end
       end
     end
@@ -95,5 +104,9 @@ class JournalEntriesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def journal_entry_params
       params.require(:journal_entry).permit(:date, :content)
+    end
+
+    def formatted_errors(record)
+      record.errors.to_hash.transform_values { |messages| messages.first }
     end
 end

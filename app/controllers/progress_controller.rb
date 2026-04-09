@@ -70,7 +70,7 @@ class ProgressController < ApplicationController
       render json: { success: true, status: @status }
     else
       Rails.logger.error "Progress save failed: #{@daily_progress.errors.full_messages}"
-      render json: { success: false, errors: @daily_progress.errors.full_messages }, status: :unprocessable_entity
+      render json: { success: false, errors: @daily_progress.errors.full_messages }, status: :unprocessable_content
     end
   end
 end
