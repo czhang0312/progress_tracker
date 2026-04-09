@@ -2,13 +2,16 @@ one:
   name: Learn Ruby
   description: Master Ruby programming
   user: one
+  position: 1
 
 two:
   name: Exercise Daily
   description: Build a healthy habit
   user: one
+  position: 2
 
 three:
   name: Read Books
   description: Read at least one book per month
   user: two
+  position: 1

@@ -26,4 +26,24 @@ class JournalEntryTest < ActiveSupport::TestCase
     assert_not duplicate.valid?
     assert_includes duplicate.errors[:date], "has already been taken"
   end
+
+  test "should allow same date for different users" do
+    entry_user_one = journal_entries(:one)
+    entry_user_two = JournalEntry.new(
+      date: entry_user_one.date,
+      content: "Different user's entry",
+      user: users(:two)
+    )
+    assert entry_user_two.valid?
+  end
+
+  test "should store content" do
+    entry = journal_entries(:one)
+    assert_equal "Today was productive", entry.content
+  end
+
+  test "should be valid without content" do
+    entry = JournalEntry.new(date: Date.today, user: users(:one))
+    assert entry.valid?
+  end
 end
