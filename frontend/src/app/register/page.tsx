@@ -33,7 +33,7 @@ export default function RegisterPage() {
       // Redirect to the main app
       router.push('/');
     } else {
-      setError('Registration failed. Please try again.');
+      setError('We couldn’t create the account. If you already signed up, try signing in or resetting your password.');
     }
     
     setLoading(false);
@@ -48,87 +48,116 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              sign in to your existing account
-            </Link>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 animate-fade-in">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
+            <span className="text-white text-3xl font-bold">PT</span>
+          </div>
+          <h1 className="text-4xl font-bold text-gradient mb-2">
+            Create Account
+          </h1>
+          <p className="text-lg text-neutral-600">
+            Start tracking your goals and daily progress
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-            <div>
-              <label htmlFor="password_confirmation" className="sr-only">
-                Confirm Password
-              </label>
-              <input
-                id="password_confirmation"
-                name="password_confirmation"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={formData.password_confirmation}
-                onChange={handleChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm Password"
-              />
+
+        <div className="card">
+          <div className="card-body">
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label htmlFor="email" className="form-label">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="form-label">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Create a password"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password_confirmation" className="form-label">
+                  Confirm Password
+                </label>
+                <input
+                  id="password_confirmation"
+                  name="password_confirmation"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={formData.password_confirmation}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Confirm your password"
+                />
+              </div>
+
+              {error && (
+                <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg flex items-center gap-2" role="alert">
+                  <span className="text-error-600">⚠️</span>
+                  <span className="text-sm">{error}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full text-lg py-3"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Creating account...
+                  </div>
+                ) : (
+                  'Create account'
+                )}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-neutral-600">
+                Already have an account?{' '}
+                <Link
+                  href="/login"
+                  className="font-semibold text-primary-600 hover:text-primary-700 transition-colors duration-200"
+                >
+                  Sign in
+                </Link>
+              </p>
             </div>
           </div>
+        </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </div>
-        </form>
+        <div className="text-center">
+          <p className="text-sm text-neutral-500">
+            Track your goals, monitor progress, and build better habits
+          </p>
+        </div>
       </div>
     </div>
   );
