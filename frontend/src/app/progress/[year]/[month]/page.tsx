@@ -243,188 +243,217 @@ export default function ProgressPage() {
   const nextMonth = getNextMonth();
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Header with navigation and user info */}
-        <div className="card mb-6">
-          <div className="card-body">
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-              <div>
-                <h1 className="text-4xl font-bold text-gradient mb-2">
-                  Progress Tracker
-                </h1>
-                <p className="text-xl text-neutral-600">
-                  {formatDate(year, month)}
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                {!user?.is_guest && user?.email ? (
-                  <div className="text-right">
-                    <p className="font-medium text-neutral-900">{user.email}</p>
-                  </div>
-                ) : null}
-                {user?.is_guest ? (
-                  <Link href="/login" className="btn-outline">
-                    Sign In
-                  </Link>
-                ) : (
-                  <button
-                    onClick={handleLogout}
-                    className="btn-outline"
-                  >
-                    Sign Out
-                  </button>
-                )}
+    <div className="min-h-screen">
+      <section className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto p-6">
+          {/* Header with navigation and user info */}
+          <div className="card mb-6">
+            <div className="card-body">
+              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+                <div>
+                  <h1 className="text-4xl font-bold text-gradient mb-2">
+                    Progress Tracker
+                  </h1>
+                  <p className="text-xl text-neutral-600">
+                    {formatDate(year, month)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  {!user?.is_guest && user?.email ? (
+                    <div className="text-right">
+                      <p className="font-medium text-neutral-900">{user.email}</p>
+                    </div>
+                  ) : null}
+                  {user?.is_guest ? (
+                    <Link href="/login" className="btn-outline">
+                      Sign In
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={handleLogout}
+                      className="btn-outline"
+                    >
+                      Sign Out
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Navigation */}
-        <div className="card mb-6">
-          <div className="card-body">
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-              <Link 
-                href={`/progress/${prevMonth.year}/${prevMonth.month}`}
-                className="btn-outline flex items-center gap-2"
-              >
-                <span>←</span>
-                {new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long' 
-                })}
-              </Link>
-              
-              <div className="flex gap-2">
-                <Link 
-                  href="/goals"
-                  className="btn-primary"
-                >
-                  Manage Goals
-                </Link>
-                <Link 
-                  href="/journal-entries"
-                  className="btn-primary"
-                >
-                  Journal Entries
-                </Link>
-              </div>
-              
-              <Link 
-                href={`/progress/${nextMonth.year}/${nextMonth.month}`}
-                className="btn-outline flex items-center gap-2"
-              >
-                {new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long' 
-                })}
-                <span>→</span>
-              </Link>
-            </div>
-          </div>
-        </div>
 
-        {data.goals.length > 0 ? (
-          <div className="animate-fade-in">
-            {/* Progress Table */}
-            <div className="card sticky-table-container">
-              <div className="card-header">
-                <h2 className="text-2xl font-bold text-neutral-900">Monthly Progress</h2>
-                <p className="text-neutral-600 mt-1">Click circles to update your progress</p>
+          {/* Navigation */}
+          <div className="card mb-6">
+            <div className="card-body">
+              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+                <Link
+                  href={`/progress/${prevMonth.year}/${prevMonth.month}`}
+                  className="btn-outline flex items-center gap-2"
+                >
+                  <span>←</span>
+                  {new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long'
+                  })}
+                </Link>
+
+                <div className="flex gap-2">
+                  <Link
+                    href="/goals"
+                    className="btn-primary"
+                  >
+                    Manage Goals
+                  </Link>
+                  <Link
+                    href="/journal-entries"
+                    className="btn-primary"
+                  >
+                    Journal Entries
+                  </Link>
+                </div>
+
+                <Link
+                  href={`/progress/${nextMonth.year}/${nextMonth.month}`}
+                  className="btn-outline flex items-center gap-2"
+                >
+                  {new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long'
+                  })}
+                  <span>→</span>
+                </Link>
               </div>
-              <div className="overflow-x-auto scrollbar-thin">
-                <table className="table-modern">
-                  <thead>
-                    <tr>
-                      <th className="sticky left-0 z-20 bg-neutral-100 min-w-[200px]">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">🎯</span>
-                          <span>Goals</span>
-                        </div>
-                      </th>
-                      {Array.from({ length: data.days_in_month }, (_, i) => {
-                        const day = i + 1;
-                        const date = new Date(year, month - 1, day).toISOString().split('T')[0];
-                        const journalEntry = getJournalEntry(date);
-                        const isToday = date === new Date().toISOString().split('T')[0];
-                        
-                        return (
-                          <th key={i + 1} className="text-center min-w-[60px] relative">
-                            <div className="flex flex-col items-center gap-2">
-                              <span className={`font-semibold ${isToday ? 'text-primary-600' : 'text-neutral-700'}`}>
-                                {day}
-                              </span>
-                              <button
-                                onClick={() => handleJournalClick(date)}
-                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200 ${
-                                  journalEntry 
-                                    ? 'bg-accent-500 text-white hover:bg-accent-600 shadow-soft' 
-                                    : 'bg-neutral-200 text-neutral-600 hover:bg-neutral-300'
-                                }`}
-                                title={journalEntry ? `Edit journal entry for ${date}` : `Add journal entry for ${date}`}
-                              >
-                                {journalEntry ? '✏️' : '📝'}
-                              </button>
-                            </div>
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.goals.map((goal) => (
-                      <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
-                        <td className="sticky left-0 z-20 bg-white shadow-sm">
-                          <div className="p-4">
-                            <h3 className="font-semibold text-neutral-900 mb-1">{goal.name}</h3>
-                            <p className="text-sm text-neutral-600 line-clamp-2">{goal.description}</p>
+            </div>
+          </div>
+
+          {data.goals.length > 0 ? (
+            <div className="animate-fade-in">
+              {/* Progress Table */}
+              <div className="card sticky-table-container">
+                <div className="card-header">
+                  <h2 className="text-2xl font-bold text-neutral-900">Monthly Progress</h2>
+                  <p className="text-neutral-600 mt-1">Click circles to update your progress</p>
+                </div>
+                <div className="overflow-x-auto scrollbar-thin">
+                  <table className="table-modern">
+                    <thead>
+                      <tr>
+                        <th className="sticky left-0 z-20 bg-neutral-100 min-w-[200px]">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">🎯</span>
+                            <span>Goals</span>
                           </div>
-                        </td>
+                        </th>
                         {Array.from({ length: data.days_in_month }, (_, i) => {
                           const day = i + 1;
                           const date = new Date(year, month - 1, day).toISOString().split('T')[0];
-                          const status = getProgressStatus(goal.id, date);
-                          const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
+                          const journalEntry = getJournalEntry(date);
                           const isToday = date === new Date().toISOString().split('T')[0];
-                          
+
                           return (
-                            <td key={day} className="p-2 text-center">
-                              <div
-                                className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-2' : ''}`}
-                                onClick={() => updateProgress(goal.id, date, status)}
-                                data-goal-id={goal.id}
-                                data-date={date}
-                                data-status={status}
-                                title={`${goal.name} - Day ${day}: ${statusText}`}
-                              />
-                            </td>
+                            <th key={i + 1} className="text-center min-w-[60px] relative">
+                              <div className="flex flex-col items-center gap-2">
+                                <span className={`font-semibold ${isToday ? 'text-primary-600' : 'text-neutral-700'}`}>
+                                  {day}
+                                </span>
+                                <button
+                                  onClick={() => handleJournalClick(date)}
+                                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200 ${
+                                    journalEntry
+                                      ? 'bg-accent-500 text-white hover:bg-accent-600 shadow-soft'
+                                      : 'bg-neutral-200 text-neutral-600 hover:bg-neutral-300'
+                                  }`}
+                                  title={journalEntry ? `Edit journal entry for ${date}` : `Add journal entry for ${date}`}
+                                >
+                                  {journalEntry ? '✏️' : '📝'}
+                                </button>
+                              </div>
+                            </th>
                           );
                         })}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {data.goals.map((goal) => (
+                        <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
+                          <td className="sticky left-0 z-20 bg-white shadow-sm">
+                            <div className="p-4">
+                              <h3 className="font-semibold text-neutral-900 mb-1">{goal.name}</h3>
+                              <p className="text-sm text-neutral-600 line-clamp-2">{goal.description}</p>
+                            </div>
+                          </td>
+                          {Array.from({ length: data.days_in_month }, (_, i) => {
+                            const day = i + 1;
+                            const date = new Date(year, month - 1, day).toISOString().split('T')[0];
+                            const status = getProgressStatus(goal.id, date);
+                            const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
+                            const isToday = date === new Date().toISOString().split('T')[0];
+
+                            return (
+                              <td key={day} className="p-2 text-center">
+                                <div
+                                  className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-2' : ''}`}
+                                  onClick={() => updateProgress(goal.id, date, status)}
+                                  data-goal-id={goal.id}
+                                  data-date={date}
+                                  data-status={status}
+                                  title={`${goal.name} - Day ${day}: ${statusText}`}
+                                />
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="card text-center py-16 animate-fade-in">
-            <div className="w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-neutral-400 text-4xl">🎯</span>
+          ) : (
+            <div className="card text-center py-16 animate-fade-in">
+              <div className="w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-neutral-400 text-4xl">🎯</span>
+              </div>
+              <h2 className="text-2xl font-bold text-neutral-900 mb-4">No goals yet</h2>
+              <p className="text-neutral-600 mb-6 max-w-md mx-auto">
+                Create your first goal to start tracking your progress. Goals help you stay focused and motivated on what matters most.
+              </p>
+              <Link
+                href="/goals/new"
+                className="btn-primary text-lg px-8 py-3"
+              >
+                Create Your First Goal
+              </Link>
             </div>
-            <h2 className="text-2xl font-bold text-neutral-900 mb-4">No goals yet</h2>
-            <p className="text-neutral-600 mb-6 max-w-md mx-auto">
-              Create your first goal to start tracking your progress. Goals help you stay focused and motivated on what matters most.
-            </p>
-            <Link 
-              href="/goals/new"
-              className="btn-primary text-lg px-8 py-3"
+          )}
+        </div>
+      </section>
+
+      <section className="min-h-[50vh] bg-sky-50">
+        <div className="max-w-4xl mx-auto px-6 py-14 space-y-5 text-neutral-700 leading-relaxed">
+          <h2 className="text-3xl font-bold text-neutral-900">About This Progress Tracker</h2>
+          <p>
+            This progress tracker helps turn long-term goals into small daily actions. Instead of relying on memory
+            or motivation alone, each day gives you a simple status check: not started, half complete, or complete.
+            Over time, the monthly view makes your consistency visible and helps you spot patterns in effort.
+          </p>
+          <p>
+            The idea is inspired by this habit tracker video on YouTube:{' '}
+            <a
+              href="https://www.youtube.com/watch?v=qaozjfqXbfI&t=289s"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-600 font-medium hover:text-primary-700 underline"
             >
-              Create Your First Goal
-            </Link>
-          </div>
-        )}
-      </div>
+              Habit Tracker Walkthrough
+            </a>
+            . This version adapts the concept to your own workflow with goals and journal entries tied to each day.
+          </p>
+          <p>
+            I created this project to build momentum through clarity: track what matters, reflect as you go, and
+            make progress tangible.
+          </p>
+        </div>
+      </section>
     </div>
   );
 } 
