@@ -49,3 +49,7 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+
+# Ignore frontend artifacts for backend image builds
+/frontend/node_modules
+/frontend/.next
