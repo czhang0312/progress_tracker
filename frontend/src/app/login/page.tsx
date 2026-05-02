@@ -90,12 +90,11 @@ export default function LoginPage() {
                   className="form-input"
                   placeholder="Enter your password"
                 />
-              </div>
-
-              <div className="text-right">
-                <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 transition-colors duration-200">
-                  Forgot your password?
-                </Link>
+                <div className="text-right mt-1">
+                  <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 transition-colors duration-200">
+                    Forgot your password?
+                  </Link>
+                </div>
               </div>
 
               {error && (
