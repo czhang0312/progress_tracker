@@ -150,6 +150,12 @@ export default function RegisterPage() {
                 </Link>
               </p>
             </div>
+
+            <div className="mt-4 text-center">
+              <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-700 transition-colors duration-200">
+                Continue as Guest
+              </Link>
+            </div>
           </div>
         </div>
 

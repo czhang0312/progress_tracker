@@ -123,13 +123,19 @@ export default function LoginPage() {
             <div className="mt-6 text-center">
               <p className="text-neutral-600">
                 Don&apos;t have an account?{' '}
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   className="font-semibold text-primary-600 hover:text-primary-700 transition-colors duration-200"
                 >
                   Create one now
                 </Link>
               </p>
+            </div>
+
+            <div className="mt-4 text-center">
+              <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-700 transition-colors duration-200">
+                Continue as Guest
+              </Link>
             </div>
           </div>
         </div>
