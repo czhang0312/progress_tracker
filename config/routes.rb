@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+
   devise_for :users
 
   # API routes for Next.js frontend
@@ -8,6 +10,8 @@ Rails.application.routes.draw do
     get "auth/current_user", to: "auth#current_user_info"
     post "auth/register", to: "auth#register"
     get "auth/whoami", to: "auth#whoami"
+    post "auth/forgot_password", to: "auth#forgot_password"
+    post "auth/reset_password",  to: "auth#reset_password"
   end
 
   # Root route - redirect to current month progress for authenticated users

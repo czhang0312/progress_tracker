@@ -17,6 +17,8 @@ interface AuthContextType {
   register: (email: string, password: string, password_confirmation: string) => Promise<boolean>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<boolean>;
+  resetPassword: (token: string, password: string, password_confirmation: string) => Promise<{ success: boolean; errors?: string[] }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -114,6 +116,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const forgotPassword = async (email: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`${RAILS_API_BASE}/api/auth/forgot_password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+      return data.success === true;
+    } catch {
+      return false;
+    }
+  };
+
+  const resetPassword = async (
+    token: string,
+    password: string,
+    password_confirmation: string
+  ): Promise<{ success: boolean; errors?: string[] }> => {
+    try {
+      const response = await fetch(`${RAILS_API_BASE}/api/auth/reset_password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password, password_confirmation }),
+        credentials: 'include',
+      });
+      const data = await response.json();
+      return { success: data.success === true, errors: data.errors };
+    } catch {
+      return { success: false, errors: ['Something went wrong. Please try again.'] };
+    }
+  };
+
   const logout = async () => {
     try {
       await fetch(`${RAILS_API_BASE}/api/auth/logout`, {
@@ -139,6 +175,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     checkAuth,
+    forgotPassword,
+    resetPassword,
   };
 
   return (

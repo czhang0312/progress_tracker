@@ -1,6 +1,6 @@
 class Api::AuthController < ApplicationController
   skip_before_action :verify_authenticity_token # verify_authenticity_token used for CSRF protection, but we disable it for API endpoints
-  skip_before_action :authenticate_user!, only: [ :login, :logout, :current_user_info, :register, :whoami ]
+  skip_before_action :authenticate_user!, only: [ :login, :logout, :current_user_info, :register, :whoami, :forgot_password, :reset_password ]
 
   def login
     user = User.find_by(email: params[:email])
@@ -77,6 +77,25 @@ class Api::AuthController < ApplicationController
         success: false,
         errors: user.errors.full_messages
       }, status: :unprocessable_content
+    end
+  end
+
+  def forgot_password
+    User.send_reset_password_instructions(email: params[:email])
+    render json: { success: true }
+  end
+
+  def reset_password
+    user = User.reset_password_by_token(
+      reset_password_token: params[:token],
+      password: params[:password],
+      password_confirmation: params[:password_confirmation]
+    )
+
+    if user.errors.empty?
+      render json: { success: true }
+    else
+      render json: { success: false, errors: user.errors.full_messages }, status: :unprocessable_content
     end
   end
 
