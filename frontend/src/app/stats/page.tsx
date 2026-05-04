@@ -243,23 +243,17 @@ export default function StatsPage() {
               </div>
             ) : (
               <div className="inline-block">
-                {/* Month labels */}
-                <div className="flex mb-1" style={{ gap: '3px', paddingLeft: '20px' }}>
-                  {weeks.map((_, wi) => {
-                    const label = monthLabels.find((l) => l.col === wi);
-                    return (
-                      <div key={wi} style={{ width: '12px', flexShrink: 0, position: 'relative' }}>
-                        {label && (
-                          <span
-                            className="text-xs text-neutral-500 absolute whitespace-nowrap"
-                            style={{ top: 0, left: 0 }}
-                          >
-                            {label.month}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+                {/* Month labels — positioned absolutely within a dedicated row */}
+                <div className="relative mb-2" style={{ marginLeft: '19px', height: '16px' }}>
+                  {monthLabels.map(({ month, col }) => (
+                    <span
+                      key={month}
+                      className="absolute text-xs text-neutral-500 whitespace-nowrap"
+                      style={{ left: `${col * 15}px` }}
+                    >
+                      {month}
+                    </span>
+                  ))}
                 </div>
 
                 {/* Day labels + grid */}
