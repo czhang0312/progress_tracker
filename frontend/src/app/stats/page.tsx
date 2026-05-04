@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestStats } from '@/lib/guestStorage';
+import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 
 interface DailyTotal {
   filled: number;
@@ -70,11 +71,9 @@ function getMonthLabels(year: number): { month: string; col: number }[] {
 function getCellColor(date: Date | null, dailyTotals: Record<string, DailyTotal>): string {
   if (!date) return '';
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  if (date > today) return 'bg-neutral-100';
+  if (localDateString(date) > todayLocalDateString()) return 'bg-neutral-100';
 
-  const key = date.toISOString().split('T')[0];
+  const key = localDateString(date);
   const data = dailyTotals[key];
   if (!data) return 'bg-neutral-200';
 
@@ -91,7 +90,7 @@ function getCellColor(date: Date | null, dailyTotals: Record<string, DailyTotal>
 
 function getCellTooltip(date: Date | null, dailyTotals: Record<string, DailyTotal>): string {
   if (!date) return '';
-  const key = date.toISOString().split('T')[0];
+  const key = localDateString(date);
   const data = dailyTotals[key];
   const dateStr = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   if (!data) return `${dateStr} — no data`;
@@ -287,7 +286,7 @@ export default function StatsPage() {
                         }
                         const color = getCellColor(date, dailyTotals);
                         const tooltip = getCellTooltip(date, dailyTotals);
-                        const dateKey = date.toISOString().split('T')[0];
+                        const dateKey = localDateString(date);
                         const [yr, mo] = dateKey.split('-').map(Number);
                         return (
                           <button

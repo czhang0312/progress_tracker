@@ -1,3 +1,5 @@
+import { localDateString, todayLocalDateString } from './dateUtils';
+
 export interface GuestGoal {
   id: number;
   name: string;
@@ -89,7 +91,7 @@ export function createGuestGoal(input: { name: string; description: string }): G
     name: input.name,
     description: input.description,
     position: maxPosition + 1,
-    created_at: new Date().toISOString().split('T')[0],
+    created_at: todayLocalDateString(),
   };
 
   store.goals.push(goal);
@@ -237,7 +239,7 @@ export interface GuestStatsData {
 function guestPrevDate(date: string): string {
   const d = new Date(date + 'T00:00:00');
   d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
+  return localDateString(d);
 }
 
 function guestCurrentStreak(activeDates: string[], today: string): number {
@@ -271,7 +273,7 @@ function guestLongestStreak(activeDates: string[]): number {
 function guestBestMonth(goal: GuestGoal, allProgress: GuestDailyProgress[]): string | null {
   if (allProgress.length === 0) return null;
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayLocalDateString();
   const createdAt = goal.created_at ?? (allProgress[0]?.date ?? today);
 
   const monthGroups = new Map<string, GuestDailyProgress[]>();
@@ -286,8 +288,8 @@ function guestBestMonth(goal: GuestGoal, allProgress: GuestDailyProgress[]): str
 
   monthGroups.forEach((dps, key) => {
     const [yr, mo] = key.split('-').map(Number);
-    const monthStart = new Date(yr, mo - 1, 1).toISOString().split('T')[0];
-    const monthEnd = new Date(yr, mo, 0).toISOString().split('T')[0];
+    const monthStart = localDateString(new Date(yr, mo - 1, 1));
+    const monthEnd = localDateString(new Date(yr, mo, 0));
     const from = monthStart < createdAt ? createdAt : monthStart;
     const to = monthEnd < today ? monthEnd : today;
     const totalDays =
@@ -324,7 +326,7 @@ export function getGuestStats(year: number): GuestStatsData {
       else daily_totals[dp.date].empty++;
     });
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayLocalDateString();
 
   const per_goal: GuestGoalStats[] = store.goals.map((goal) => {
     const allProgress = store.dailyProgresses
@@ -361,8 +363,8 @@ export function getGuestStats(year: number): GuestStatsData {
 export function getGuestMonthlyProgress(year: number, month: number) {
   const store = readStore();
   const monthDate = new Date(year, month - 1, 1);
-  const monthStart = monthDate.toISOString().split('T')[0];
-  const monthEnd = new Date(year, month, 0).toISOString().split('T')[0];
+  const monthStart = localDateString(monthDate);
+  const monthEnd = localDateString(new Date(year, month, 0));
 
   const goals = store.goals.slice().sort((a, b) => a.position - b.position);
   const dailyProgresses = store.dailyProgresses

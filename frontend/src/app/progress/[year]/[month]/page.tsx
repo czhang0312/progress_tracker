@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus } from '@/lib/guestStorage';
+import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 
 interface Goal {
   id: number;
@@ -351,9 +352,9 @@ export default function ProgressPage() {
                         </th>
                         {Array.from({ length: data.days_in_month }, (_, i) => {
                           const day = i + 1;
-                          const date = new Date(year, month - 1, day).toISOString().split('T')[0];
+                          const date = localDateString(new Date(year, month - 1, day));
                           const journalEntry = getJournalEntry(date);
-                          const isToday = date === new Date().toISOString().split('T')[0];
+                          const isToday = date === todayLocalDateString();
 
                           return (
                             <th key={i + 1} className="text-center min-w-[60px] relative">
@@ -389,10 +390,10 @@ export default function ProgressPage() {
                           </td>
                           {Array.from({ length: data.days_in_month }, (_, i) => {
                             const day = i + 1;
-                            const date = new Date(year, month - 1, day).toISOString().split('T')[0];
+                            const date = localDateString(new Date(year, month - 1, day));
                             const status = getProgressStatus(goal.id, date);
                             const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
-                            const isToday = date === new Date().toISOString().split('T')[0];
+                            const isToday = date === todayLocalDateString();
 
                             return (
                               <td key={day} className="p-2 text-center">
