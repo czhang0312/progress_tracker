@@ -57,11 +57,11 @@
   }
 
   .card-header {
-    @apply p-6 border-b border-neutral-200;
+    @apply p-4 border-b border-neutral-200;
   }
 
   .card-body {
-    @apply p-6;
+    @apply p-4;
   }
 
   .card-footer {
@@ -70,8 +70,8 @@
 
   /* Modern progress circles */
   .progress-circle {
-    @apply w-14 h-14 rounded-full border-3 cursor-pointer mx-auto transition-all duration-300;
-    @apply hover:scale-110 hover:shadow-medium;
+    @apply w-10 h-10 rounded-full border-2 cursor-pointer mx-auto transition-all duration-300;
+    @apply hover:scale-110;
     @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
     @apply flex items-center justify-center;
     @apply relative;
@@ -79,25 +79,22 @@
 
   .progress-circle.status-0 {
     @apply bg-white border-neutral-300 hover:border-neutral-400;
-    @apply hover:bg-neutral-50;
   }
 
   .progress-circle.status-1 {
-    background: linear-gradient(45deg, #10B981 50%, white 50%);
+    background: linear-gradient(135deg, #10B981 50%, white 50%);
     @apply border-neutral-300;
-    @apply hover:shadow-medium;
   }
 
   .progress-circle.status-2 {
-    @apply bg-secondary-500 border-secondary-600;
-    @apply shadow-soft hover:shadow-medium;
+    @apply bg-secondary-500 border-secondary-500;
     @apply hover:bg-secondary-600;
   }
 
   /* Progress circle with checkmark for completed */
   .progress-circle.status-2::after {
     content: '✓';
-    @apply text-white font-bold text-lg;
+    @apply text-white font-bold text-sm;
     @apply relative z-10;
   }
 
@@ -121,11 +118,11 @@
   }
 
   .table-modern th {
-    @apply bg-neutral-100 text-neutral-700 font-semibold text-left p-4 border-b border-neutral-200;
+    @apply bg-neutral-100 text-neutral-700 font-semibold text-left p-2 border-b border-neutral-200;
   }
 
   .table-modern td {
-    @apply p-4 border-b border-neutral-100;
+    @apply p-1 border-b border-neutral-100;
   }
 
   .table-modern tr:hover {
@@ -176,7 +173,7 @@
   /* Responsive improvements */
   @media (max-width: 768px) {
     .progress-circle {
-      @apply w-12 h-12;
+      @apply w-9 h-9;
     }
     
     .card {

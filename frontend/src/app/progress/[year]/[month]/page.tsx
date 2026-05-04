@@ -243,20 +243,20 @@ export default function ProgressPage() {
     <div className="min-h-screen">
       <NavHeader />
       <section className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-[1000px] mx-auto p-4">
           {/* Header */}
-          <div className="card mb-6">
+          <div className="card mb-4">
             <div className="card-body">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-4xl font-bold text-gradient">Progress Tracker</h1>
-                  <p className="text-xl text-neutral-600 mt-1">{formatDate(year, month)}</p>
+                  <h1 className="text-3xl font-extrabold text-gradient">Progress Tracker</h1>
+                  <p className="text-sm text-neutral-500 mt-1">{formatDate(year, month)}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/progress/${prevMonth.year}/${prevMonth.month}`}
-                    className="btn-outline flex items-center gap-2"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
                   >
                     <span>←</span>
                     {new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', {
@@ -266,7 +266,7 @@ export default function ProgressPage() {
                   </Link>
                   <Link
                     href={`/progress/${nextMonth.year}/${nextMonth.month}`}
-                    className="btn-outline flex items-center gap-2"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
                   >
                     {new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', {
                       year: 'numeric',
@@ -283,42 +283,58 @@ export default function ProgressPage() {
             <div className="animate-fade-in">
               {/* Progress Table */}
               <div className="card sticky-table-container">
-                <div className="card-header">
-                  <h2 className="text-2xl font-bold text-neutral-900">Monthly Progress</h2>
-                  <p className="text-neutral-600 mt-1">Click circles to update your progress</p>
+                <div className="card-header flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-neutral-900">Monthly Progress</h2>
+                    <p className="text-xs text-neutral-400 mt-0.5">Click circles to cycle: empty → half → complete</p>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0 text-xs text-neutral-500">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded-full border-2 border-neutral-300 bg-white" />
+                      <span>Empty</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded-full border-2 border-neutral-300 shrink-0" style={{ background: 'linear-gradient(135deg, #10B981 50%, white 50%)' }} />
+                      <span>Half</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center shrink-0">
+                        <span className="text-white font-bold text-xs">✓</span>
+                      </div>
+                      <span>Done</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="overflow-x-auto scrollbar-thin">
                   <table className="table-modern">
                     <thead>
                       <tr>
-                        <th className="sticky left-0 z-20 bg-neutral-100 min-w-[200px]">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg">🎯</span>
-                            <span>Goals</span>
-                          </div>
+                        <th className="sticky left-0 z-20 bg-neutral-100 min-w-[150px]">
+                          <span className="text-sm font-semibold text-neutral-500">Goals</span>
                         </th>
                         {Array.from({ length: data.days_in_month }, (_, i) => {
                           const day = i + 1;
                           const date = localDateString(new Date(year, month - 1, day));
                           const journalEntry = getJournalEntry(date);
                           const isToday = date === todayLocalDateString();
+                          const isFuture = date > todayLocalDateString();
 
                           return (
-                            <th key={i + 1} className="text-center min-w-[60px] relative">
-                              <div className="flex flex-col items-center gap-2">
-                                <span className={`font-semibold ${isToday ? 'text-primary-600' : 'text-neutral-700'}`}>
+                            <th key={i + 1} className="text-center min-w-[44px] relative">
+                              <div className="flex flex-col items-center gap-1">
+                                <span className={`text-xs font-bold ${isToday ? 'text-primary-600' : isFuture ? 'text-neutral-300' : 'text-neutral-500'}`}>
                                   {day}
                                 </span>
                                 <button
                                   onClick={() => handleJournalClick(date)}
-                                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-200 ${
+                                  className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
                                     journalEntry
-                                      ? 'bg-accent-500 text-white hover:bg-accent-600 shadow-soft'
-                                      : 'bg-neutral-200 text-neutral-600 hover:bg-neutral-300'
+                                      ? 'bg-primary-600 text-white hover:bg-primary-700'
+                                      : 'border border-neutral-300 text-neutral-400 hover:border-neutral-400 bg-white'
                                   }`}
                                   title={journalEntry ? `Edit journal entry for ${date}` : `Add journal entry for ${date}`}
                                 >
-                                  {journalEntry ? '✏️' : '📝'}
+                                  <span className="text-[10px] font-bold leading-none">{journalEntry ? '−' : '+'}</span>
                                 </button>
                               </div>
                             </th>
@@ -329,10 +345,10 @@ export default function ProgressPage() {
                     <tbody>
                       {data.goals.map((goal) => (
                         <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
-                          <td className="sticky left-0 z-20 bg-white shadow-sm">
-                            <div className="p-4">
-                              <h3 className="font-semibold text-neutral-900 mb-1">{goal.name}</h3>
-                              <p className="text-sm text-neutral-600 line-clamp-2">{goal.description}</p>
+                          <td className="sticky left-0 z-20 bg-white shadow-sm h-16">
+                            <div className="p-2 h-full flex flex-col justify-center">
+                              <h3 className="font-semibold text-sm text-neutral-900 leading-tight">{goal.name}</h3>
+                              <p className="text-xs text-neutral-500 line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
                           </td>
                           {Array.from({ length: data.days_in_month }, (_, i) => {
@@ -341,11 +357,12 @@ export default function ProgressPage() {
                             const status = getProgressStatus(goal.id, date);
                             const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
                             const isToday = date === todayLocalDateString();
+                            const isFuture = date > todayLocalDateString();
 
                             return (
-                              <td key={day} className="p-2 text-center">
+                              <td key={day} className="p-1 text-center">
                                 <div
-                                  className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-2' : ''}`}
+                                  className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''} ${isFuture ? 'opacity-25' : ''}`}
                                   onClick={() => updateProgress(goal.id, date, status)}
                                   data-goal-id={goal.id}
                                   data-date={date}
@@ -363,17 +380,17 @@ export default function ProgressPage() {
               </div>
             </div>
           ) : (
-            <div className="card text-center py-16 animate-fade-in">
-              <div className="w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-neutral-400 text-4xl">🎯</span>
+            <div className="card text-center py-10 animate-fade-in">
+              <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-neutral-400 text-2xl">🎯</span>
               </div>
-              <h2 className="text-2xl font-bold text-neutral-900 mb-4">No goals yet</h2>
+              <h2 className="text-xl font-bold text-neutral-900 mb-4">No goals yet</h2>
               <p className="text-neutral-600 mb-6 max-w-md mx-auto">
                 Create your first goal to start tracking your progress. Goals help you stay focused and motivated on what matters most.
               </p>
               <Link
                 href="/goals/new"
-                className="btn-primary text-lg px-8 py-3"
+                className="btn-primary"
               >
                 Create Your First Goal
               </Link>

@@ -159,17 +159,17 @@ export default function JournalEntriesPage() {
   return (
     <div className="min-h-screen">
       <NavHeader />
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="card mb-6">
+      <div className="max-w-[1000px] mx-auto p-4">
+        <div className="card mb-4">
           <div className="card-body">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <h1 className="text-4xl font-bold text-gradient mb-2">Journal Entries</h1>
-                <p className="text-lg text-neutral-500">Review, search, and manage your entries</p>
+                <h1 className="text-2xl font-bold text-gradient mb-2">Journal Entries</h1>
+                <p className="text-sm text-neutral-500">Review, search, and manage your entries</p>
               </div>
               <Link
                 href="/journal-entries/new"
-                className="btn-primary text-lg px-6 py-3"
+                className="btn-primary"
               >
                 <span className="mr-2">+</span>
                 New Entry
@@ -179,7 +179,7 @@ export default function JournalEntriesPage() {
         </div>
 
         {/* Search and Filter */}
-        <div className="card mb-6">
+        <div className="card mb-4">
           <div className="card-body">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
@@ -228,7 +228,7 @@ export default function JournalEntriesPage() {
                 <div className="card-body">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                     <div>
-                      <h3 className="text-xl font-bold text-neutral-900">{formatDate(entry.date)}</h3>
+                      <h3 className="text-base font-bold text-neutral-900">{formatDate(entry.date)}</h3>
                       <p className="text-sm text-neutral-500">{getMonthYear(entry.date)}</p>
                     </div>
                     <div className="flex gap-2">
@@ -265,19 +265,19 @@ export default function JournalEntriesPage() {
             ))}
           </div>
         ) : (
-          <div className="card text-center py-16 animate-fade-in">
+          <div className="card text-center py-10 animate-fade-in">
             {entries.length === 0 ? (
               <>
-                <div className="w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-neutral-400 text-4xl">📝</span>
+                <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-neutral-400 text-2xl">📝</span>
                 </div>
-                <h2 className="text-2xl font-bold text-neutral-900 mb-4">No journal entries yet</h2>
+                <h2 className="text-xl font-bold text-neutral-900 mb-4">No journal entries yet</h2>
                 <p className="text-neutral-600 mb-6 max-w-md mx-auto">
                   Create your first journal entry to capture your thoughts and reflect on your progress.
                 </p>
                 <Link
                   href="/journal-entries/new"
-                  className="btn-primary text-lg px-8 py-3"
+                  className="btn-primary"
                 >
                   Create your first journal entry
                 </Link>

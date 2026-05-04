@@ -169,23 +169,23 @@ export default function StatsPage() {
   return (
     <div className="min-h-screen">
       <NavHeader />
-      <div className="max-w-5xl mx-auto p-6">
+      <div className="max-w-[1000px] mx-auto p-4">
         {/* Header */}
-        <div className="card mb-6">
+        <div className="card mb-4">
           <div className="card-body">
-            <h1 className="text-4xl font-bold text-gradient mb-2">Progress Stats</h1>
-            <p className="text-xl text-neutral-500">Your year at a glance</p>
+            <h1 className="text-2xl font-bold text-gradient mb-2">Progress Stats</h1>
+            <p className="text-sm text-neutral-500">Your year at a glance</p>
           </div>
         </div>
 
         {/* Year selector */}
-        <div className="card mb-6">
+        <div className="card mb-4">
           <div className="card-body">
             <div className="flex items-center justify-center gap-6">
               <button onClick={() => setYear((y) => y - 1)} className="btn-outline">
                 ← {year - 1}
               </button>
-              <span className="text-2xl font-bold text-neutral-900">{year}</span>
+              <span className="text-xl font-bold text-neutral-900">{year}</span>
               <button
                 onClick={() => setYear((y) => y + 1)}
                 disabled={year >= currentYear}
@@ -198,7 +198,7 @@ export default function StatsPage() {
         </div>
 
         {/* Heatmap */}
-        <div className="card mb-6">
+        <div className="card mb-4">
           <div className="card-header">
             <h2 className="text-xl font-bold text-neutral-900">Year in Pixels</h2>
             <p className="text-sm text-neutral-500 mt-1">

@@ -34,7 +34,6 @@ export default function NavHeader() {
         {/* Logo */}
         <div
           className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0 bg-gradient-to-r from-primary-600 to-primary-700"
-          style={{ boxShadow: '0 4px 12px rgba(194,97,11,0.27)' }}
         >
           <span className="text-white text-sm font-extrabold">PT</span>
         </div>

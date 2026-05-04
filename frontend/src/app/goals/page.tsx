@@ -67,7 +67,7 @@ function SortableGoalItem({ goal, onDelete }: { goal: Goal; onDelete: (id: numbe
             ⋮⋮
           </div>
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-neutral-900 mb-2">{goal.name}</h3>
+            <h3 className="text-base font-bold text-neutral-900 mb-2">{goal.name}</h3>
             <p className="text-neutral-600 leading-relaxed">{goal.description}</p>
           </div>
           <div className="flex gap-2">
@@ -271,18 +271,18 @@ export default function GoalsPage() {
   return (
     <div className="min-h-screen">
       <NavHeader />
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-[1000px] mx-auto p-4">
         {/* Header */}
-        <div className="card mb-6">
+        <div className="card mb-4">
           <div className="card-body">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <h1 className="text-4xl font-bold text-gradient mb-2">Goals</h1>
-                <p className="text-lg text-neutral-500">Manage and organize your goals</p>
+                <h1 className="text-2xl font-bold text-gradient mb-2">Goals</h1>
+                <p className="text-sm text-neutral-500">Manage and organize your goals</p>
               </div>
               <Link
                 href="/goals/new"
-                className="btn-primary text-lg px-6 py-3"
+                className="btn-primary"
               >
                 <span className="mr-2">+</span>
                 Create New Goal
@@ -294,7 +294,7 @@ export default function GoalsPage() {
         {/* Goals List */}
         {goals.length > 0 ? (
           <div className="space-y-4 animate-fade-in">
-            <div className="text-center mb-6">
+            <div className="text-center mb-4">
               <p className="text-neutral-600">
                 Drag and drop to reorder your goals
               </p>
@@ -320,17 +320,17 @@ export default function GoalsPage() {
             </DndContext>
           </div>
         ) : (
-          <div className="card text-center py-16 animate-fade-in">
-            <div className="w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-neutral-400 text-4xl">🎯</span>
+          <div className="card text-center py-10 animate-fade-in">
+            <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-neutral-400 text-2xl">🎯</span>
             </div>
-            <h2 className="text-2xl font-bold text-neutral-900 mb-4">No goals yet</h2>
+            <h2 className="text-xl font-bold text-neutral-900 mb-4">No goals yet</h2>
             <p className="text-neutral-600 mb-6 max-w-md mx-auto">
               Create your first goal to start tracking your progress. Goals help you stay focused and motivated on what matters most.
             </p>
             <Link
               href="/goals/new"
-              className="btn-primary text-lg px-8 py-3"
+              className="btn-primary"
             >
               Create Your First Goal
             </Link>
