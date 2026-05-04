@@ -37,9 +37,9 @@ class StatsController < ApplicationController
   end
 
   def goal_stats(goal)
-    all = goal.daily_progresses.order(:date)
-    today = Date.current
-    created = goal.created_at.to_date
+    all     = goal.daily_progresses.order(:date)
+    today   = Date.current                          # Eastern Time (via config.time_zone)
+    created = goal.created_at.in_time_zone.to_date  # Eastern Time date of creation
     total_days = [ (today - created).to_i + 1, 0 ].max
 
     filled = all.count { |dp| dp.status == Goal::STATUS_FILLED }
@@ -51,7 +51,7 @@ class StatsController < ApplicationController
     {
       id: goal.id,
       name: goal.name,
-      created_at: created.to_s,
+      created_at: goal.created_at.utc.iso8601,
       completion_pct: completion_pct,
       current_streak: current_streak(active_dates, today),
       longest_streak: longest_streak(active_dates),
@@ -94,7 +94,7 @@ class StatsController < ApplicationController
     all_progresses.group_by { |dp| [ dp.date.year, dp.date.month ] }.each do |(yr, mo), dps|
       month_start = Date.new(yr, mo, 1)
       month_end   = Date.new(yr, mo, -1)
-      from        = [ month_start, goal.created_at.to_date ].max
+      from        = [ month_start, goal.created_at.in_time_zone.to_date ].max
       to          = [ month_end, Date.current ].min
       total       = (to - from).to_i + 1
       next if total <= 0

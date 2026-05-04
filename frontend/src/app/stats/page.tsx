@@ -328,7 +328,7 @@ export default function StatsPage() {
                     <h3 className="font-bold text-neutral-900 text-lg mb-1 truncate">{goal.name}</h3>
                     <p className="text-xs text-neutral-400 mb-4">
                       Since{' '}
-                      {new Date(goal.created_at + 'T00:00:00').toLocaleDateString('en-US', {
+                      {new Date(goal.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',
