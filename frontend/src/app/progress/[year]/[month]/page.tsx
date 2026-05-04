@@ -192,7 +192,7 @@ export default function ProgressPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade-in">
           <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
           <h1 className="text-2xl font-bold text-neutral-900 mb-2">Loading Progress</h1>
@@ -204,7 +204,7 @@ export default function ProgressPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade-in">
           <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-error-600 text-2xl">⚠️</span>
@@ -224,7 +224,7 @@ export default function ProgressPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade-in">
           <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-neutral-400 text-2xl">📊</span>
@@ -242,7 +242,7 @@ export default function ProgressPage() {
   return (
     <div className="min-h-screen">
       <NavHeader />
-      <section className="min-h-screen bg-white">
+      <section className="min-h-screen">
         <div className="max-w-[1000px] mx-auto p-4">
           {/* Header */}
           <div className="card mb-4">
