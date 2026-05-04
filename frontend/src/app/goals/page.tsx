@@ -334,13 +334,9 @@ export default function GoalsPage() {
             </Link>
           </div>
         )}
-        <div className="mt-8 flex justify-center">
-          <Link 
-            href="/"
-            className="btn-primary"
-          >
-            Back to Progress
-          </Link>
+        <div className="mt-8 flex justify-center gap-3">
+          <Link href="/" className="btn-primary">Back to Progress</Link>
+          <Link href="/stats" className="btn-outline">Stats</Link>
         </div>
         
       </div>

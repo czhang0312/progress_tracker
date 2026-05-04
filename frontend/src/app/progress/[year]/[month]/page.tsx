@@ -296,7 +296,7 @@ export default function ProgressPage() {
                   })}
                 </Link>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap justify-center">
                   <Link
                     href="/goals"
                     className="btn-primary"
@@ -308,6 +308,12 @@ export default function ProgressPage() {
                     className="btn-primary"
                   >
                     Journal Entries
+                  </Link>
+                  <Link
+                    href="/stats"
+                    className="btn-primary"
+                  >
+                    Stats
                   </Link>
                 </div>
 
