@@ -277,7 +277,7 @@ export default function GoalsPage() {
           <div className="card-body">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-gradient mb-2">Goals</h1>
+                <h1 className="text-3xl font-extrabold text-gradient">Goals</h1>
                 <p className="text-sm text-neutral-500">Manage and organize your goals</p>
               </div>
               <Link
