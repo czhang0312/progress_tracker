@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { RAILS_API_BASE } from '@/lib/config';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import NavHeader from '@/components/NavHeader';
 import { deleteGuestJournalEntry, getGuestJournalEntries } from '@/lib/guestStorage';
 
 interface JournalEntry {
@@ -156,14 +157,15 @@ export default function JournalEntriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
+      <NavHeader />
       <div className="max-w-6xl mx-auto p-6">
         <div className="card mb-6">
           <div className="card-body">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <h1 className="text-4xl font-bold text-gradient mb-2">Journal Entries</h1>
-                <p className="text-lg text-neutral-600">Review, search, and manage your entries</p>
+                <p className="text-lg text-neutral-500">Review, search, and manage your entries</p>
               </div>
               <Link
                 href="/journal-entries/new"
@@ -186,7 +188,7 @@ export default function JournalEntriesPage() {
                   placeholder="Search journal content..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                  className="form-input"
                 />
               </div>
               <div>
@@ -194,7 +196,7 @@ export default function JournalEntriesPage() {
                   type="date"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-full md:w-auto px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                  className="form-input w-full md:w-auto"
                 />
               </div>
               <button

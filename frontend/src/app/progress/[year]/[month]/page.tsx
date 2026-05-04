@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
+import NavHeader from '@/components/NavHeader';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
@@ -40,7 +41,7 @@ interface ProgressData {
 export default function ProgressPage() {
   const params = useParams();
   const router = useRouter();
-  const { user, logout, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -189,11 +190,6 @@ export default function ProgressPage() {
     };
   };
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
@@ -245,89 +241,40 @@ export default function ProgressPage() {
 
   return (
     <div className="min-h-screen">
+      <NavHeader />
       <section className="min-h-screen bg-white">
         <div className="max-w-7xl mx-auto p-6">
-          {/* Header with navigation and user info */}
+          {/* Header */}
           <div className="card mb-6">
             <div className="card-body">
-              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-4xl font-bold text-gradient mb-2">
-                    Progress Tracker
-                  </h1>
-                  <p className="text-xl text-neutral-600">
-                    {formatDate(year, month)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  {!user?.is_guest && user?.email ? (
-                    <div className="text-right">
-                      <p className="font-medium text-neutral-900">{user.email}</p>
-                    </div>
-                  ) : null}
-                  {user?.is_guest ? (
-                    <Link href="/login" className="btn-outline">
-                      Sign In
-                    </Link>
-                  ) : (
-                    <button
-                      onClick={handleLogout}
-                      className="btn-outline"
-                    >
-                      Sign Out
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="card mb-6">
-            <div className="card-body">
-              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                <Link
-                  href={`/progress/${prevMonth.year}/${prevMonth.month}`}
-                  className="btn-outline flex items-center gap-2"
-                >
-                  <span>←</span>
-                  {new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long'
-                  })}
-                </Link>
-
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Link
-                    href="/goals"
-                    className="btn-primary"
-                  >
-                    Manage Goals
-                  </Link>
-                  <Link
-                    href="/journal-entries"
-                    className="btn-primary"
-                  >
-                    Journal Entries
-                  </Link>
-                  <Link
-                    href="/stats"
-                    className="btn-primary"
-                  >
-                    Stats
-                  </Link>
+                  <h1 className="text-4xl font-bold text-gradient">Progress Tracker</h1>
+                  <p className="text-xl text-neutral-600 mt-1">{formatDate(year, month)}</p>
                 </div>
 
-                <Link
-                  href={`/progress/${nextMonth.year}/${nextMonth.month}`}
-                  className="btn-outline flex items-center gap-2"
-                >
-                  {new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long'
-                  })}
-                  <span>→</span>
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/progress/${prevMonth.year}/${prevMonth.month}`}
+                    className="btn-outline flex items-center gap-2"
+                  >
+                    <span>←</span>
+                    {new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long'
+                    })}
+                  </Link>
+                  <Link
+                    href={`/progress/${nextMonth.year}/${nextMonth.month}`}
+                    className="btn-outline flex items-center gap-2"
+                  >
+                    {new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long'
+                    })}
+                    <span>→</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

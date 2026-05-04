@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import NavHeader from '@/components/NavHeader';
 import { RAILS_API_BASE } from '@/lib/config';
 import { deleteGuestGoal, getGuestGoals, reorderGuestGoals } from '@/lib/guestStorage';
 import {
@@ -268,7 +269,8 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
+      <NavHeader />
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="card mb-6">
@@ -276,7 +278,7 @@ export default function GoalsPage() {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <h1 className="text-4xl font-bold text-gradient mb-2">Goals</h1>
-                <p className="text-lg text-neutral-600">Manage and organize your goals</p>
+                <p className="text-lg text-neutral-500">Manage and organize your goals</p>
               </div>
               <Link
                 href="/goals/new"

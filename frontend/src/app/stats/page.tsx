@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import NavHeader from '@/components/NavHeader';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestStats } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
@@ -100,7 +101,7 @@ function getCellTooltip(date: Date | null, dailyTotals: Record<string, DailyTota
 
 export default function StatsPage() {
   const router = useRouter();
-  const { user, logout, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const [data, setData] = useState<StatsData | null>(null);
@@ -135,10 +136,6 @@ export default function StatsPage() {
     fetchStats();
   }, [year, user, authLoading, fetchStats]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/login');
-  };
 
   if (loading) {
     return (
@@ -170,38 +167,14 @@ export default function StatsPage() {
   const perGoal = data?.per_goal ?? [];
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen">
+      <NavHeader />
       <div className="max-w-5xl mx-auto p-6">
         {/* Header */}
         <div className="card mb-6">
           <div className="card-body">
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-              <div>
-                <h1 className="text-4xl font-bold text-gradient mb-2">Progress Stats</h1>
-                <p className="text-xl text-neutral-600">Your year at a glance</p>
-              </div>
-              <div className="flex items-center gap-4">
-                {!user?.is_guest && user?.email && (
-                  <p className="font-medium text-neutral-900">{user.email}</p>
-                )}
-                {user?.is_guest ? (
-                  <Link href="/login" className="btn-outline">Sign In</Link>
-                ) : (
-                  <button onClick={handleLogout} className="btn-outline">Sign Out</button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="card mb-6">
-          <div className="card-body">
-            <div className="flex gap-2 flex-wrap justify-center">
-              <Link href="/" className="btn-primary">Progress Grid</Link>
-              <Link href="/goals" className="btn-primary">Manage Goals</Link>
-              <Link href="/journal-entries" className="btn-primary">Journal Entries</Link>
-            </div>
+            <h1 className="text-4xl font-bold text-gradient mb-2">Progress Stats</h1>
+            <p className="text-xl text-neutral-500">Your year at a glance</p>
           </div>
         </div>
 
