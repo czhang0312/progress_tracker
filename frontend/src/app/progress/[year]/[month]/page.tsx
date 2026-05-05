@@ -250,7 +250,7 @@ export default function ProgressPage() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h1 className="text-3xl font-extrabold text-gradient">Progress Tracker</h1>
-                  <p className="text-sm text-neutral-500 mt-1">{formatDate(year, month)}</p>
+                  <p className="text-description mt-1">{formatDate(year, month)}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export default function ProgressPage() {
                 <div className="card-header flex items-start justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-bold text-neutral-900">Monthly Progress</h2>
-                    <p className="text-xs text-neutral-400 mt-0.5">Click circles to cycle: empty → half → complete</p>
+                    <p className="text-hint mt-0.5">Click circles to cycle: empty → half → complete</p>
                   </div>
                   <div className="flex items-center gap-4 shrink-0 text-xs text-neutral-500">
                     <div className="flex items-center gap-1.5">
@@ -348,7 +348,7 @@ export default function ProgressPage() {
                           <td className="sticky left-0 z-20 bg-white shadow-sm h-16 border-b border-r border-neutral-200">
                             <div className="px-4 py-[10px] h-full flex flex-col justify-center">
                               <h3 className="font-semibold text-sm text-neutral-900 leading-tight">{goal.name}</h3>
-                              <p className="text-xs text-neutral-400 line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
+                              <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
                           </td>
                           {Array.from({ length: data.days_in_month }, (_, i) => {

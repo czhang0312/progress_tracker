@@ -192,7 +192,7 @@ export default function EditJournalEntryPage() {
           <div className="card-body">
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-gradient mb-2">Edit Journal Entry</h1>
-              <p className="text-neutral-600">Refine your entry or clear content to remove it.</p>
+              <p className="text-description">Refine your entry or clear content to remove it.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">

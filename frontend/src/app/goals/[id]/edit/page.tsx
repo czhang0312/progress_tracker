@@ -167,7 +167,7 @@ export default function EditGoalPage() {
           <div className="card-body">
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-gradient mb-2">Edit Goal</h1>
-              <p className="text-neutral-600">Update your goal details to keep your progress on track.</p>
+              <p className="text-description">Update your goal details to keep your progress on track.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">

@@ -135,7 +135,7 @@ function NewJournalEntryForm() {
           <div className="card-body">
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-gradient mb-2">New Journal Entry</h1>
-              <p className="text-neutral-600">Capture your thoughts and reflect on your progress.</p>
+              <p className="text-description">Capture your thoughts and reflect on your progress.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">

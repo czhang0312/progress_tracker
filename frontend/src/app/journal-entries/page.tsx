@@ -165,7 +165,7 @@ export default function JournalEntriesPage() {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-extrabold text-gradient">Journal Entries</h1>
-                <p className="text-sm text-neutral-500">Review, search, and manage your entries</p>
+                <p className="text-description">Review, search, and manage your entries</p>
               </div>
               <Link
                 href="/journal-entries/new"
@@ -246,7 +246,7 @@ export default function JournalEntriesPage() {
                       </button>
                     </div>
                   </div>
-                  <div className="text-neutral-700 whitespace-pre-wrap leading-relaxed">
+                  <div className="text-description whitespace-pre-wrap leading-relaxed">
                     {entry.content.length > 300
                       ? `${entry.content.substring(0, 300)}...`
                       : entry.content

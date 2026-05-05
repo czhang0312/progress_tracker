@@ -175,7 +175,7 @@ export default function StatsPage() {
           <div className="card-body flex items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-extrabold text-gradient w-fit">Progress Stats</h1>
-              <p className="text-sm text-neutral-500">Your year at a glance</p>
+              <p className="text-description">Your year at a glance</p>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -200,7 +200,7 @@ export default function StatsPage() {
         <div className="card mb-4">
           <div className="card-header">
             <h2 className="text-xl font-bold text-neutral-900">Year in Pixels</h2>
-            <p className="text-sm text-neutral-500 mt-1">
+            <p className="text-hint mt-1">
               Color intensity = average completion rate across all goals that day. Click a cell to view that month.
             </p>
           </div>
@@ -292,7 +292,7 @@ export default function StatsPage() {
                 <div key={goal.id} className="card">
                   <div className="card-body">
                     <h3 className="font-bold text-neutral-900 text-lg mb-1 truncate">{goal.name}</h3>
-                    <p className="text-xs text-neutral-400 mb-4">
+                    <p className="text-hint mb-4">
                       Since{' '}
                       {new Date(goal.created_at).toLocaleDateString('en-US', {
                         month: 'short',
