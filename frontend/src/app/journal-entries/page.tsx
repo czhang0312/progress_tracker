@@ -288,15 +288,6 @@ export default function JournalEntriesPage() {
           </div>
         )}
 
-        {/* Navigation */}
-        <div className="mt-8 flex justify-center">
-          <Link
-            href="/"
-            className="btn-primary"
-          >
-            Back to Progress
-          </Link>
-        </div>
       </div>
     </div>
   );
