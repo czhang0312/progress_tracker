@@ -172,24 +172,23 @@ export default function StatsPage() {
       <div className="max-w-[1000px] mx-auto p-4">
         {/* Header */}
         <div className="card mb-4">
-          <div className="card-body">
-            <h1 className="text-3xl font-extrabold text-gradient w-fit">Progress Stats</h1>
-            <p className="text-sm text-neutral-500">Your year at a glance</p>
-          </div>
-        </div>
-
-        {/* Year selector */}
-        <div className="card mb-4">
-          <div className="card-body">
-            <div className="flex items-center justify-center gap-6">
-              <button onClick={() => setYear((y) => y - 1)} className="btn-outline">
+          <div className="card-body flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-extrabold text-gradient w-fit">Progress Stats</h1>
+              <p className="text-sm text-neutral-500">Your year at a glance</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setYear((y) => y - 1)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
+              >
                 ← {year - 1}
               </button>
-              <span className="text-xl font-bold text-neutral-900">{year}</span>
+              <span className="text-sm font-bold text-neutral-900 px-2">{year}</span>
               <button
                 onClick={() => setYear((y) => y + 1)}
                 disabled={year >= currentYear}
-                className="btn-outline disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {year + 1} →
               </button>
