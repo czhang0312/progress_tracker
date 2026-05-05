@@ -309,7 +309,7 @@ export default function ProgressPage() {
                   <table className="table-modern">
                     <thead>
                       <tr>
-                        <th className="sticky left-0 z-20 bg-neutral-100 min-w-[150px]">
+                        <th className="sticky z-20 bg-neutral-100 min-w-[150px]">
                           <span className="text-sm font-semibold text-neutral-500">Goals</span>
                         </th>
                         {Array.from({ length: data.days_in_month }, (_, i) => {
@@ -345,10 +345,10 @@ export default function ProgressPage() {
                     <tbody>
                       {data.goals.map((goal) => (
                         <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
-                          <td className="sticky left-0 z-20 bg-white shadow-sm h-16">
-                            <div className="p-2 h-full flex flex-col justify-center">
+                          <td className="sticky left-0 z-20 bg-white shadow-sm h-16 border-b border-r border-neutral-200">
+                            <div className="px-4 py-[10px] h-full flex flex-col justify-center">
                               <h3 className="font-semibold text-sm text-neutral-900 leading-tight">{goal.name}</h3>
-                              <p className="text-xs text-neutral-500 line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
+                              <p className="text-xs text-neutral-400 line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
                           </td>
                           {Array.from({ length: data.days_in_month }, (_, i) => {
