@@ -173,7 +173,7 @@ export default function StatsPage() {
         {/* Header */}
         <div className="card mb-4">
           <div className="card-body">
-            <h1 className="text-3xl font-extrabold text-gradient">Progress Stats</h1>
+            <h1 className="text-3xl font-extrabold text-gradient w-fit">Progress Stats</h1>
             <p className="text-sm text-neutral-500">Your year at a glance</p>
           </div>
         </div>
