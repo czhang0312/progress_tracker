@@ -67,7 +67,7 @@ function SortableGoalItem({ goal, onDelete }: { goal: Goal; onDelete: (id: numbe
             ⋮⋮
           </div>
           <div className="flex-1">
-            <h3 className="text-base font-bold text-neutral-900 mb-2">{goal.name}</h3>
+            <h3 className="text-base font-bold text-neutral-900 mb-[3px]">{goal.name}</h3>
             <p className="text-description leading-relaxed">{goal.description}</p>
           </div>
           <div className="flex gap-2">
@@ -271,7 +271,7 @@ export default function GoalsPage() {
   return (
     <div className="min-h-screen">
       <NavHeader />
-      <div className="max-w-[1000px] mx-auto p-4">
+      <div className="max-w-[720px] mx-auto p-4">
         {/* Header */}
         <div className="card mb-4">
           <div className="card-body">

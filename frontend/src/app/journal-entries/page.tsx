@@ -159,7 +159,7 @@ export default function JournalEntriesPage() {
   return (
     <div className="min-h-screen">
       <NavHeader />
-      <div className="max-w-[1000px] mx-auto p-4">
+      <div className="max-w-[720px] mx-auto p-4">
         <div className="card mb-4">
           <div className="card-body">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -180,7 +180,7 @@ export default function JournalEntriesPage() {
 
         {/* Search and Filter */}
         <div className="card mb-4">
-          <div className="card-body">
+          <div className="card-body text-sm">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <input
@@ -228,8 +228,8 @@ export default function JournalEntriesPage() {
                 <div className="card-body">
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                     <div>
-                      <h3 className="text-base font-bold text-neutral-900">{formatDate(entry.date)}</h3>
-                      <p className="text-sm text-neutral-500">{getMonthYear(entry.date)}</p>
+                      <h3 className="text-base text-sm font-bold text-neutral-900 mb-[3px]">{formatDate(entry.date)}</h3>
+                      <p className="text-hint">{getMonthYear(entry.date)}</p>
                     </div>
                     <div className="flex gap-2">
                       <Link

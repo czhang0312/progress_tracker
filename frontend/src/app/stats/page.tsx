@@ -286,12 +286,12 @@ export default function StatsPage() {
         {/* Per-goal stat cards */}
         {perGoal.length > 0 && (
           <div>
-            <h2 className="text-xl font-bold text-neutral-900 mb-4">Goal Breakdown</h2>
+            <h2 className="text-lg font-bold text-neutral-900 mb-4">Goal Breakdown</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {perGoal.map((goal) => (
                 <div key={goal.id} className="card">
-                  <div className="card-body">
-                    <h3 className="font-bold text-neutral-900 text-lg mb-1 truncate">{goal.name}</h3>
+                  <div className="card-body p-[18px]">
+                    <h3 className="font-bold text-neutral-900 text-sm mb-1 truncate">{goal.name}</h3>
                     <p className="text-hint mb-4">
                       Since{' '}
                       {new Date(goal.created_at).toLocaleDateString('en-US', {
@@ -303,7 +303,7 @@ export default function StatsPage() {
 
                     {/* Completion bar */}
                     <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
+                      <div className="flex justify-between text-xs mb-1">
                         <span className="text-neutral-500">Completion</span>
                         <span className="font-semibold text-neutral-900">{goal.completion_pct}%</span>
                       </div>
@@ -315,7 +315,7 @@ export default function StatsPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-2 text-description">
                       <div className="flex justify-between">
                         <span className="text-neutral-500">Current streak</span>
                         <span className="font-semibold text-neutral-900">

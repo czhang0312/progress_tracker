@@ -69,7 +69,7 @@
   }
 
   .text-description {
-    @apply text-sm text-neutral-500;
+    @apply text-[13px] text-neutral-500;
   }
 
   .text-hint {
