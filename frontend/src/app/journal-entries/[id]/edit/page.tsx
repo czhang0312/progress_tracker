@@ -212,7 +212,7 @@ export default function EditJournalEntryPage() {
                   required
                 />
                 {errors.date && (
-                  <p className="mt-1 text-sm text-error-600">{errors.date}</p>
+                  <p className="mt-1 text-error-600">{errors.date}</p>
                 )}
               </div>
 
@@ -232,9 +232,9 @@ export default function EditJournalEntryPage() {
                   }`}
                 />
                 {errors.content && (
-                  <p className="mt-1 text-sm text-error-600">{errors.content}</p>
+                  <p className="mt-1 text-error-600">{errors.content}</p>
                 )}
-                <p className="mt-1 text-sm text-neutral-500">
+                <p className="mt-1 text-neutral-500">
                   Leave the content empty to delete this journal entry.
                 </p>
               </div>

@@ -256,7 +256,7 @@ export default function ProgressPage() {
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/progress/${prevMonth.year}/${prevMonth.month}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
                   >
                     <span>←</span>
                     {new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', {
@@ -266,7 +266,7 @@ export default function ProgressPage() {
                   </Link>
                   <Link
                     href={`/progress/${nextMonth.year}/${nextMonth.month}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
                   >
                     {new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', {
                       year: 'numeric',

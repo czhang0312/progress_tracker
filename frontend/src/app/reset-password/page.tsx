@@ -103,7 +103,7 @@ function ResetPasswordForm() {
           <span className="text-error-600 mr-2">⚠️</span>
           <ul className="inline">
             {errors.map((err, i) => (
-              <li key={i} className="text-sm">{err}</li>
+              <li key={i}>{err}</li>
             ))}
           </ul>
         </div>

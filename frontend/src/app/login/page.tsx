@@ -42,22 +42,22 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 animate-fade-in">
+      <div className="max-w-md w-full space-y-4 animate-fade-in">
         <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
-            <span className="text-white text-3xl font-bold">PT</span>
+          <div className="w-12 h-12 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-medium">
+            <span className="text-white text-xl font-bold">PT</span>
           </div>
-          <h1 className="page-title mb-2">
+          <h1 className="page-title mb-1">
             Welcome Back
           </h1>
-          <p className="text-lg text-neutral-600">
+          <p className="text-description">
             Sign in to continue tracking your progress
           </p>
         </div>
 
         <div className="card">
           <div className="card-body">
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label htmlFor="email" className="form-label">
                   Email Address
@@ -70,7 +70,7 @@ export default function LoginPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="form-input"
+                  className="form-input !py-2"
                   placeholder="Enter your email"
                 />
               </div>
@@ -87,27 +87,27 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="form-input"
+                  className="form-input !py-2"
                   placeholder="Enter your password"
                 />
                 <div className="text-right mt-1">
-                  <Link href="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 transition-colors duration-200">
+                  <Link href="/forgot-password" className="text-primary-600 hover:text-primary-700 transition-colors duration-200">
                     Forgot your password?
                   </Link>
                 </div>
               </div>
 
               {error && (
-                <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg flex items-center gap-2" role="alert">
+                <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-2 rounded-lg flex items-center gap-2" role="alert">
                   <span className="text-error-600">⚠️</span>
-                  <span className="text-sm">{error}</span>
+                  <span>{error}</span>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full text-lg py-3"
+                className="btn-primary w-full mt-12"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -120,8 +120,8 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-neutral-600">
+            <div className="mt-3 text-center">
+              <p className="text-description">
                 Don&apos;t have an account?{' '}
                 <Link
                   href="/register"
@@ -132,8 +132,8 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="mt-4 text-center">
-              <Link href="/" className="text-sm text-neutral-500 hover:text-neutral-700 transition-colors duration-200">
+            <div className="mt-2 text-center">
+              <Link href="/" className="text-hint hover:text-neutral-700 transition-colors duration-200">
                 Continue as Guest
               </Link>
             </div>
@@ -141,7 +141,7 @@ export default function LoginPage() {
         </div>
 
         <div className="text-center">
-          <p className="text-sm text-neutral-500">
+          <p className="text-hint">
             Track your goals, monitor progress, and build better habits
           </p>
         </div>

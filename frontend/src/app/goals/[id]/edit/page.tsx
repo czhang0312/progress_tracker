@@ -187,7 +187,7 @@ export default function EditGoalPage() {
                   required
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-error-600">{errors.name}</p>
+                  <p className="mt-1 text-error-600">{errors.name}</p>
                 )}
               </div>
 
@@ -207,7 +207,7 @@ export default function EditGoalPage() {
                   required
                 />
                 {errors.description && (
-                  <p className="mt-1 text-sm text-error-600">{errors.description}</p>
+                  <p className="mt-1 text-error-600">{errors.description}</p>
                 )}
               </div>
 

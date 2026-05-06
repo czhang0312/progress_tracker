@@ -155,7 +155,7 @@ function NewJournalEntryForm() {
                   required
                 />
                 {errors.date && (
-                  <p className="mt-1 text-sm text-error-600">{errors.date}</p>
+                  <p className="mt-1 text-error-600">{errors.date}</p>
                 )}
               </div>
 
@@ -176,7 +176,7 @@ function NewJournalEntryForm() {
                   required
                 />
                 {errors.content && (
-                  <p className="mt-1 text-sm text-error-600">{errors.content}</p>
+                  <p className="mt-1 text-error-600">{errors.content}</p>
                 )}
               </div>
 

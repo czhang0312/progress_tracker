@@ -180,15 +180,15 @@ export default function StatsPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setYear((y) => y - 1)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
               >
                 ← {year - 1}
               </button>
-              <span className="text-sm font-bold text-neutral-900 px-2">{year}</span>
+              <span className="font-bold text-neutral-900 px-2">{year}</span>
               <button
                 onClick={() => setYear((y) => y + 1)}
                 disabled={year >= currentYear}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-sm text-neutral-600 hover:bg-neutral-50 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {year + 1} →
               </button>
@@ -291,7 +291,7 @@ export default function StatsPage() {
               {perGoal.map((goal) => (
                 <div key={goal.id} className="card">
                   <div className="card-body p-[18px]">
-                    <h3 className="font-bold text-neutral-900 text-sm mb-1 truncate">{goal.name}</h3>
+                    <h3 className="font-bold text-neutral-900 mb-1 truncate">{goal.name}</h3>
                     <p className="text-hint mb-4">
                       Since{' '}
                       {new Date(goal.created_at).toLocaleDateString('en-US', {
