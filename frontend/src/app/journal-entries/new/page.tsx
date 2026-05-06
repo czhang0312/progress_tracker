@@ -134,7 +134,7 @@ function NewJournalEntryForm() {
         <div className="card animate-fade-in">
           <div className="card-body">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gradient mb-2">New Journal Entry</h1>
+              <h1 className="page-title mb-2">New Journal Entry</h1>
               <p className="text-description">Capture your thoughts and reflect on your progress.</p>
             </div>
 

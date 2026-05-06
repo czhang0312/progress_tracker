@@ -166,7 +166,7 @@ export default function EditGoalPage() {
         <div className="card animate-fade-in">
           <div className="card-body">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gradient mb-2">Edit Goal</h1>
+              <h1 className="page-title mb-2">Edit Goal</h1>
               <p className="text-description">Update your goal details to keep your progress on track.</p>
             </div>
 

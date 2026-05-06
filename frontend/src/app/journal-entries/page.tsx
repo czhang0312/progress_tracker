@@ -164,7 +164,7 @@ export default function JournalEntriesPage() {
           <div className="card-body">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <h1 className="text-3xl font-extrabold text-gradient">Journal Entries</h1>
+                <h1 className="page-title">Journal Entries</h1>
                 <p className="text-description">Review, search, and manage your entries</p>
               </div>
               <Link

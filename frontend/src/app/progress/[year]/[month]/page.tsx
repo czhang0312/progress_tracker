@@ -249,7 +249,7 @@ export default function ProgressPage() {
             <div className="card-body">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-extrabold text-gradient">Progress Tracker</h1>
+                  <h1 className="page-title">Progress Tracker</h1>
                   <p className="text-description mt-1">{formatDate(year, month)}</p>
                 </div>
 
@@ -285,7 +285,7 @@ export default function ProgressPage() {
               <div className="card sticky-table-container">
                 <div className="card-header flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-neutral-900">Monthly Progress</h2>
+                    <h2 className="text-[17px] font-bold text-neutral-900">Monthly Progress</h2>
                     <p className="text-hint mt-0.5">Click circles to cycle: empty → half → complete</p>
                   </div>
                   <div className="flex items-center gap-4 shrink-0 text-xs text-neutral-500">
@@ -347,7 +347,7 @@ export default function ProgressPage() {
                         <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
                           <td className="sticky left-0 z-20 bg-white shadow-sm h-16 border-b border-r border-neutral-200">
                             <div className="px-4 py-[10px] h-full flex flex-col justify-center">
-                              <h3 className="font-semibold text-sm text-neutral-900 leading-tight">{goal.name}</h3>
+                              <h3 className="font-semibold text-[13px] leading-tight">{goal.name}</h3>
                               <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
                           </td>

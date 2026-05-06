@@ -174,7 +174,7 @@ export default function StatsPage() {
         <div className="card mb-4">
           <div className="card-body flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-extrabold text-gradient w-fit">Progress Stats</h1>
+              <h1 className="page-title w-fit">Progress Stats</h1>
               <p className="text-description">Your year at a glance</p>
             </div>
             <div className="flex items-center gap-2">

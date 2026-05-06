@@ -47,7 +47,7 @@ export default function LoginPage() {
           <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
             <span className="text-white text-3xl font-bold">PT</span>
           </div>
-          <h1 className="text-4xl font-bold text-gradient mb-2">
+          <h1 className="page-title mb-2">
             Welcome Back
           </h1>
           <p className="text-lg text-neutral-600">

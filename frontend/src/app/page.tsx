@@ -24,7 +24,7 @@ export default function Home() {
           <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
             <span className="text-white text-3xl font-bold">PT</span>
           </div>
-          <h1 className="text-4xl font-bold text-gradient mb-2">Progress Tracker</h1>
+          <h1 className="page-title mb-2">Progress Tracker</h1>
           <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mt-6"></div>
           <p className="text-neutral-600 mt-4">Loading your dashboard...</p>
         </div>
@@ -38,7 +38,7 @@ export default function Home() {
         <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
           <span className="text-white text-3xl font-bold">PT</span>
         </div>
-        <h1 className="text-4xl font-bold text-gradient mb-2">Progress Tracker</h1>
+        <h1 className="page-title mb-2">Progress Tracker</h1>
         <p className="text-neutral-600">Redirecting to your dashboard...</p>
       </div>
     </div>

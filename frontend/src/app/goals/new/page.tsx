@@ -76,7 +76,7 @@ export default function NewGoalPage() {
         <div className="card animate-fade-in">
           <div className="card-body">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gradient mb-2">New Goal</h1>
+              <h1 className="page-title mb-2">New Goal</h1>
               <p className="text-description">Define a clear goal to focus your daily progress.</p>
             </div>
 

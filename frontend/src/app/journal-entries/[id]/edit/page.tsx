@@ -191,7 +191,7 @@ export default function EditJournalEntryPage() {
         <div className="card animate-fade-in">
           <div className="card-body">
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gradient mb-2">Edit Journal Entry</h1>
+              <h1 className="page-title mb-2">Edit Journal Entry</h1>
               <p className="text-description">Refine your entry or clear content to remove it.</p>
             </div>
 

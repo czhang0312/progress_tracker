@@ -64,6 +64,10 @@
     @apply px-6 py-5;
   }
 
+  .page-title {
+    @apply text-[28px] font-extrabold text-gradient;
+  }
+
   .text-description {
     @apply text-sm text-neutral-500;
   }
