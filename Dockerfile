@@ -9,7 +9,7 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.4.8
-FROM dhi.io/ruby:$RUBY_VERSION-dev AS base
+FROM ruby:$RUBY_VERSION AS base
 
 # Rails app lives here
 WORKDIR /rails
