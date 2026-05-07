@@ -265,14 +265,14 @@ export default function JournalEntriesPage() {
             ))}
           </div>
         ) : (
-          <div className="card text-center py-10 animate-fade-in">
+          <div className="card text-center py-6 animate-fade-in">
             {entries.length === 0 ? (
               <>
-                <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-neutral-400 text-2xl">📝</span>
+                <div className="w-10 h-10 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-neutral-400 text-lg">📝</span>
                 </div>
-                <h2 className="text-xl font-bold text-neutral-900 mb-4">No journal entries yet</h2>
-                <p className="text-neutral-600 mb-6 max-w-md mx-auto">
+                <h2 className="text-base font-bold text-neutral-900 mb-1">No journal entries yet</h2>
+                <p className="text-description mb-4 max-w-sm mx-auto">
                   Create your first journal entry to capture your thoughts and reflect on your progress.
                 </p>
                 <Link
@@ -283,7 +283,7 @@ export default function JournalEntriesPage() {
                 </Link>
               </>
             ) : (
-              <p className="text-neutral-600">No entries match your search criteria.</p>
+              <p className="text-description">No entries match your search criteria.</p>
             )}
           </div>
         )}
