@@ -65,7 +65,7 @@
   }
 
   .page-title {
-    @apply text-[28px] font-extrabold text-gradient;
+    @apply text-[28px] font-extrabold text-gradient inline-block;
   }
 
   .text-description {

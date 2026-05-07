@@ -399,29 +399,66 @@ export default function ProgressPage() {
         </div>
       </section>
 
-      <section className="min-h-[50vh] bg-sky-50">
-        <div className="max-w-4xl mx-auto px-6 py-14 space-y-5 text-neutral-700 leading-relaxed">
-          <h2 className="text-3xl font-bold text-neutral-900">About This Progress Tracker</h2>
-          <p>
-            This progress tracker helps turn long-term goals into small daily actions. Instead of relying on memory
-            or motivation alone, each day gives you a simple status check: not started, half complete, or complete.
-            Over time, the monthly view makes your consistency visible and helps you spot patterns in effort.
-          </p>
-          <p>
-            The idea is inspired by this habit tracker video on YouTube:{' '}
-            <a
-              href="https://www.youtube.com/watch?v=qaozjfqXbfI&t=289s"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary-600 font-medium hover:text-primary-700 underline"
-            >
-              Habit Tracker Walkthrough
-            </a>
-            . This version adapts the concept to your own workflow with goals and journal entries tied to each day.
-          </p>
-          <p>
-            I created this project to build momentum through clarity: track what matters, reflect as you go, and
-            make progress tangible.
+      <section className="bg-gradient-to-br from-primary-50 via-white to-secondary-50">
+        <div className="max-w-4xl mx-auto px-6 py-16 animate-fade-in">
+          <div className="text-center mb-10">
+            <h2 className="page-title">About This Progress Tracker</h2>
+            <p className="mt-3 text-neutral-500 text-base max-w-xl mx-auto leading-relaxed">
+              Turn long-term goals into small daily actions — and make your consistency visible over time.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="card card-body flex flex-col gap-3">
+              <div className="text-3xl">🎯</div>
+              <h3 className="font-semibold text-neutral-900 text-base">Set Your Goals</h3>
+              <p className="text-neutral-600 text-sm leading-relaxed">
+                Define what matters most to you. Each goal gets its own row in the monthly tracker so nothing falls through the cracks.
+              </p>
+            </div>
+
+            <div className="card card-body flex flex-col gap-3">
+              <div className="text-3xl">📅</div>
+              <h3 className="font-semibold text-neutral-900 text-base">Check In Daily</h3>
+              <p className="text-neutral-600 text-sm leading-relaxed">
+                Each day has a simple three-state check: tap once to mark it started, again for complete. No lengthy forms.
+              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                  <div className="w-5 h-5 rounded-full shrink-0 bg-white border-2 border-neutral-300" />
+                  Not started
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                  <div className="w-5 h-5 rounded-full shrink-0 border-2 border-neutral-300" style={{ background: 'linear-gradient(135deg, #10B981 50%, white 50%)' }} />
+                  Half done
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                  <div className="w-5 h-5 rounded-full shrink-0 bg-secondary-500 border-2 border-secondary-500 flex items-center justify-center text-white text-xs font-bold">✓</div>
+                  Complete
+                </div>
+              </div>
+            </div>
+
+            <div className="card card-body flex flex-col gap-3">
+              <div className="text-3xl">📈</div>
+              <h3 className="font-semibold text-neutral-900 text-base">See Patterns</h3>
+              <p className="text-neutral-600 text-sm leading-relaxed">
+                The monthly view makes your effort visible at a glance. Inspired by{' '}
+                <a
+                  href="https://www.youtube.com/watch?v=qaozjfqXbfI&t=289s"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary-600 font-medium hover:text-primary-700 underline"
+                >
+                  this habit tracker walkthrough
+                </a>
+                , adapted for goals and journal entries.
+              </p>
+            </div>
+          </div>
+
+          <p className="text-center text-neutral-400 text-sm mt-8">
+            Built to build momentum through clarity — track what matters, reflect as you go, and make progress tangible.
           </p>
         </div>
       </section>
