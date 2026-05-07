@@ -309,8 +309,8 @@ export default function ProgressPage() {
                   <table className="table-modern">
                     <thead>
                       <tr>
-                        <th className="sticky z-20 bg-neutral-100 min-w-[150px]">
-                          <span className="text-sm font-semibold text-neutral-500">Goals</span>
+                        <th className="sticky left-0 z-20 bg-neutral-100 min-w-[150px] border-r border-neutral-200">
+                          <span className="text-sm font-semibold text-neutral-500 px-4">Goals</span>
                         </th>
                         {Array.from({ length: data.days_in_month }, (_, i) => {
                           const day = i + 1;
