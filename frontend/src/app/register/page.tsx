@@ -123,20 +123,22 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full mt-12"
-              >
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Creating account...
-                  </div>
-                ) : (
-                  'Create account'
-                )}
-              </button>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-primary w-full"
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Creating account...
+                    </div>
+                  ) : (
+                    'Create account'
+                  )}
+                </button>
+              </div>
             </form>
 
             <div className="mt-3 text-center">
