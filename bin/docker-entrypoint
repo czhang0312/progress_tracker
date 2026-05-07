@@ -6,6 +6,9 @@ if [ -z "${LD_PRELOAD+x}" ]; then
     export LD_PRELOAD
 fi
 
+# Map Railway's PORT to Thruster's listen port (Thruster uses HTTP_PORT, not PORT)
+export HTTP_PORT="${PORT:-80}"
+
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
