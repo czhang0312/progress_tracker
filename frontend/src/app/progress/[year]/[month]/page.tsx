@@ -361,27 +361,15 @@ export default function ProgressPage() {
                         {Array.from({ length: data.days_in_month }, (_, i) => {
                           const day = i + 1;
                           const date = localDateString(new Date(year, month - 1, day));
-                          const journalEntry = getJournalEntry(date);
                           const isToday = date === todayLocalDateString();
                           const isFuture = date > todayLocalDateString();
 
                           return (
-                            <th key={i + 1} className="text-center min-w-[44px] relative">
-                              <div className="flex flex-col items-center gap-1">
+                            <th key={i + 1} className="min-w-[44px]">
+                              <div className="flex items-center justify-center">
                                 <span className={`text-xs font-bold ${isToday ? 'text-primary-600' : isFuture ? 'text-neutral-300' : 'text-neutral-500'}`}>
                                   {day}
                                 </span>
-                                <button
-                                  onClick={() => handleJournalClick(date)}
-                                  className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
-                                    journalEntry
-                                      ? 'bg-primary-600 text-white hover:bg-primary-700'
-                                      : 'border border-neutral-300 text-neutral-400 hover:border-neutral-400 bg-white'
-                                  }`}
-                                  title={journalEntry ? `Edit journal entry for ${date}` : `Add journal entry for ${date}`}
-                                >
-                                  <span className="text-[10px] font-bold leading-none">{journalEntry ? '−' : '+'}</span>
-                                </button>
                               </div>
                             </th>
                           );
@@ -420,6 +408,46 @@ export default function ProgressPage() {
                           })}
                         </tr>
                       ))}
+
+                      {/* Journal row — separated from goals by a thick border */}
+                      <tr className="hover:bg-neutral-50 transition-colors duration-200">
+                        <td className="sticky left-0 z-20 bg-white shadow-sm h-12 border-r border-neutral-200 border-t-2 border-t-neutral-300">
+                          <div className="px-4 h-full flex items-center gap-2">
+                            <span className="text-base leading-none">✏️</span>
+                            <span className="font-semibold text-[13px] text-neutral-600">Journal</span>
+                          </div>
+                        </td>
+                        {Array.from({ length: data.days_in_month }, (_, i) => {
+                          const day = i + 1;
+                          const date = localDateString(new Date(year, month - 1, day));
+                          const journalEntry = getJournalEntry(date);
+                          const isFuture = date > todayLocalDateString();
+
+                          return (
+                            <td key={day} className="p-1 text-center border-t-2 border-t-neutral-300">
+                              {!isFuture && (
+                                <button
+                                  onClick={() => handleJournalClick(date)}
+                                  className={`w-7 h-7 rounded-lg flex items-center justify-center mx-auto transition-all duration-200 ${
+                                    journalEntry
+                                      ? 'bg-primary-100 text-primary-600 hover:bg-primary-200'
+                                      : 'text-neutral-300 hover:text-neutral-400 hover:bg-neutral-100'
+                                  }`}
+                                  title={
+                                    journalEntry
+                                      ? `Edit journal: "${journalEntry.content.substring(0, 60)}${journalEntry.content.length > 60 ? '…' : ''}"`
+                                      : `Add journal entry for ${date}`
+                                  }
+                                >
+                                  <span className="text-[11px] font-bold leading-none">
+                                    {journalEntry ? '✦' : '+'}
+                                  </span>
+                                </button>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
                     </tbody>
                   </table>
                 </div>
