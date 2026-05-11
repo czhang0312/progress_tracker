@@ -20,6 +20,15 @@ export default function NavHeader() {
     { href: '/stats', label: 'Stats', match: '/stats' },
   ];
 
+  const handleCheckin = () => {
+    localStorage.removeItem('last_checkin_date');
+    if (pathname.startsWith('/progress')) {
+      window.dispatchEvent(new Event('checkin-reset'));
+    } else {
+      router.push(`/progress/${year}/${month}`);
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     router.push('/login');
@@ -61,6 +70,14 @@ export default function NavHeader() {
             );
           })}
         </div>
+
+        {/* Check in button */}
+        <button
+          onClick={handleCheckin}
+          className="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 bg-secondary-50 text-secondary-700 hover:bg-secondary-100 border border-secondary-200 shrink-0"
+        >
+          Check in
+        </button>
 
         {/* User info */}
         <div className="flex items-center gap-3">

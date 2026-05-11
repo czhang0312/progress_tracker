@@ -11,9 +11,7 @@ export default function Home() {
   useEffect(() => {
     if (!loading) {
       const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth() + 1; // getMonth() returns 0-11
-      router.push(`/progress/${year}/${month}`);
+      router.push(`/progress/${now.getFullYear()}/${now.getMonth() + 1}`);
     }
   }, [user, loading, router]);
 

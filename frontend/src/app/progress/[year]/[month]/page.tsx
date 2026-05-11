@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
+import CheckinModal from '@/components/CheckinModal';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
@@ -45,15 +46,31 @@ export default function ProgressPage() {
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCheckin, setShowCheckin] = useState(false);
 
   const year = parseInt(params.year as string);
   const month = parseInt(params.month as string);
 
   useEffect(() => {
-    if (authLoading) return; // Wait for auth check to complete
-
+    if (authLoading) return;
     fetchProgressData();
   }, [year, month, user, authLoading, router]);
+
+  useEffect(() => {
+    if (loading || authLoading) return;
+    const today = todayLocalDateString();
+    const now = new Date();
+    const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
+    if (isCurrentMonth && localStorage.getItem('last_checkin_date') !== today) {
+      setShowCheckin(true);
+    }
+
+    const onReset = () => {
+      if (isCurrentMonth) setShowCheckin(true);
+    };
+    window.addEventListener('checkin-reset', onReset);
+    return () => window.removeEventListener('checkin-reset', onReset);
+  }, [loading, authLoading, year, month]);
 
   const fetchProgressData = async () => {
     if (user?.is_guest) {
@@ -236,11 +253,40 @@ export default function ProgressPage() {
     );
   }
 
+  const handleCheckinClose = ({
+    progressUpdates,
+    journalUpdate,
+  }: {
+    progressUpdates: Record<string, DailyProgress>;
+    journalUpdate: JournalEntry | null;
+  }) => {
+    setShowCheckin(false);
+    setData(prev => {
+      if (!prev) return prev;
+      const merged = { ...prev.daily_progresses, ...progressUpdates };
+      const updatedJournals = journalUpdate
+        ? { ...prev.journal_entries, [journalUpdate.date]: journalUpdate }
+        : prev.journal_entries;
+      return { ...prev, daily_progresses: merged, journal_entries: updatedJournals };
+    });
+  };
+
   const prevMonth = getPrevMonth();
   const nextMonth = getNextMonth();
 
   return (
     <div className="min-h-screen">
+      {showCheckin && data && (
+        <CheckinModal
+          goals={data.goals}
+          dailyProgresses={data.daily_progresses}
+          journalEntries={data.journal_entries}
+          today={todayLocalDateString()}
+          year={year}
+          month={month}
+          onClose={handleCheckinClose}
+        />
+      )}
       <NavHeader />
       <section className="min-h-screen">
         <div className="max-w-[1000px] mx-auto p-4">

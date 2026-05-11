@@ -80,6 +80,16 @@
     @apply p-6 border-t border-neutral-200 bg-neutral-50 rounded-b-xl;
   }
 
+  /* Section heading used inside cards */
+  .section-title {
+    @apply text-sm font-semibold text-neutral-700 mb-4;
+  }
+
+  /* Interactive row for check-in goal items */
+  .checkin-goal-row {
+    @apply w-full flex items-center justify-between py-3 px-1 rounded-lg hover:bg-neutral-50 transition-colors text-left;
+  }
+
   /* Modern progress circles */
   .progress-circle {
     @apply w-10 h-10 rounded-full border-2 cursor-pointer mx-auto transition-all duration-300;
@@ -191,6 +201,255 @@
     .card {
       @apply rounded-lg;
     }
+  }
+}
+
+@layer components {
+  /* Daily check-in modal */
+  @keyframes checkinBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes checkinSheetIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.985); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes softPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+
+  .checkin-backdrop {
+    @apply fixed inset-0 flex items-center justify-center p-6;
+    z-index: 100;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: checkinBackdropIn 0.25s ease-out;
+  }
+
+  .checkin-sheet {
+    @apply w-full bg-white flex flex-col overflow-hidden;
+    max-width: 540px;
+    max-height: calc(100vh - 48px);
+    border-radius: 20px;
+    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06);
+    animation: checkinSheetIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .checkin-sheet-done {
+    @apply text-center;
+    max-width: 380px;
+    padding: 44px 32px;
+  }
+
+  .checkin-done-icon {
+    font-size: 56px;
+    margin-bottom: 14px;
+    animation: softPulse 1.4s ease-in-out infinite;
+  }
+
+  .checkin-done-title {
+    @apply text-neutral-900 font-extrabold;
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .checkin-done-sub {
+    @apply text-neutral-500;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .checkin-header {
+    @apply relative;
+    padding: 28px 28px 22px;
+    background: linear-gradient(160deg, rgba(37,99,235,0.08) 0%, rgba(5,150,105,0.06) 60%, transparent 100%);
+    border-bottom: 1px solid #E2E8F0;
+  }
+
+  .checkin-label {
+    @apply text-primary-600 font-semibold uppercase tracking-widest;
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .checkin-greeting {
+    @apply text-neutral-900 font-extrabold;
+    font-size: 26px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .checkin-subtext {
+    @apply text-neutral-500;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .checkin-close {
+    @apply absolute flex items-center justify-center text-neutral-400 rounded-lg cursor-pointer;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.15s;
+  }
+
+  .checkin-close:hover {
+    @apply bg-neutral-100;
+  }
+
+  .checkin-body {
+    @apply flex-1 overflow-y-auto;
+    padding: 20px 22px 8px;
+  }
+
+  .checkin-section-goals {
+    margin-bottom: 18px;
+  }
+
+  .checkin-section-row {
+    @apply flex items-baseline justify-between;
+    margin-bottom: 8px;
+    padding: 0 6px;
+  }
+
+  .checkin-section-title {
+    @apply text-neutral-800 font-semibold;
+    font-size: 13px;
+  }
+
+  .checkin-hint {
+    @apply text-neutral-400;
+    font-size: 12px;
+  }
+
+  .checkin-goals-list {
+    @apply flex flex-col;
+    gap: 2px;
+  }
+
+  .checkin-goal-row {
+    @apply flex items-center cursor-pointer rounded-xl transition-colors duration-150;
+    gap: 14px;
+    padding: 12px 14px;
+  }
+
+  .checkin-goal-row:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .checkin-goal-info {
+    @apply flex-1 min-w-0;
+  }
+
+  .checkin-goal-name {
+    @apply text-neutral-900 font-semibold;
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .checkin-goal-desc {
+    @apply text-neutral-400 overflow-hidden text-ellipsis whitespace-nowrap;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .checkin-status-label {
+    @apply flex-shrink-0 font-semibold text-right;
+    font-size: 12px;
+    min-width: 56px;
+  }
+
+  .checkin-status-done { @apply text-secondary-600; }
+  .checkin-status-half { @apply text-primary-600; }
+  .checkin-status-none { @apply text-neutral-400; }
+
+  .checkin-empty {
+    @apply text-center text-neutral-400;
+    padding: 24px 12px;
+    font-size: 13px;
+  }
+
+  .checkin-journal {
+    @apply bg-neutral-50 rounded-2xl;
+    padding: 14px 16px;
+    border: 1px solid #E2E8F0;
+    margin-bottom: 8px;
+  }
+
+  .checkin-journal-header {
+    margin-bottom: 10px;
+  }
+
+  .checkin-optional {
+    @apply text-neutral-400 font-normal;
+    margin-left: 6px;
+    font-size: 13px;
+  }
+
+  .checkin-textarea {
+    @apply w-full bg-transparent border-none outline-none resize-none text-neutral-900;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0;
+    min-height: 84px;
+  }
+
+  .checkin-textarea::placeholder {
+    @apply text-neutral-400;
+  }
+
+  .checkin-prompts {
+    @apply flex flex-wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .checkin-prompt-chip {
+    @apply inline-flex items-center font-medium cursor-pointer transition-all duration-150;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    border: 1px solid #E2E8F0;
+    background: white;
+    color: #64748B;
+    font-family: inherit;
+  }
+
+  .checkin-prompt-chip:hover {
+    @apply border-primary-500 text-primary-600;
+  }
+
+  .checkin-footer {
+    @apply flex items-center justify-between;
+    padding: 14px 22px 18px;
+    border-top: 1px solid #E2E8F0;
+    gap: 10px;
+  }
+
+  .checkin-skip {
+    @apply cursor-pointer font-medium text-neutral-400 transition-colors duration-150;
+    background: none;
+    border: none;
+    font-size: 13px;
+    padding: 8px 4px;
+    font-family: inherit;
+  }
+
+  .checkin-skip:hover {
+    @apply text-neutral-600;
+  }
+
+  .checkin-save {
+    padding: 10px 22px !important;
+    font-size: 14px !important;
   }
 }
 
