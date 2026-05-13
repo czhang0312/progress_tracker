@@ -291,66 +291,56 @@ export default function ProgressPage() {
       <section className="min-h-screen">
         <div className="max-w-[1000px] mx-auto p-4">
           {/* Header */}
-          <div className="card mb-4">
-            <div className="card-body">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h1 className="page-title">Progress Tracker</h1>
-                  <p className="text-description mt-1">{formatDate(year, month)}</p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="page-title">{formatDate(year, month)}</h1>
+              <div className="flex items-center gap-4 mt-0.5 text-xs text-neutral-500">
+                <span>Click circles to cycle:</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-full border-2 border-neutral-300 bg-white" />
+                  <span>Empty</span>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/progress/${prevMonth.year}/${prevMonth.month}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
-                  >
-                    <span>←</span>
-                    {new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long'
-                    })}
-                  </Link>
-                  <Link
-                    href={`/progress/${nextMonth.year}/${nextMonth.month}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
-                  >
-                    {new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long'
-                    })}
-                    <span>→</span>
-                  </Link>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-full border-2 border-neutral-300 shrink-0" style={{ background: 'linear-gradient(135deg, #10B981 50%, white 50%)' }} />
+                  <span>Half</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center shrink-0">
+                    <span className="text-white font-bold text-xs">✓</span>
+                  </div>
+                  <span>Done</span>
                 </div>
               </div>
+            </div>
+
+            <div className="inline-flex items-center rounded-xl border border-neutral-200 overflow-hidden text-sm text-neutral-500 bg-white">
+              <Link
+                href={`/progress/${prevMonth.year}/${prevMonth.month}`}
+                className="px-3 py-1.5 hover:bg-neutral-50 transition-colors duration-150"
+                title={new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+              >
+                ‹
+              </Link>
+              <Link
+                href={`/progress/${new Date().getFullYear()}/${new Date().getMonth() + 1}`}
+                className="px-3 py-1.5 border-x border-neutral-200 hover:bg-neutral-50 transition-colors duration-150"
+              >
+                Today
+              </Link>
+              <Link
+                href={`/progress/${nextMonth.year}/${nextMonth.month}`}
+                className="px-3 py-1.5 hover:bg-neutral-50 transition-colors duration-150"
+                title={new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+              >
+                ›
+              </Link>
             </div>
           </div>
 
           {data.goals.length > 0 ? (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in mt-4">
               {/* Progress Table */}
               <div className="card sticky-table-container">
-                <div className="card-header flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-[17px] font-bold text-neutral-900">Monthly Progress</h2>
-                    <p className="text-hint mt-0.5">Click circles to cycle: empty → half → complete</p>
-                  </div>
-                  <div className="flex items-center gap-4 shrink-0 text-xs text-neutral-500">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded-full border-2 border-neutral-300 bg-white" />
-                      <span>Empty</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded-full border-2 border-neutral-300 shrink-0" style={{ background: 'linear-gradient(135deg, #10B981 50%, white 50%)' }} />
-                      <span>Half</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center shrink-0">
-                        <span className="text-white font-bold text-xs">✓</span>
-                      </div>
-                      <span>Done</span>
-                    </div>
-                  </div>
-                </div>
                 <div className="overflow-x-auto scrollbar-thin">
                   <table className="table-modern">
                     <thead>
