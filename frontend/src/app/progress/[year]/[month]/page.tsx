@@ -15,6 +15,7 @@ interface Goal {
   name: string;
   description: string;
   position: number;
+  created_at: string;
 }
 
 interface DailyProgress {
@@ -382,17 +383,20 @@ export default function ProgressPage() {
                             const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
                             const isToday = date === todayLocalDateString();
                             const isFuture = date > todayLocalDateString();
+                            const isBeforeCreation = date < goal.created_at.substring(0, 10);
 
                             return (
                               <td key={day} className="p-1 text-center">
-                                <div
-                                  className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''} ${isFuture ? 'opacity-25' : ''}`}
-                                  onClick={() => updateProgress(goal.id, date, status)}
-                                  data-goal-id={goal.id}
-                                  data-date={date}
-                                  data-status={status}
-                                  title={`${goal.name} - Day ${day}: ${statusText}`}
-                                />
+                                {!isBeforeCreation && (
+                                  <div
+                                    className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''} ${isFuture ? 'opacity-25' : ''}`}
+                                    onClick={() => updateProgress(goal.id, date, status)}
+                                    data-goal-id={goal.id}
+                                    data-date={date}
+                                    data-status={status}
+                                    title={`${goal.name} - Day ${day}: ${statusText}`}
+                                  />
+                                )}
                               </td>
                             );
                           })}
