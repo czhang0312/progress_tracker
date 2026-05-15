@@ -294,7 +294,7 @@ export default function ProgressPage() {
           {/* Header */}
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="page-title">{formatDate(year, month)}</h1>
+              <h1 className="page-title ">{formatDate(year, month)}</h1>
               <div className="flex items-center gap-4 mt-0.5 text-xs text-neutral-500">
                 <span>Click circles to cycle:</span>
                 <div className="flex items-center gap-1.5">

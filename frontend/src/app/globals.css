@@ -65,7 +65,7 @@
   }
 
   .page-title {
-    @apply text-[28px] font-extrabold text-gradient inline-block;
+    @apply text-[28px] font-extrabold text-primary-600;
   }
 
   .text-description {
@@ -456,11 +456,6 @@
 /* Utility styles */
 @layer utilities {
   /* Text gradients */
-  .text-gradient {
-    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
-    -webkit-text-fill-color: transparent;
-  }
-
   /* Glass morphism effect */
   .glass {
     @apply bg-white/80 backdrop-blur-sm border border-white/20;

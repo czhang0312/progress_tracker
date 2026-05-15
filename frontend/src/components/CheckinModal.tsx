@@ -205,7 +205,7 @@ export default function CheckinModal({
           <div className="checkin-label">Daily check-in · {niceDate}</div>
           <h1 className="checkin-greeting">
             {greeting},{' '}
-            <span className="text-gradient">{userName}</span>.
+            <span>{userName}</span>.
           </h1>
           <p className="checkin-subtext">
             {streak >= 2 ? (
