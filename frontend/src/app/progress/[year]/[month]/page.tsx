@@ -448,7 +448,7 @@ export default function ProgressPage() {
               </div>
             </div>
           ) : (
-            <div className="card text-center py-6 animate-fade-in">
+            <div className="card text-center py-6 animate-fade-in mt-4">
               <div className="w-10 h-10 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <span className="text-neutral-400 text-lg">🎯</span>
               </div>

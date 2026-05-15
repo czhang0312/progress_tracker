@@ -12,7 +12,7 @@ class ProgressController < ApplicationController
     @month = params[:month].to_i
     @date = Date.new(@year, @month, 1)
 
-    @goals = user_signed_in? ? current_user.goals : Goal.none
+    @goals = user_signed_in? ? current_user.goals.order(:position) : Goal.none
     @days_in_month = @date.end_of_month.day
 
     # Get all daily progress for this month
