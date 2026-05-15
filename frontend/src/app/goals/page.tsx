@@ -273,33 +273,23 @@ export default function GoalsPage() {
       <NavHeader />
       <div className="max-w-[720px] mx-auto p-4">
         {/* Header */}
-        <div className="card mb-4">
-          <div className="card-body">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <div>
-                <h1 className="page-title">Goals</h1>
-                <p className="text-description">Manage and organize your goals</p>
-              </div>
-              <Link
-                href="/goals/new"
-                className="btn-primary"
-              >
-                <span className="mr-2">+</span>
-                Create New Goal
-              </Link>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+          <div>
+            <h1 className="page-title">Goals</h1>
+            <p className="text-description">Manage and organize your goals</p>
           </div>
+          <Link
+            href="/goals/new"
+            className="btn-primary"
+          >
+            <span className="mr-2">+</span>
+            Create New Goal
+          </Link>
         </div>
         
         {/* Goals List */}
         {goals.length > 0 ? (
-          <div className="space-y-4 animate-fade-in">
-            <div className="text-center mb-4">
-              <p className="text-neutral-600">
-                Drag and drop to reorder your goals
-              </p>
-            </div>
-            
+          <div className="space-y-4 animate-fade-in">            
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}

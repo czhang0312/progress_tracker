@@ -171,28 +171,26 @@ export default function StatsPage() {
       <NavHeader />
       <div className="max-w-[1000px] mx-auto p-4">
         {/* Header */}
-        <div className="card mb-4">
-          <div className="card-body flex items-center justify-between gap-4">
-            <div>
-              <h1 className="page-title w-fit">Progress Stats</h1>
-              <p className="text-description">Your year at a glance</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setYear((y) => y - 1)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
-              >
-                ← {year - 1}
-              </button>
-              <span className="font-bold text-neutral-900 px-2">{year}</span>
-              <button
-                onClick={() => setYear((y) => y + 1)}
-                disabled={year >= currentYear}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {year + 1} →
-              </button>
-            </div>
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div>
+            <h1 className="page-title w-fit">Progress Stats</h1>
+            <p className="text-description">Your year at a glance</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setYear((y) => y - 1)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150"
+            >
+              ← {year - 1}
+            </button>
+            <span className="font-bold text-neutral-900 px-2">{year}</span>
+            <button
+              onClick={() => setYear((y) => y + 1)}
+              disabled={year >= currentYear}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {year + 1} →
+            </button>
           </div>
         </div>
 
