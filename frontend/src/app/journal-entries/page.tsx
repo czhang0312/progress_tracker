@@ -160,22 +160,18 @@ export default function JournalEntriesPage() {
     <div className="min-h-screen">
       <NavHeader />
       <div className="max-w-[720px] mx-auto p-4">
-        <div className="card mb-4">
-          <div className="card-body">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-              <div>
-                <h1 className="page-title">Journal Entries</h1>
-                <p className="text-description">Review, search, and manage your entries</p>
-              </div>
-              <Link
-                href="/journal-entries/new"
-                className="btn-primary"
-              >
-                <span className="mr-2">+</span>
-                New Entry
-              </Link>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+          <div>
+            <h1 className="page-title">Journal Entries</h1>
+            <p className="text-description">Review, search, and manage your entries</p>
           </div>
+          <Link
+            href="/journal-entries/new"
+            className="btn-primary"
+          >
+            <span className="mr-2">+</span>
+            New Entry
+          </Link>
         </div>
 
         {/* Search and Filter */}
