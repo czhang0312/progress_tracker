@@ -16,6 +16,7 @@ interface Goal {
   description: string;
   position: number;
   created_at: string;
+  started_at?: string;
 }
 
 interface DailyProgress {
@@ -383,7 +384,7 @@ export default function ProgressPage() {
                             const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
                             const isToday = date === todayLocalDateString();
                             const isFuture = date > todayLocalDateString();
-                            const isBeforeCreation = date < goal.created_at.substring(0, 10);
+                            const isBeforeCreation = date < (goal.started_at ?? goal.created_at.substring(0, 10));
 
                             return (
                               <td key={day} className="p-1 text-center">

@@ -12,6 +12,7 @@ interface Goal {
   name: string;
   description: string;
   position: number;
+  started_at: string;
 }
 
 export default function EditGoalPage() {
@@ -19,7 +20,8 @@ export default function EditGoalPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    started_at: '',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,6 +48,7 @@ export default function EditGoalPage() {
       setFormData({
         name: goal.name,
         description: goal.description,
+        started_at: goal.started_at ?? '',
       });
       setLoading(false);
       return;
@@ -64,7 +67,8 @@ export default function EditGoalPage() {
       const goal: Goal = await response.json();
       setFormData({
         name: goal.name,
-        description: goal.description
+        description: goal.description,
+        started_at: goal.started_at,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -82,6 +86,7 @@ export default function EditGoalPage() {
       const updated = updateGuestGoal(goalId, {
         name: formData.name,
         description: formData.description,
+        started_at: formData.started_at,
       });
 
       if (!updated) {
@@ -209,6 +214,24 @@ export default function EditGoalPage() {
                 {errors.description && (
                   <p className="mt-1 text-error-600">{errors.description}</p>
                 )}
+              </div>
+
+              <div>
+                <label htmlFor="started_at" className="form-label">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  id="started_at"
+                  name="started_at"
+                  value={formData.started_at}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                />
+                <p className="mt-1 text-xs text-neutral-500">
+                  Progress circles are hidden before this date, but existing data is kept.
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">

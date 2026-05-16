@@ -56,21 +56,13 @@ class ProgressController < ApplicationController
 
     Rails.logger.info "Goal: #{@goal.inspect}, Date: #{@date}, Status: #{@status}"
 
-    @daily_progress = DailyProgress.find_or_initialize_by(
-      goal: @goal,
-      date: @date
+    DailyProgress.upsert(
+      { goal_id: @goal.id, date: @date, status: @status },
+      unique_by: %i[goal_id date],
+      update_only: [:status]
     )
 
-    Rails.logger.info "DailyProgress: #{@daily_progress.inspect}"
-
-    @daily_progress.status = @status
-
-    if @daily_progress.save
-      Rails.logger.info "Progress saved successfully"
-      render json: { success: true, status: @status }
-    else
-      Rails.logger.error "Progress save failed: #{@daily_progress.errors.full_messages}"
-      render json: { success: false, errors: @daily_progress.errors.full_messages }, status: :unprocessable_content
-    end
+    Rails.logger.info "Progress saved successfully"
+    render json: { success: true, status: @status }
   end
 end

@@ -35,6 +35,7 @@ class GoalsController < ApplicationController
   def create
     @goal = current_user.goals.build(goal_params)
     @goal.position = current_user.goals.maximum(:position).to_i + 1
+    @goal.started_at ||= Date.today
 
     respond_to do |format|
       if @goal.save
@@ -125,6 +126,6 @@ class GoalsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def goal_params
-      params.require(:goal).permit(:name, :description)
+      params.require(:goal).permit(:name, :description, :started_at)
     end
 end

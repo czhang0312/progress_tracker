@@ -6,6 +6,7 @@ export interface GuestGoal {
   description: string;
   position: number;
   created_at?: string; // YYYY-MM-DD
+  started_at?: string; // YYYY-MM-DD, user-editable tracking start date
 }
 
 export interface GuestJournalEntry {
@@ -86,12 +87,14 @@ export function createGuestGoal(input: { name: string; description: string }): G
   const store = readStore();
   const maxPosition = store.goals.reduce((max, goal) => Math.max(max, goal.position), 0);
 
+  const today = todayLocalDateString();
   const goal: GuestGoal = {
     id: store.nextGoalId,
     name: input.name,
     description: input.description,
     position: maxPosition + 1,
-    created_at: todayLocalDateString(),
+    created_at: today,
+    started_at: today,
   };
 
   store.goals.push(goal);
@@ -101,7 +104,7 @@ export function createGuestGoal(input: { name: string; description: string }): G
   return goal;
 }
 
-export function updateGuestGoal(goalId: number, input: { name: string; description: string }): GuestGoal | null {
+export function updateGuestGoal(goalId: number, input: { name: string; description: string; started_at?: string }): GuestGoal | null {
   const store = readStore();
   const goal = store.goals.find((item) => item.id === goalId);
   if (!goal) {
@@ -110,6 +113,7 @@ export function updateGuestGoal(goalId: number, input: { name: string; descripti
 
   goal.name = input.name;
   goal.description = input.description;
+  if (input.started_at !== undefined) goal.started_at = input.started_at;
   writeStore(store);
 
   return goal;
@@ -274,7 +278,7 @@ function guestBestMonth(goal: GuestGoal, allProgress: GuestDailyProgress[]): str
   if (allProgress.length === 0) return null;
 
   const today = todayLocalDateString();
-  const createdAt = goal.created_at ?? (allProgress[0]?.date ?? today);
+  const createdAt = goal.started_at ?? goal.created_at ?? (allProgress[0]?.date ?? today);
 
   const monthGroups = new Map<string, GuestDailyProgress[]>();
   allProgress.forEach((dp) => {
@@ -329,11 +333,10 @@ export function getGuestStats(year: number): GuestStatsData {
   const today = todayLocalDateString();
 
   const per_goal: GuestGoalStats[] = store.goals.map((goal) => {
+    const createdAt = goal.started_at ?? goal.created_at ?? today;
     const allProgress = store.dailyProgresses
-      .filter((dp) => dp.goal_id === goal.id)
+      .filter((dp) => dp.goal_id === goal.id && dp.date >= createdAt)
       .sort((a, b) => a.date.localeCompare(b.date));
-
-    const createdAt = goal.created_at ?? (allProgress[0]?.date ?? today);
     const totalDays = Math.max(
       Math.round((new Date(today + 'T00:00:00').getTime() - new Date(createdAt + 'T00:00:00').getTime()) / 86400000) + 1,
       0
