@@ -404,8 +404,8 @@ export default function ProgressPage() {
                       ))}
 
                       {/* Journal row — separated from goals by a thick border */}
-                      <tr className="hover:bg-neutral-50 transition-colors duration-200">
-                        <td className="sticky left-0 z-20 bg-white shadow-sm h-12 border-r border-neutral-200 border-t-2 border-t-neutral-300">
+                      <tr className="journal-row hover:bg-neutral-50 transition-colors duration-200">
+                        <td className="sticky left-0 z-20 bg-white shadow-sm h-12 border-r border-neutral-200">
                           <div className="px-4 h-full flex items-center gap-2">
                             <span className="text-base leading-none">✏️</span>
                             <span className="font-semibold text-[13px] text-neutral-600">Journal</span>
@@ -418,7 +418,7 @@ export default function ProgressPage() {
                           const isFuture = date > todayLocalDateString();
 
                           return (
-                            <td key={day} className="p-1 text-center border-t-2 border-t-neutral-300">
+                            <td key={day} className="p-1 text-center">
                               {!isFuture && (
                                 <button
                                   onClick={() => handleJournalClick(date)}
