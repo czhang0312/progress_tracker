@@ -59,7 +59,7 @@ class ProgressController < ApplicationController
     DailyProgress.upsert(
       { goal_id: @goal.id, date: @date, status: @status },
       unique_by: %i[goal_id date],
-      update_only: [:status]
+      update_only: [ :status ]
     )
 
     Rails.logger.info "Progress saved successfully"
