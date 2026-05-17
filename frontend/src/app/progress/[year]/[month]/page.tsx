@@ -645,7 +645,7 @@ export default function ProgressPage() {
       )}
       <NavHeader />
       <section className="min-h-screen">
-        <div className="max-w-[1000px] mx-auto p-4">
+        <div className="max-w-[1200px] mx-auto p-4">
           {/* Header */}
           <div className="flex items-center justify-between gap-4">
             <div>
@@ -700,7 +700,7 @@ export default function ProgressPage() {
                 <table className="table-modern">
                   <thead>
                     <tr>
-                      <th className="sticky left-0 z-20 bg-neutral-100 min-w-[150px] border-r border-neutral-200">
+                      <th className="sticky left-0 z-20 bg-neutral-100 w-[200px] min-w-[200px] max-w-[200px]">
                         <span className="text-sm font-semibold text-neutral-500 px-4">Goals</span>
                       </th>
                       {Array.from({ length: data.days_in_month }, (_, i) => {
@@ -724,10 +724,10 @@ export default function ProgressPage() {
                   <tbody>
                     {data.goals.map((goal) => (
                       <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
-                        <td className="sticky left-0 z-20 bg-white shadow-sm h-16 border-b border-r border-neutral-200 group">
+                        <td className="sticky left-0 z-20 bg-white h-16 border-b group w-[200px] min-w-[200px] max-w-[200px]">
                           <div className="relative h-full">
                             <div className="px-4 py-[10px] h-full flex flex-col justify-center pr-8">
-                              <h3 className="font-semibold text-[13px] leading-tight">{goal.name}</h3>
+                              <h3 className="font-semibold text-[13px] leading-tight line-clamp-2">{goal.name}</h3>
                               <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
                             <button
@@ -773,7 +773,7 @@ export default function ProgressPage() {
 
                     {/* Add goal row */}
                     <tr className="hover:bg-neutral-50 transition-colors duration-200">
-                      <td className="sticky left-0 z-20 bg-white h-10 border-b border-r border-neutral-200">
+                      <td className="sticky left-0 z-20 bg-white h-10 border-b">
                         <button
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={openAddGoal}
@@ -790,7 +790,7 @@ export default function ProgressPage() {
 
                     {/* Journal row — separated from goals by a thick border */}
                     <tr className="journal-row hover:bg-neutral-50 transition-colors duration-200">
-                      <td className="sticky left-0 z-20 bg-white shadow-sm h-12 border-r border-neutral-200">
+                      <td className="sticky left-0 z-20 bg-white h-12">
                         <div className="px-4 h-full flex items-center gap-2">
                           <span className="text-base leading-none">✏️</span>
                           <span className="font-semibold text-[13px] text-neutral-600">Journal</span>

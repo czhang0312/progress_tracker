@@ -191,6 +191,12 @@
     @apply relative overflow-hidden rounded-xl border border-neutral-200 shadow-soft;
   }
 
+  /* box-shadow draws inside the element boundary so it isn't clipped by border-collapse */
+  .table-modern th.sticky,
+  .table-modern td.sticky {
+    box-shadow: 1px 0 0 0 #e5e7eb;
+  }
+
   .sticky-table-container::after {
     content: '';
     @apply absolute top-0 right-0 w-1 h-full bg-gradient-to-r from-transparent to-neutral-200 pointer-events-none;
