@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import CheckinModal from '@/components/CheckinModal';
 import { RAILS_API_BASE } from '@/lib/config';
-import { getGuestMonthlyProgress, setGuestProgressStatus } from '@/lib/guestStorage';
+import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 
 interface Goal {
@@ -49,6 +49,13 @@ export default function ProgressPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCheckin, setShowCheckin] = useState(false);
+  const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
+  const [editFormData, setEditFormData] = useState({ name: '', description: '', started_at: '' });
+  const [editSaving, setEditSaving] = useState(false);
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const editPopoverRef = useRef<HTMLDivElement>(null);
+  const editTdRef = useRef<HTMLElement | null>(null);
+  const [editPopoverPos, setEditPopoverPos] = useState<{ top: number; left: number } | null>(null);
 
   const year = parseInt(params.year as string);
   const month = parseInt(params.month as string);
@@ -73,6 +80,119 @@ export default function ProgressPage() {
     window.addEventListener('checkin-reset', onReset);
     return () => window.removeEventListener('checkin-reset', onReset);
   }, [loading, authLoading, year, month]);
+
+
+  useEffect(() => {
+    if (!editingGoalId) return;
+    const updatePos = () => {
+      if (!editTdRef.current) return;
+      const rect = editTdRef.current.getBoundingClientRect();
+      setEditPopoverPos({ top: rect.bottom, left: rect.left + 10 });
+    };
+    window.addEventListener('scroll', updatePos, true);
+    return () => window.removeEventListener('scroll', updatePos, true);
+  }, [editingGoalId]);
+
+  useEffect(() => {
+    if (!editingGoalId) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (editPopoverRef.current && !editPopoverRef.current.contains(e.target as Node)) {
+        setEditingGoalId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, [editingGoalId]);
+
+  const openGoalEdit = (goal: Goal, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (editingGoalId === goal.id) {
+      setEditingGoalId(null);
+      return;
+    }
+    const td = (e.currentTarget as HTMLElement).closest('td')!;
+    editTdRef.current = td as HTMLElement;
+    const rect = td.getBoundingClientRect();
+    setEditPopoverPos({ top: rect.bottom, left: rect.left + 10 });
+    setEditingGoalId(goal.id);
+    setEditFormData({
+      name: goal.name,
+      description: goal.description,
+      started_at: goal.started_at ?? goal.created_at?.substring(0, 10) ?? '',
+    });
+    setEditErrors({});
+  };
+
+  const handleGoalEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleGoalEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingGoalId) return;
+    setEditSaving(true);
+    setEditErrors({});
+
+    if (user?.is_guest) {
+      const updated = updateGuestGoal(editingGoalId, {
+        name: editFormData.name,
+        description: editFormData.description,
+        started_at: editFormData.started_at,
+      });
+      if (updated) {
+        setData(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            goals: prev.goals.map(g =>
+              g.id === editingGoalId ? { ...g, ...editFormData } : g
+            ),
+          };
+        });
+        setEditingGoalId(null);
+      }
+      setEditSaving(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${RAILS_API_BASE}/goals/${editingGoalId}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editFormData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.errors) {
+          setEditErrors(errorData.errors);
+        } else {
+          throw new Error('Failed to update goal');
+        }
+        return;
+      }
+
+      setData(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          goals: prev.goals.map(g =>
+            g.id === editingGoalId ? { ...g, ...editFormData } : g
+          ),
+        };
+      });
+      setEditingGoalId(null);
+    } catch (err) {
+      console.error('Error updating goal:', err);
+      alert('Failed to update goal');
+    } finally {
+      setEditSaving(false);
+    }
+  };
 
   const fetchProgressData = async () => {
     if (user?.is_guest) {
@@ -278,6 +398,66 @@ export default function ProgressPage() {
 
   return (
     <div className="min-h-screen">
+      {editingGoalId && editPopoverPos && (
+        <div
+          ref={editPopoverRef}
+          className="fixed z-[200] w-[480px] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 p-4"
+          style={{ top: editPopoverPos.top, left: editPopoverPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
+        >
+          <form onSubmit={handleGoalEditSubmit} className="space-y-3">
+            <h3 className="font-semibold text-sm text-neutral-600">Edit Goal</h3>
+
+            <div>
+              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Name</label>
+              <input
+                type="text"
+                name="name"
+                value={editFormData.name}
+                onChange={handleGoalEditChange}
+                className={`form-input py-1.5 font-semibold ${editErrors.name ? 'border-error-500 focus:ring-error-500' : ''}`}
+                style={{ fontSize: '13px' }}
+                required
+              />
+              {editErrors.name && <p className="mt-0.5 text-xs text-error-600">{editErrors.name}</p>}
+            </div>
+
+            <div>
+              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description</label>
+              <textarea
+                name="description"
+                value={editFormData.description}
+                onChange={handleGoalEditChange}
+                rows={3}
+                className={`form-input text-xs py-1.5 ${editErrors.description ? 'border-error-500 focus:ring-error-500' : ''}`}
+                required
+              />
+              {editErrors.description && <p className="mt-0.5 text-xs text-error-600">{editErrors.description}</p>}
+            </div>
+
+            <div>
+              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Start Date</label>
+              <input
+                type="date"
+                name="started_at"
+                value={editFormData.started_at}
+                onChange={handleGoalEditChange}
+                className="form-input text-xs py-1.5"
+                required
+              />
+              <p className="mt-1 text-xs text-neutral-400">Progress circles hidden before this date.</p>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button type="submit" disabled={editSaving} className="btn-primary">
+                {editSaving ? 'Saving...' : 'Save'}
+              </button>
+              <button type="button" onClick={() => setEditingGoalId(null)} className="btn-outline">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       {showCheckin && data && (
         <CheckinModal
           goals={data.goals}
@@ -371,10 +551,24 @@ export default function ProgressPage() {
                     <tbody>
                       {data.goals.map((goal) => (
                         <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
-                          <td className="sticky left-0 z-20 bg-white shadow-sm h-16 border-b border-r border-neutral-200">
-                            <div className="px-4 py-[10px] h-full flex flex-col justify-center">
-                              <h3 className="font-semibold text-[13px] leading-tight">{goal.name}</h3>
-                              <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
+                          <td className="sticky left-0 z-20 bg-white shadow-sm h-16 border-b border-r border-neutral-200 group">
+                            <div className="relative h-full">
+                              <div className="px-4 py-[10px] h-full flex flex-col justify-center pr-8">
+                                <h3 className="font-semibold text-[13px] leading-tight">{goal.name}</h3>
+                                <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
+                              </div>
+                              <button
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onClick={(e) => openGoalEdit(goal, e)}
+                                className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors opacity-0 group-hover:opacity-100"
+                                title="Edit goal"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                  <circle cx="12" cy="5" r="2" />
+                                  <circle cx="12" cy="12" r="2" />
+                                  <circle cx="12" cy="19" r="2" />
+                                </svg>
+                              </button>
                             </div>
                           </td>
                           {Array.from({ length: data.days_in_month }, (_, i) => {
