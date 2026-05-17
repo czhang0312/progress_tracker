@@ -57,6 +57,7 @@ export default function ProgressPage() {
   const editTdRef = useRef<HTMLElement | null>(null);
   const [editPopoverPos, setEditPopoverPos] = useState<{ top: number; left: number } | null>(null);
   const [showAddGoal, setShowAddGoal] = useState(false);
+  const [showAddDescription, setShowAddDescription] = useState(false);
   const [addGoalFormData, setAddGoalFormData] = useState({ name: '', description: '' });
   const [addGoalSaving, setAddGoalSaving] = useState(false);
   const [addGoalErrors, setAddGoalErrors] = useState<Record<string, string>>({});
@@ -145,6 +146,7 @@ export default function ProgressPage() {
     setAddGoalPos({ top: rect.bottom, left: rect.left + 10 });
     setAddGoalFormData({ name: '', description: '' });
     setAddGoalErrors({});
+    setShowAddDescription(false);
     setShowAddGoal(true);
   };
 
@@ -591,7 +593,7 @@ export default function ProgressPage() {
           style={{ top: addGoalPos.top, left: addGoalPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
         >
           <form onSubmit={handleAddGoalSubmit} className="space-y-3">
-            <h3 className="font-semibold text-sm text-neutral-400">New Goal</h3>
+            <h3 className="font-semibold text-sm text-neutral-600">New Goal</h3>
 
             <div>
               <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Name</label>
@@ -608,18 +610,27 @@ export default function ProgressPage() {
               {addGoalErrors.name && <p className="mt-0.5 text-xs text-error-600">{addGoalErrors.name}</p>}
             </div>
 
-            <div>
-              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description</label>
-              <textarea
-                name="description"
-                value={addGoalFormData.description}
-                onChange={(e) => setAddGoalFormData(prev => ({ ...prev, description: e.target.value }))}
-                rows={3}
-                className={`form-input text-xs py-1.5 ${addGoalErrors.description ? 'border-error-500 focus:ring-error-500' : ''}`}
-                required
-              />
-              {addGoalErrors.description && <p className="mt-0.5 text-xs text-error-600">{addGoalErrors.description}</p>}
-            </div>
+            {!showAddDescription ? (
+              <button
+                type="button"
+                onClick={() => setShowAddDescription(true)}
+                className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors underline"
+              >
+                + Add description
+              </button>
+            ) : (
+              <div>
+                <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description <span className="normal-case font-normal">(optional)</span></label>
+                <textarea
+                  name="description"
+                  value={addGoalFormData.description}
+                  onChange={(e) => setAddGoalFormData(prev => ({ ...prev, description: e.target.value }))}
+                  rows={3}
+                  autoFocus
+                  className="form-input text-xs py-1.5"
+                />
+              </div>
+            )}
 
             <div className="flex gap-2 pt-1">
               <button type="submit" disabled={addGoalSaving} className="btn-primary">
