@@ -7,7 +7,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import CheckinModal from '@/components/CheckinModal';
 import { RAILS_API_BASE } from '@/lib/config';
-import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal } from '@/lib/guestStorage';
+import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 
 interface Goal {
@@ -125,6 +125,32 @@ export default function ProgressPage() {
   const handleGoalEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleGoalDelete = async () => {
+    if (!editingGoalId) return;
+    if (!window.confirm('Delete this goal? This cannot be undone.')) return;
+
+    if (user?.is_guest) {
+      deleteGuestGoal(editingGoalId);
+      setData(prev => prev ? { ...prev, goals: prev.goals.filter(g => g.id !== editingGoalId) } : prev);
+      setEditingGoalId(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${RAILS_API_BASE}/goals/${editingGoalId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to delete goal');
+      setData(prev => prev ? { ...prev, goals: prev.goals.filter(g => g.id !== editingGoalId) } : prev);
+      setEditingGoalId(null);
+    } catch (err) {
+      console.error('Error deleting goal:', err);
+      alert('Failed to delete goal');
+    }
   };
 
   const handleGoalEditSubmit = async (e: React.FormEvent) => {
@@ -447,12 +473,19 @@ export default function ProgressPage() {
               <p className="mt-1 text-xs text-neutral-400">Progress circles hidden before this date.</p>
             </div>
 
-            <div className="flex gap-2 pt-1">
+            <div className="flex items-center gap-2 pt-1">
               <button type="submit" disabled={editSaving} className="btn-primary">
                 {editSaving ? 'Saving...' : 'Save'}
               </button>
               <button type="button" onClick={() => setEditingGoalId(null)} className="btn-outline">
                 Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleGoalDelete}
+                className="ml-auto text-xs text-error-500 hover:text-error-700 hover:bg-error-50 px-2 py-1.5 rounded transition-colors"
+              >
+                Delete
               </button>
             </div>
           </form>
