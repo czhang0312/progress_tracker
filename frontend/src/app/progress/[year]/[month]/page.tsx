@@ -7,7 +7,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import CheckinModal from '@/components/CheckinModal';
 import { RAILS_API_BASE } from '@/lib/config';
-import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal } from '@/lib/guestStorage';
+import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 
 interface Goal {
@@ -56,6 +56,13 @@ export default function ProgressPage() {
   const editPopoverRef = useRef<HTMLDivElement>(null);
   const editTdRef = useRef<HTMLElement | null>(null);
   const [editPopoverPos, setEditPopoverPos] = useState<{ top: number; left: number } | null>(null);
+  const [showAddGoal, setShowAddGoal] = useState(false);
+  const [addGoalFormData, setAddGoalFormData] = useState({ name: '', description: '' });
+  const [addGoalSaving, setAddGoalSaving] = useState(false);
+  const [addGoalErrors, setAddGoalErrors] = useState<Record<string, string>>({});
+  const addGoalPopoverRef = useRef<HTMLDivElement>(null);
+  const addGoalTdRef = useRef<HTMLElement | null>(null);
+  const [addGoalPos, setAddGoalPos] = useState<{ top: number; left: number } | null>(null);
 
   const year = parseInt(params.year as string);
   const month = parseInt(params.month as string);
@@ -104,7 +111,93 @@ export default function ProgressPage() {
     return () => document.removeEventListener('mousedown', handleMouseDown);
   }, [editingGoalId]);
 
+  useEffect(() => {
+    if (!showAddGoal) return;
+    const updatePos = () => {
+      if (!addGoalTdRef.current) return;
+      const rect = addGoalTdRef.current.getBoundingClientRect();
+      setAddGoalPos({ top: rect.bottom, left: rect.left + 10 });
+    };
+    window.addEventListener('scroll', updatePos, true);
+    return () => window.removeEventListener('scroll', updatePos, true);
+  }, [showAddGoal]);
+
+  useEffect(() => {
+    if (!showAddGoal) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (addGoalPopoverRef.current && !addGoalPopoverRef.current.contains(e.target as Node)) {
+        setShowAddGoal(false);
+      }
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
+  }, [showAddGoal]);
+
+  const openAddGoal = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setEditingGoalId(null);
+    if (showAddGoal) {
+      setShowAddGoal(false);
+      return;
+    }
+    const td = (e.currentTarget as HTMLElement).closest('td')!;
+    addGoalTdRef.current = td as HTMLElement;
+    const rect = td.getBoundingClientRect();
+    setAddGoalPos({ top: rect.bottom, left: rect.left + 10 });
+    setAddGoalFormData({ name: '', description: '' });
+    setAddGoalErrors({});
+    setShowAddGoal(true);
+  };
+
+  const handleAddGoalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddGoalSaving(true);
+    setAddGoalErrors({});
+
+    if (user?.is_guest) {
+      const newGoal = createGuestGoal({
+        name: addGoalFormData.name,
+        description: addGoalFormData.description,
+      });
+      setData(prev => prev ? { ...prev, goals: [...prev.goals, newGoal] } : prev);
+      setShowAddGoal(false);
+      setAddGoalSaving(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${RAILS_API_BASE}/goals`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(addGoalFormData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.errors) {
+          setAddGoalErrors(errorData.errors);
+        } else {
+          throw new Error('Failed to create goal');
+        }
+        return;
+      }
+
+      const newGoal = await response.json();
+      setData(prev => prev ? { ...prev, goals: [...prev.goals, newGoal] } : prev);
+      setShowAddGoal(false);
+    } catch (err) {
+      console.error('Error creating goal:', err);
+      alert('Failed to create goal');
+    } finally {
+      setAddGoalSaving(false);
+    }
+  };
+
   const openGoalEdit = (goal: Goal, e: React.MouseEvent<HTMLButtonElement>) => {
+    setShowAddGoal(false);
     if (editingGoalId === goal.id) {
       setEditingGoalId(null);
       return;
@@ -491,6 +584,54 @@ export default function ProgressPage() {
           </form>
         </div>
       )}
+      {showAddGoal && addGoalPos && (
+        <div
+          ref={addGoalPopoverRef}
+          className="fixed z-[200] w-[480px] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 p-4"
+          style={{ top: addGoalPos.top, left: addGoalPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
+        >
+          <form onSubmit={handleAddGoalSubmit} className="space-y-3">
+            <h3 className="font-semibold text-sm text-neutral-400">New Goal</h3>
+
+            <div>
+              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Name</label>
+              <input
+                type="text"
+                name="name"
+                value={addGoalFormData.name}
+                onChange={(e) => setAddGoalFormData(prev => ({ ...prev, name: e.target.value }))}
+                className={`form-input py-1.5 font-semibold ${addGoalErrors.name ? 'border-error-500 focus:ring-error-500' : ''}`}
+                style={{ fontSize: '13px' }}
+                autoFocus
+                required
+              />
+              {addGoalErrors.name && <p className="mt-0.5 text-xs text-error-600">{addGoalErrors.name}</p>}
+            </div>
+
+            <div>
+              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description</label>
+              <textarea
+                name="description"
+                value={addGoalFormData.description}
+                onChange={(e) => setAddGoalFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={3}
+                className={`form-input text-xs py-1.5 ${addGoalErrors.description ? 'border-error-500 focus:ring-error-500' : ''}`}
+                required
+              />
+              {addGoalErrors.description && <p className="mt-0.5 text-xs text-error-600">{addGoalErrors.description}</p>}
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button type="submit" disabled={addGoalSaving} className="btn-primary">
+                {addGoalSaving ? 'Creating...' : 'Create Goal'}
+              </button>
+              <button type="button" onClick={() => setShowAddGoal(false)} className="btn-outline">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       {showCheckin && data && (
         <CheckinModal
           goals={data.goals}
@@ -552,146 +693,145 @@ export default function ProgressPage() {
             </div>
           </div>
 
-          {data.goals.length > 0 ? (
-            <div className="animate-fade-in mt-4">
-              {/* Progress Table */}
-              <div className="card sticky-table-container">
-                <div className="overflow-x-auto scrollbar-thin">
-                  <table className="table-modern">
-                    <thead>
-                      <tr>
-                        <th className="sticky left-0 z-20 bg-neutral-100 min-w-[150px] border-r border-neutral-200">
-                          <span className="text-sm font-semibold text-neutral-500 px-4">Goals</span>
-                        </th>
-                        {Array.from({ length: data.days_in_month }, (_, i) => {
-                          const day = i + 1;
-                          const date = localDateString(new Date(year, month - 1, day));
-                          const isToday = date === todayLocalDateString();
-                          const isFuture = date > todayLocalDateString();
+          <div className="animate-fade-in mt-4">
+            {/* Progress Table */}
+            <div className="card sticky-table-container">
+              <div className="overflow-x-auto scrollbar-thin">
+                <table className="table-modern">
+                  <thead>
+                    <tr>
+                      <th className="sticky left-0 z-20 bg-neutral-100 min-w-[150px] border-r border-neutral-200">
+                        <span className="text-sm font-semibold text-neutral-500 px-4">Goals</span>
+                      </th>
+                      {Array.from({ length: data.days_in_month }, (_, i) => {
+                        const day = i + 1;
+                        const date = localDateString(new Date(year, month - 1, day));
+                        const isToday = date === todayLocalDateString();
+                        const isFuture = date > todayLocalDateString();
 
-                          return (
-                            <th key={i + 1} className="min-w-[44px]">
-                              <div className="flex items-center justify-center">
-                                <span className={`text-xs font-bold ${isToday ? 'text-primary-600' : isFuture ? 'text-neutral-300' : 'text-neutral-500'}`}>
-                                  {day}
-                                </span>
-                              </div>
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.goals.map((goal) => (
-                        <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
-                          <td className="sticky left-0 z-20 bg-white shadow-sm h-16 border-b border-r border-neutral-200 group">
-                            <div className="relative h-full">
-                              <div className="px-4 py-[10px] h-full flex flex-col justify-center pr-8">
-                                <h3 className="font-semibold text-[13px] leading-tight">{goal.name}</h3>
-                                <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
-                              </div>
-                              <button
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onClick={(e) => openGoalEdit(goal, e)}
-                                className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors opacity-0 group-hover:opacity-100"
-                                title="Edit goal"
-                              >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                  <circle cx="12" cy="5" r="2" />
-                                  <circle cx="12" cy="12" r="2" />
-                                  <circle cx="12" cy="19" r="2" />
-                                </svg>
-                              </button>
+                        return (
+                          <th key={i + 1} className="min-w-[44px]">
+                            <div className="flex items-center justify-center">
+                              <span className={`text-xs font-bold ${isToday ? 'text-primary-600' : isFuture ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                                {day}
+                              </span>
                             </div>
-                          </td>
-                          {Array.from({ length: data.days_in_month }, (_, i) => {
-                            const day = i + 1;
-                            const date = localDateString(new Date(year, month - 1, day));
-                            const status = getProgressStatus(goal.id, date);
-                            const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
-                            const isToday = date === todayLocalDateString();
-                            const isFuture = date > todayLocalDateString();
-                            const isBeforeCreation = date < (goal.started_at ?? goal.created_at?.substring(0, 10) ?? '');
-
-                            return (
-                              <td key={day} className="p-1 text-center">
-                                {!isBeforeCreation && (
-                                  <div
-                                    className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''} ${isFuture ? 'opacity-25' : ''}`}
-                                    onClick={() => updateProgress(goal.id, date, status)}
-                                    data-goal-id={goal.id}
-                                    data-date={date}
-                                    data-status={status}
-                                    title={`${goal.name} - Day ${day}: ${statusText}`}
-                                  />
-                                )}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      ))}
-
-                      {/* Journal row — separated from goals by a thick border */}
-                      <tr className="journal-row hover:bg-neutral-50 transition-colors duration-200">
-                        <td className="sticky left-0 z-20 bg-white shadow-sm h-12 border-r border-neutral-200">
-                          <div className="px-4 h-full flex items-center gap-2">
-                            <span className="text-base leading-none">✏️</span>
-                            <span className="font-semibold text-[13px] text-neutral-600">Journal</span>
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.goals.map((goal) => (
+                      <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
+                        <td className="sticky left-0 z-20 bg-white shadow-sm h-16 border-b border-r border-neutral-200 group">
+                          <div className="relative h-full">
+                            <div className="px-4 py-[10px] h-full flex flex-col justify-center pr-8">
+                              <h3 className="font-semibold text-[13px] leading-tight">{goal.name}</h3>
+                              <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
+                            </div>
+                            <button
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onClick={(e) => openGoalEdit(goal, e)}
+                              className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors opacity-0 group-hover:opacity-100"
+                              title="Edit goal"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="5" r="2" />
+                                <circle cx="12" cy="12" r="2" />
+                                <circle cx="12" cy="19" r="2" />
+                              </svg>
+                            </button>
                           </div>
                         </td>
                         {Array.from({ length: data.days_in_month }, (_, i) => {
                           const day = i + 1;
                           const date = localDateString(new Date(year, month - 1, day));
-                          const journalEntry = getJournalEntry(date);
+                          const status = getProgressStatus(goal.id, date);
+                          const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
+                          const isToday = date === todayLocalDateString();
                           const isFuture = date > todayLocalDateString();
+                          const isBeforeCreation = date < (goal.started_at ?? goal.created_at?.substring(0, 10) ?? '');
 
                           return (
                             <td key={day} className="p-1 text-center">
-                              {!isFuture && (
-                                <button
-                                  onClick={() => handleJournalClick(date)}
-                                  className={`w-7 h-7 rounded-lg flex items-center justify-center mx-auto transition-all duration-200 ${
-                                    journalEntry
-                                      ? 'bg-primary-100 text-primary-600 hover:bg-primary-200'
-                                      : 'text-neutral-300 hover:text-neutral-400 hover:bg-neutral-100'
-                                  }`}
-                                  title={
-                                    journalEntry
-                                      ? `Edit journal: "${journalEntry.content.substring(0, 60)}${journalEntry.content.length > 60 ? '…' : ''}"`
-                                      : `Add journal entry for ${date}`
-                                  }
-                                >
-                                  <span className="text-[11px] font-bold leading-none">
-                                    {journalEntry ? '✦' : '+'}
-                                  </span>
-                                </button>
+                              {!isBeforeCreation && (
+                                <div
+                                  className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''} ${isFuture ? 'opacity-25' : ''}`}
+                                  onClick={() => updateProgress(goal.id, date, status)}
+                                  data-goal-id={goal.id}
+                                  data-date={date}
+                                  data-status={status}
+                                  title={`${goal.name} - Day ${day}: ${statusText}`}
+                                />
                               )}
                             </td>
                           );
                         })}
                       </tr>
-                    </tbody>
-                  </table>
-                </div>
+                    ))}
+
+                    {/* Add goal row */}
+                    <tr className="hover:bg-neutral-50 transition-colors duration-200">
+                      <td className="sticky left-0 z-20 bg-white h-10 border-b border-r border-neutral-200">
+                        <button
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={openAddGoal}
+                          className="px-4 h-full w-full flex items-center gap-1.5 text-neutral-400 hover:text-primary-600 transition-colors text-xs font-medium"
+                        >
+                          <span className="text-sm leading-none">+</span>
+                          Add a goal
+                        </button>
+                      </td>
+                      {Array.from({ length: data.days_in_month }, (_, i) => (
+                        <td key={i} className="border-b border-neutral-100" />
+                      ))}
+                    </tr>
+
+                    {/* Journal row — separated from goals by a thick border */}
+                    <tr className="journal-row hover:bg-neutral-50 transition-colors duration-200">
+                      <td className="sticky left-0 z-20 bg-white shadow-sm h-12 border-r border-neutral-200">
+                        <div className="px-4 h-full flex items-center gap-2">
+                          <span className="text-base leading-none">✏️</span>
+                          <span className="font-semibold text-[13px] text-neutral-600">Journal</span>
+                        </div>
+                      </td>
+                      {Array.from({ length: data.days_in_month }, (_, i) => {
+                        const day = i + 1;
+                        const date = localDateString(new Date(year, month - 1, day));
+                        const journalEntry = getJournalEntry(date);
+                        const isFuture = date > todayLocalDateString();
+
+                        return (
+                          <td key={day} className="p-1 text-center">
+                            {!isFuture && (
+                              <button
+                                onClick={() => handleJournalClick(date)}
+                                className={`w-7 h-7 rounded-lg flex items-center justify-center mx-auto transition-all duration-200 ${
+                                  journalEntry
+                                    ? 'bg-primary-100 text-primary-600 hover:bg-primary-200'
+                                    : 'text-neutral-300 hover:text-neutral-400 hover:bg-neutral-100'
+                                }`}
+                                title={
+                                  journalEntry
+                                    ? `Edit journal: "${journalEntry.content.substring(0, 60)}${journalEntry.content.length > 60 ? '…' : ''}"`
+                                    : `Add journal entry for ${date}`
+                                }
+                              >
+                                <span className="text-[11px] font-bold leading-none">
+                                  {journalEntry ? '✦' : '+'}
+                                </span>
+                              </button>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
-          ) : (
-            <div className="card text-center py-6 animate-fade-in mt-4">
-              <div className="w-10 h-10 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-neutral-400 text-lg">🎯</span>
-              </div>
-              <h2 className="text-base font-bold text-neutral-900 mb-1">No goals yet</h2>
-              <p className="text-description mb-4 max-w-sm mx-auto">
-                Create your first goal to start tracking your progress.
-              </p>
-              <Link
-                href="/goals/new"
-                className="btn-primary"
-              >
-                Create Your First Goal
-              </Link>
-            </div>
-          )}
+          </div>
         </div>
       </section>
 
