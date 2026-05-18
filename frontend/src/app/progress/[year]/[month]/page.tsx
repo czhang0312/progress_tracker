@@ -64,6 +64,7 @@ export default function ProgressPage() {
   const addGoalPopoverRef = useRef<HTMLDivElement>(null);
   const addGoalTdRef = useRef<HTMLElement | null>(null);
   const [addGoalPos, setAddGoalPos] = useState<{ top: number; left: number } | null>(null);
+  const [showEditDescription, setShowEditDescription] = useState(false);
   const [draggingGoalId, setDraggingGoalId] = useState<number | null>(null);
   const draggingGoalIdRef = useRef<number | null>(null);
   const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
@@ -217,6 +218,7 @@ export default function ProgressPage() {
       description: goal.description,
       started_at: goal.started_at ?? goal.created_at?.substring(0, 10) ?? '',
     });
+    setShowEditDescription(!!goal.description);
     setEditErrors({});
   };
 
@@ -582,7 +584,18 @@ export default function ProgressPage() {
           style={{ top: editPopoverPos.top, left: editPopoverPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
         >
           <form onSubmit={handleGoalEditSubmit} className="space-y-3">
-            <h3 className="font-semibold text-sm text-neutral-600">Edit Goal</h3>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-semibold text-sm text-neutral-600">Edit Goal</h3>
+              <input
+                type="date"
+                name="started_at"
+                value={editFormData.started_at}
+                onChange={handleGoalEditChange}
+                className="form-input text-xs py-1 w-auto"
+                required
+                title="Start date — progress circles hidden before this date"
+              />
+            </div>
 
             <div>
               <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Name</label>
@@ -598,30 +611,28 @@ export default function ProgressPage() {
               {editErrors.name && <p className="mt-0.5 text-xs text-error-600">{editErrors.name}</p>}
             </div>
 
-            <div>
-              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description</label>
-              <textarea
-                name="description"
-                value={editFormData.description}
-                onChange={handleGoalEditChange}
-                rows={3}
-                className={`form-input text-xs py-1.5 ${editErrors.description ? 'border-error-500 focus:ring-error-500' : ''}`}
-              />
-              {editErrors.description && <p className="mt-0.5 text-xs text-error-600">{editErrors.description}</p>}
-            </div>
-
-            <div>
-              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Start Date</label>
-              <input
-                type="date"
-                name="started_at"
-                value={editFormData.started_at}
-                onChange={handleGoalEditChange}
-                className="form-input text-xs py-1.5"
-                required
-              />
-              <p className="mt-1 text-xs text-neutral-400">Progress circles hidden before this date.</p>
-            </div>
+            {!showEditDescription ? (
+              <button
+                type="button"
+                onClick={() => setShowEditDescription(true)}
+                className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors underline"
+              >
+                + Add description
+              </button>
+            ) : (
+              <div>
+                <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description</label>
+                <textarea
+                  name="description"
+                  value={editFormData.description}
+                  onChange={handleGoalEditChange}
+                  rows={3}
+                  autoFocus={!editFormData.description}
+                  className={`form-input text-xs py-1.5 ${editErrors.description ? 'border-error-500 focus:ring-error-500' : ''}`}
+                />
+                {editErrors.description && <p className="mt-0.5 text-xs text-error-600">{editErrors.description}</p>}
+              </div>
+            )}
 
             <div className="flex items-center gap-2 pt-1">
               <button type="submit" disabled={editSaving} className="btn-primary">
