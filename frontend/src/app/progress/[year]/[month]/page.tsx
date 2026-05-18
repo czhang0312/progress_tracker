@@ -659,7 +659,7 @@ export default function ProgressPage() {
           {/* Header */}
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="page-title ">{formatDate(year, month)}</h1>
+              <h1 className="page-title">{formatDate(year, month)}</h1>
               <div className="flex items-center gap-4 mt-0.5 text-xs text-neutral-500">
                 <span>Click circles to cycle:</span>
                 <div className="flex items-center gap-1.5">
@@ -736,7 +736,7 @@ export default function ProgressPage() {
                       <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
                         <td className="sticky left-0 z-20 bg-white h-16 border-b group w-[200px] min-w-[200px] max-w-[200px]">
                           <div className="relative h-full">
-                            <div className="px-4 py-[10px] h-full flex flex-col justify-center pr-8">
+                            <div className="px-4 py-[10px] h-full flex flex-col justify-center">
                               <h3 className="font-semibold text-[13px] leading-tight line-clamp-2">{goal.name}</h3>
                               <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
