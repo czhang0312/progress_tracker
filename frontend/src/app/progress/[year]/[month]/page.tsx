@@ -7,7 +7,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import CheckinModal from '@/components/CheckinModal';
 import { RAILS_API_BASE } from '@/lib/config';
-import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal } from '@/lib/guestStorage';
+import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal, reorderGuestGoals } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 
 interface Goal {
@@ -64,6 +64,9 @@ export default function ProgressPage() {
   const addGoalPopoverRef = useRef<HTMLDivElement>(null);
   const addGoalTdRef = useRef<HTMLElement | null>(null);
   const [addGoalPos, setAddGoalPos] = useState<{ top: number; left: number } | null>(null);
+  const [draggingGoalId, setDraggingGoalId] = useState<number | null>(null);
+  const draggingGoalIdRef = useRef<number | null>(null);
+  const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
 
   const year = parseInt(params.year as string);
   const month = parseInt(params.month as string);
@@ -313,6 +316,59 @@ export default function ProgressPage() {
     } finally {
       setEditSaving(false);
     }
+  };
+
+  const handleDragStart = (goalId: number) => {
+    setDraggingGoalId(goalId);
+    draggingGoalIdRef.current = goalId;
+  };
+
+  const handleDragOver = (e: React.DragEvent, goalId: number) => {
+    e.preventDefault();
+    if (draggingGoalIdRef.current !== goalId) {
+      setDragOverGoalId(goalId);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetGoalId: number) => {
+    e.preventDefault();
+    const sourceGoalId = draggingGoalIdRef.current;
+    setDraggingGoalId(null);
+    draggingGoalIdRef.current = null;
+    setDragOverGoalId(null);
+
+    if (!sourceGoalId || sourceGoalId === targetGoalId || !data) return;
+
+    const goals = [...data.goals];
+    const sourceIndex = goals.findIndex(g => g.id === sourceGoalId);
+    const targetIndex = goals.findIndex(g => g.id === targetGoalId);
+    const [removed] = goals.splice(sourceIndex, 1);
+    goals.splice(targetIndex, 0, removed);
+
+    setData(prev => prev ? { ...prev, goals } : prev);
+    const goalIds = goals.map(g => g.id);
+
+    if (user?.is_guest) {
+      reorderGuestGoals(goalIds);
+      return;
+    }
+
+    try {
+      await fetch(`${RAILS_API_BASE}/goals/reorder`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal_ids: goalIds }),
+      });
+    } catch (err) {
+      console.error('Failed to reorder goals:', err);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggingGoalId(null);
+    draggingGoalIdRef.current = null;
+    setDragOverGoalId(null);
   };
 
   const fetchProgressData = async () => {
@@ -733,17 +789,26 @@ export default function ProgressPage() {
                   </thead>
                   <tbody>
                     {data.goals.map((goal) => (
-                      <tr key={goal.id} className="hover:bg-neutral-50 transition-colors duration-200">
+                      <tr
+                        key={goal.id}
+                        draggable
+                        onDragStart={() => handleDragStart(goal.id)}
+                        onDragOver={(e) => handleDragOver(e, goal.id)}
+                        onDrop={(e) => handleDrop(e, goal.id)}
+                        onDragEnd={handleDragEnd}
+                        className={`transition-colors duration-200 ${draggingGoalId === goal.id ? 'opacity-40' : 'hover:bg-neutral-50'} ${dragOverGoalId === goal.id ? 'bg-primary-50 outline outline-2 outline-primary-300' : ''}`}
+                      >
                         <td className="sticky left-0 z-20 bg-white h-16 border-b group w-[200px] min-w-[200px] max-w-[200px]">
-                          <div className="relative h-full">
+                          <div className="relative h-full cursor-grab active:cursor-grabbing">
                             <div className="px-4 py-[10px] h-full flex flex-col justify-center">
                               <h3 className="font-semibold text-[13px] leading-tight line-clamp-2">{goal.name}</h3>
                               <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
                             <button
+                              draggable={false}
                               onMouseDown={(e) => e.stopPropagation()}
                               onClick={(e) => openGoalEdit(goal, e)}
-                              className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors opacity-0 group-hover:opacity-100"
+                              className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                               title="Edit goal"
                             >
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
