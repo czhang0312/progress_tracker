@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
@@ -206,10 +205,7 @@ export default function StatsPage() {
             {perGoal.length === 0 ? (
               <div className="text-center py-8 text-neutral-500">
                 No goals yet.{' '}
-                <Link href="/goals/new" className="text-primary-600 hover:underline">
-                  Create your first goal
-                </Link>{' '}
-                to start seeing stats.
+                Add a goal from the Progress page to start seeing stats.
               </div>
             ) : (
               <div className="inline-block">

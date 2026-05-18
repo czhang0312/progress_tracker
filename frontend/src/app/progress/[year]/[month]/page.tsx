@@ -550,7 +550,6 @@ export default function ProgressPage() {
                 onChange={handleGoalEditChange}
                 rows={3}
                 className={`form-input text-xs py-1.5 ${editErrors.description ? 'border-error-500 focus:ring-error-500' : ''}`}
-                required
               />
               {editErrors.description && <p className="mt-0.5 text-xs text-error-600">{editErrors.description}</p>}
             </div>
@@ -620,7 +619,7 @@ export default function ProgressPage() {
               </button>
             ) : (
               <div>
-                <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description <span className="normal-case font-normal">(optional)</span></label>
+                <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description</label>
                 <textarea
                   name="description"
                   value={addGoalFormData.description}

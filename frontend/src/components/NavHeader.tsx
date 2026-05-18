@@ -15,7 +15,6 @@ export default function NavHeader() {
 
   const links = [
     { href: `/progress/${year}/${month}`, label: 'Progress', match: '/progress' },
-    { href: '/goals', label: 'Goals', match: '/goals' },
     { href: '/journal-entries', label: 'Journal', match: '/journal-entries' },
     { href: '/stats', label: 'Stats', match: '/stats' },
   ];
