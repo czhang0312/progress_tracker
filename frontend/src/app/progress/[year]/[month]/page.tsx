@@ -611,7 +611,7 @@ export default function ProgressPage() {
                 name="started_at"
                 value={editFormData.started_at}
                 onChange={handleGoalEditChange}
-                className="form-input text-xs py-1 w-auto shrink-0 focus:ring-0 focus:outline-none"
+                className="text-[11px] text-neutral-500 bg-transparent border border-neutral-200 rounded px-1.5 py-0.5 w-auto shrink-0 focus:ring-0 focus:outline-none focus:border-neutral-300 hover:border-neutral-300 transition-colors"
                 required
                 title="Start date — progress circles hidden before this date"
               />
