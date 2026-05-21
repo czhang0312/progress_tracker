@@ -55,6 +55,7 @@ export default function ProgressPage() {
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
   const editPopoverRef = useRef<HTMLDivElement>(null);
   const editTdRef = useRef<HTMLElement | null>(null);
+  const editFormDataOriginal = useRef({ name: '', description: '', started_at: '' });
   const [editPopoverPos, setEditPopoverPos] = useState<{ top: number; left: number } | null>(null);
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [showAddDescription, setShowAddDescription] = useState(false);
@@ -105,11 +106,19 @@ export default function ProgressPage() {
     return () => window.removeEventListener('scroll', updatePos, true);
   }, [editingGoalId]);
 
+  const confirmCancel = (isDirty: boolean) =>
+    !isDirty || window.confirm('Changes not saved. Are you sure you want to cancel?');
+  const isEditDirty = () =>
+    editFormData.name !== editFormDataOriginal.current.name ||
+    editFormData.description !== editFormDataOriginal.current.description ||
+    editFormData.started_at !== editFormDataOriginal.current.started_at;
+  const isAddDirty = () => addGoalFormData.name !== '' || addGoalFormData.description !== '';
+
   useEffect(() => {
     if (!editingGoalId) return;
     const handleMouseDown = (e: MouseEvent) => {
       if (editPopoverRef.current && !editPopoverRef.current.contains(e.target as Node)) {
-        setEditingGoalId(null);
+        if (confirmCancel(isEditDirty())) setEditingGoalId(null);
       }
     };
     document.addEventListener('mousedown', handleMouseDown);
@@ -131,7 +140,7 @@ export default function ProgressPage() {
     if (!showAddGoal) return;
     const handleMouseDown = (e: MouseEvent) => {
       if (addGoalPopoverRef.current && !addGoalPopoverRef.current.contains(e.target as Node)) {
-        setShowAddGoal(false);
+        if (confirmCancel(isAddDirty())) setShowAddGoal(false);
       }
     };
     document.addEventListener('mousedown', handleMouseDown);
@@ -213,11 +222,13 @@ export default function ProgressPage() {
     const rect = td.getBoundingClientRect();
     setEditPopoverPos({ top: rect.bottom, left: rect.left + 10 });
     setEditingGoalId(goal.id);
-    setEditFormData({
+    const initial = {
       name: goal.name,
       description: goal.description,
       started_at: goal.started_at ?? goal.created_at?.substring(0, 10) ?? '',
-    });
+    };
+    setEditFormData(initial);
+    editFormDataOriginal.current = initial;
     setShowEditDescription(!!goal.description);
     setEditErrors({});
   };
@@ -580,36 +591,32 @@ export default function ProgressPage() {
       {editingGoalId && editPopoverPos && (
         <div
           ref={editPopoverRef}
-          className="fixed z-[200] w-[480px] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 p-4"
+          className="fixed z-[200] w-[480px] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 overflow-hidden"
           style={{ top: editPopoverPos.top, left: editPopoverPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
         >
-          <form onSubmit={handleGoalEditSubmit} className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="font-semibold text-sm text-neutral-600">Edit Goal</h3>
-              <input
-                type="date"
-                name="started_at"
-                value={editFormData.started_at}
-                onChange={handleGoalEditChange}
-                className="form-input text-xs py-1 w-auto"
-                required
-                title="Start date — progress circles hidden before this date"
-              />
-            </div>
-
-            <div>
-              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Name</label>
+          <form id="edit-goal-form" onSubmit={handleGoalEditSubmit} className="space-y-3 p-4 pb-3">
+            <div className="flex items-center gap-3">
               <input
                 type="text"
                 name="name"
                 value={editFormData.name}
                 onChange={handleGoalEditChange}
-                className={`form-input py-1.5 font-semibold ${editErrors.name ? 'border-error-500 focus:ring-error-500' : ''}`}
-                style={{ fontSize: '13px' }}
+                placeholder="Add goal name"
+                className={`flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300 ${editErrors.name ? 'text-error-600' : ''}`}
+                style={{ fontSize: '15px' }}
                 required
               />
-              {editErrors.name && <p className="mt-0.5 text-xs text-error-600">{editErrors.name}</p>}
+              <input
+                type="date"
+                name="started_at"
+                value={editFormData.started_at}
+                onChange={handleGoalEditChange}
+                className="form-input text-xs py-1 w-auto shrink-0 focus:ring-0 focus:outline-none"
+                required
+                title="Start date — progress circles hidden before this date"
+              />
             </div>
+            {editErrors.name && <p className="mt-0.5 text-xs text-error-600">{editErrors.name}</p>}
 
             {!showEditDescription ? (
               <button
@@ -621,55 +628,59 @@ export default function ProgressPage() {
               </button>
             ) : (
               <div>
-                <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description</label>
                 <textarea
                   name="description"
                   value={editFormData.description}
                   onChange={handleGoalEditChange}
                   rows={3}
+                  placeholder="Add goal description"
                   autoFocus={!editFormData.description}
-                  className={`form-input text-xs py-1.5 ${editErrors.description ? 'border-error-500 focus:ring-error-500' : ''}`}
+                  className={`w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0 ${editErrors.description ? 'ring-2 ring-error-500' : ''}`}
                 />
                 {editErrors.description && <p className="mt-0.5 text-xs text-error-600">{editErrors.description}</p>}
               </div>
             )}
 
-            <div className="flex items-center gap-2 pt-1">
-              <button type="submit" disabled={editSaving} className="btn-primary">
-                {editSaving ? 'Saving...' : 'Save'}
-              </button>
-              <button type="button" onClick={() => setEditingGoalId(null)} className="btn-outline">
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleGoalDelete}
-                className="ml-auto text-xs text-error-500 hover:text-error-700 hover:bg-error-50 px-2 py-1.5 rounded transition-colors"
-              >
-                Delete
-              </button>
-            </div>
           </form>
+          <div className="flex items-center gap-2 px-4 py-2 bg-neutral-50 border-t border-neutral-100">
+            <button type="submit" form="edit-goal-form" disabled={editSaving} className="btn-primary px-3 py-2 text-xs">
+              {editSaving ? 'Saving...' : 'Save'}
+            </button>
+            <button type="button" onClick={() => { if (confirmCancel(isEditDirty())) setEditingGoalId(null); }} className="btn-ghost px-3 py-2 text-xs border-none">
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleGoalDelete}
+              className="ml-auto text-neutral-400 hover:text-error-500 p-1.5 rounded transition-colors"
+              title="Delete goal"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4h6v2" />
+              </svg>
+            </button>
+          </div>
         </div>
       )}
       {showAddGoal && addGoalPos && (
         <div
           ref={addGoalPopoverRef}
-          className="fixed z-[200] w-[480px] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 p-4"
+          className="fixed z-[200] w-[480px] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 overflow-hidden"
           style={{ top: addGoalPos.top, left: addGoalPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
         >
-          <form onSubmit={handleAddGoalSubmit} className="space-y-3">
-            <h3 className="font-semibold text-sm text-neutral-600">New Goal</h3>
-
+          <form id="add-goal-form" onSubmit={handleAddGoalSubmit} className="space-y-3 p-4 pb-3">
             <div>
-              <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Name</label>
               <input
                 type="text"
                 name="name"
                 value={addGoalFormData.name}
                 onChange={(e) => setAddGoalFormData(prev => ({ ...prev, name: e.target.value }))}
-                className={`form-input py-1.5 font-semibold ${addGoalErrors.name ? 'border-error-500 focus:ring-error-500' : ''}`}
-                style={{ fontSize: '13px' }}
+                placeholder="Add goal name"
+                className={`w-full bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300 ${addGoalErrors.name ? 'text-error-600' : ''}`}
+                style={{ fontSize: '15px' }}
                 autoFocus
                 required
               />
@@ -686,27 +697,27 @@ export default function ProgressPage() {
               </button>
             ) : (
               <div>
-                <label className="block font-semibold uppercase tracking-wide mb-1 text-neutral-400" style={{ fontSize: '10px' }}>Description</label>
                 <textarea
                   name="description"
                   value={addGoalFormData.description}
                   onChange={(e) => setAddGoalFormData(prev => ({ ...prev, description: e.target.value }))}
                   rows={3}
+                  placeholder="Add goal description"
                   autoFocus
-                  className="form-input text-xs py-1.5"
+                  className="w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0"
                 />
               </div>
             )}
 
-            <div className="flex gap-2 pt-1">
-              <button type="submit" disabled={addGoalSaving} className="btn-primary">
-                {addGoalSaving ? 'Creating...' : 'Create Goal'}
-              </button>
-              <button type="button" onClick={() => setShowAddGoal(false)} className="btn-outline">
-                Cancel
-              </button>
-            </div>
           </form>
+          <div className="flex gap-2 px-4 py-2 bg-neutral-50 border-t border-neutral-100">
+            <button type="submit" form="add-goal-form" disabled={addGoalSaving} className="btn-primary px-3 py-2 text-xs">
+              {addGoalSaving ? 'Saving...' : 'Save'}
+            </button>
+            <button type="button" onClick={() => { if (confirmCancel(isAddDirty())) setShowAddGoal(false); }} className="btn-ghost px-3 py-2 text-xs border-none">
+              Cancel
+            </button>
+          </div>
         </div>
       )}
       {showCheckin && data && (
