@@ -796,10 +796,14 @@ export default function ProgressPage() {
                         const date = localDateString(new Date(year, month - 1, day));
                         const isToday = date === todayLocalDateString();
                         const isFuture = date > todayLocalDateString();
+                        const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'][new Date(year, month - 1, day).getDay()];
 
                         return (
                           <th key={i + 1} className="min-w-[44px]">
-                            <div className="flex items-center justify-center">
+                            <div className="flex flex-col items-center justify-center">
+                              <span className={`text-[10px] font-medium ${isToday ? 'text-primary-400' : isFuture ? 'text-neutral-200' : 'text-neutral-400'}`}>
+                                {dayOfWeek}
+                              </span>
                               <span className={`text-xs font-bold ${isToday ? 'text-primary-600' : isFuture ? 'text-neutral-300' : 'text-neutral-500'}`}>
                                 {day}
                               </span>
