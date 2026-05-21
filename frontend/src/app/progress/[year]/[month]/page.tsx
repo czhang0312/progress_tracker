@@ -735,7 +735,7 @@ export default function ProgressPage() {
       <section className="min-h-screen">
         <div className="max-w-[1200px] mx-auto p-4">
           {/* Header */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 px-2">
             <div>
               <h1 className="page-title">{formatDate(year, month)}</h1>
               <div className="flex items-center gap-4 mt-0.5 text-xs text-neutral-500">
@@ -801,7 +801,7 @@ export default function ProgressPage() {
                         return (
                           <th key={i + 1} className="min-w-[44px]">
                             <div className="flex flex-col items-center justify-center">
-                              <span className={`text-[10px] font-medium ${isToday ? 'text-primary-400' : isFuture ? 'text-neutral-200' : 'text-neutral-400'}`}>
+                              <span className={`text-[9px] font-medium ${isToday ? 'text-primary-400' : isFuture ? 'text-neutral-200' : 'text-neutral-400'}`}>
                                 {dayOfWeek}
                               </span>
                               <span className={`text-xs font-bold ${isToday ? 'text-primary-600' : isFuture ? 'text-neutral-300' : 'text-neutral-500'}`}>
@@ -824,9 +824,9 @@ export default function ProgressPage() {
                         onDragEnd={handleDragEnd}
                         className={`transition-colors duration-200 ${draggingGoalId === goal.id ? 'opacity-40' : 'hover:bg-neutral-50'} ${dragOverGoalId === goal.id ? 'bg-primary-50 outline outline-2 outline-primary-300' : ''}`}
                       >
-                        <td className="sticky left-0 z-20 bg-white h-16 border-b group w-[200px] min-w-[200px] max-w-[200px]">
+                        <td className="sticky left-0 z-20 bg-white h-12 border-b group w-[200px] min-w-[200px] max-w-[200px]">
                           <div className="relative h-full cursor-grab active:cursor-grabbing">
-                            <div className="px-4 py-[10px] h-full flex flex-col justify-center">
+                            <div className="px-4 py-1.5 h-full flex flex-col justify-center">
                               <h3 className="font-semibold text-[13px] leading-tight line-clamp-2">{goal.name}</h3>
                               <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
