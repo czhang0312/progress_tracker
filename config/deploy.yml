@@ -98,8 +98,8 @@ accessories:
   db:
     image: postgres:16
     host: 34.232.119.46
-    # Change to 3306 to expose port to the world instead of just local network.
     port: "127.0.0.1:5432:5432"
+    network: kamal
     env:
       clear:
         POSTGRES_DB: progress_tracker_production
