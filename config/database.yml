@@ -21,4 +21,8 @@ test:
 
 production:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] %>
+  database: progress_tracker_production
+  username: progress_tracker
+  password: <%= ENV["POSTGRES_PASSWORD"] %>
+  host: progress_tracker-db
+  port: 5432
