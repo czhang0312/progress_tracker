@@ -69,6 +69,8 @@ export default function ProgressPage() {
   const [draggingGoalId, setDraggingGoalId] = useState<number | null>(null);
   const draggingGoalIdRef = useRef<number | null>(null);
   const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const todayThRef = useRef<HTMLTableCellElement | null>(null);
 
   const year = parseInt(params.year as string);
   const month = parseInt(params.month as string);
@@ -94,6 +96,20 @@ export default function ProgressPage() {
     return () => window.removeEventListener('checkin-reset', onReset);
   }, [loading, authLoading, year, month]);
 
+
+  useEffect(() => {
+    if (loading || !data) return;
+    const container = tableScrollRef.current;
+    const todayTh = todayThRef.current;
+    if (!container || !todayTh) return;
+    const containerRect = container.getBoundingClientRect();
+    const todayRect = todayTh.getBoundingClientRect();
+    const stickyWidth = 200;
+    const availableWidth = containerRect.width - stickyWidth;
+    const targetScrollLeft =
+      container.scrollLeft + (todayRect.left - containerRect.left) - stickyWidth - availableWidth / 2 + todayRect.width / 2;
+    container.scrollLeft = Math.max(0, targetScrollLeft);
+  }, [loading, data]);
 
   useEffect(() => {
     if (!editingGoalId) return;
@@ -784,7 +800,7 @@ export default function ProgressPage() {
           <div className="animate-fade-in mt-4">
             {/* Progress Table */}
             <div className="card sticky-table-container">
-              <div className="overflow-x-auto scrollbar-thin">
+              <div ref={tableScrollRef} className="overflow-x-auto scrollbar-thin">
                 <table className="table-modern">
                   <thead>
                     <tr>
@@ -799,7 +815,7 @@ export default function ProgressPage() {
                         const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'][new Date(year, month - 1, day).getDay()];
 
                         return (
-                          <th key={i + 1} className="min-w-[44px]">
+                          <th key={i + 1} ref={(el) => { if (isToday) todayThRef.current = el; }} className="min-w-[44px]">
                             <div className="flex flex-col items-center justify-center">
                               <span className={`text-[9px] font-medium ${isToday ? 'text-primary-400' : isFuture ? 'text-neutral-200' : 'text-neutral-400'}`}>
                                 {dayOfWeek}
