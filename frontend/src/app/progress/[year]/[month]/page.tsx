@@ -842,7 +842,7 @@ export default function ProgressPage() {
                       >
                         <td className="sticky left-0 z-20 bg-white h-12 border-b group w-[200px] min-w-[200px] max-w-[200px]">
                           <div className="relative h-full cursor-grab active:cursor-grabbing">
-                            <div className="px-4 py-1.5 h-full flex flex-col justify-center">
+                            <div className="px-6 py-1.5 h-full flex flex-col justify-center">
                               <h3 className="font-semibold text-[13px] leading-tight line-clamp-2">{goal.name}</h3>
                               <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
                             </div>
