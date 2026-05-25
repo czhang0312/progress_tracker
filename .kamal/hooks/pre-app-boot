@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -e
+
+echo "Running database migrations for version $KAMAL_VERSION..."
+kamal app exec --version="$KAMAL_VERSION" 'bin/rails db:migrate'
