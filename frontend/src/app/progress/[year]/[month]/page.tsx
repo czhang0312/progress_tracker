@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import CheckinModal from '@/components/CheckinModal';
+import JournalEntryModal from '@/components/JournalEntryModal';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal, reorderGuestGoals } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
@@ -66,6 +67,7 @@ export default function ProgressPage() {
   const addGoalTdRef = useRef<HTMLElement | null>(null);
   const [addGoalPos, setAddGoalPos] = useState<{ top: number; left: number } | null>(null);
   const [showEditDescription, setShowEditDescription] = useState(false);
+  const [journalModalDate, setJournalModalDate] = useState<string | null>(null);
   const [draggingGoalId, setDraggingGoalId] = useState<number | null>(null);
   const draggingGoalIdRef = useRef<number | null>(null);
   const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
@@ -502,14 +504,7 @@ export default function ProgressPage() {
   };
 
   const handleJournalClick = (date: string) => {
-    const journalEntry = getJournalEntry(date);
-    if (journalEntry) {
-      // Edit existing entry
-      router.push(`/journal-entries/${journalEntry.id}/edit?returnTo=progress&year=${year}&month=${month}`);
-    } else {
-      // Create new entry
-      router.push(`/journal-entries/new?date=${date}&returnTo=progress&year=${year}&month=${month}`);
-    }
+    setJournalModalDate(date);
   };
 
   const formatDate = (year: number, month: number) => {
@@ -745,6 +740,37 @@ export default function ProgressPage() {
           year={year}
           month={month}
           onClose={handleCheckinClose}
+        />
+      )}
+      {journalModalDate && data && (
+        <JournalEntryModal
+          date={journalModalDate}
+          goals={data.goals}
+          progress={data.daily_progresses}
+          journal={data.journal_entries}
+          year={year}
+          month={month}
+          onClose={() => setJournalModalDate(null)}
+          onProgressUpdate={updateProgress}
+          onJournalChange={(date, entry) => {
+            setData(prev => {
+              if (!prev) return prev;
+              if (!entry) {
+                const updated = { ...prev.journal_entries };
+                delete updated[date];
+                return { ...prev, journal_entries: updated };
+              }
+              return { ...prev, journal_entries: { ...prev.journal_entries, [date]: entry } };
+            });
+          }}
+          onNavigate={(delta) => {
+            const current = new Date(journalModalDate + 'T00:00:00');
+            current.setDate(current.getDate() + delta);
+            const newDate = localDateString(current);
+            if (newDate <= todayLocalDateString()) {
+              setJournalModalDate(newDate);
+            }
+          }}
         />
       )}
       <NavHeader />
