@@ -1,14 +1,17 @@
 one:
   name: Learn Ruby
   description: Master Ruby programming
+  started_at: 2026-01-01
   user: one
 
 two:
   name: Exercise Daily
   description: Build a healthy habit
+  started_at: 2026-01-01
   user: one
 
 three:
   name: Read Books
   description: Read at least one book per month
+  started_at: 2026-01-01
   user: two
