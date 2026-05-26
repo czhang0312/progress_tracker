@@ -121,12 +121,14 @@ jobs:
 
       - name: Set deployment in progress
         uses: actions/github-script@v7
+        env:
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.result }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: ${{ steps.deployment.outputs.result }},
+              deployment_id: parseInt(process.env.DEPLOYMENT_ID),
               state: 'in_progress',
               description: 'Deploying to AWS EC2...'
             });
@@ -161,12 +163,14 @@ jobs:
       - name: Set deployment success
         if: success()
         uses: actions/github-script@v7
+        env:
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.result }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: ${{ steps.deployment.outputs.result }},
+              deployment_id: parseInt(process.env.DEPLOYMENT_ID),
               state: 'success',
               description: 'Deployed to AWS EC2'
             });
@@ -174,12 +178,14 @@ jobs:
       - name: Set deployment failure
         if: failure()
         uses: actions/github-script@v7
+        env:
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.result }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: ${{ steps.deployment.outputs.result }},
+              deployment_id: parseInt(process.env.DEPLOYMENT_ID),
               state: 'failure',
               description: 'Deployment to AWS EC2 failed'
             });
