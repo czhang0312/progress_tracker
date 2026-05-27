@@ -67,7 +67,10 @@
   }
 
   .page-title {
-    @apply text-[24px] font-extrabold tracking-[-0.02em] leading-[1.1] text-primary-600;
+    @apply text-[40px] leading-[1] text-neutral-900;
+    font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
+    font-weight: 500;
+    font-feature-settings: "lnum", "kern";
   }
 
   .text-description {

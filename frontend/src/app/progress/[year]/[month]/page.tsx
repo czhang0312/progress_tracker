@@ -507,12 +507,6 @@ export default function ProgressPage() {
     setJournalModalDate(date);
   };
 
-  const formatDate = (year: number, month: number) => {
-    return new Date(year, month - 1).toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long' 
-    });
-  };
 
   const getPrevMonth = () => {
     const prevDate = new Date(year, month - 2, 1);
@@ -781,7 +775,10 @@ export default function ProgressPage() {
           {/* Header */}
           <div className="flex items-end justify-between gap-4 px-2">
             <div>
-              <h1 className="page-title">{formatDate(year, month)}</h1>
+              <h1 className="page-title">
+                {new Date(year, month - 1).toLocaleDateString('en-US', { month: 'long' })}{' '}
+                <span className="italic font-normal text-neutral-400">{year}</span>
+              </h1>
             </div>
 
             <div className="flex items-center gap-[6px] p-1 rounded-[10px] bg-white border border-neutral-200">
