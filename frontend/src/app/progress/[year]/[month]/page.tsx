@@ -966,50 +966,63 @@ export default function ProgressPage() {
         </div>
       </section>
 
-      <section className="max-w-[1200px] mx-auto px-4 pb-16">
-        <div className="mt-10 mb-4 border-t border-neutral-200 pt-10">
+      <section className="max-w-[800px] mx-auto px-4 pb-16">
+        <div className="mt-10 mb-4 border-t border-neutral-300 pt-10">
 
           {/* Editorial intro */}
-          <div className="max-w-2xl mx-auto mb-9 text-center">
+          <div className="max-w-2xl mx-auto mb-11 text-center">
             <h2
               className="text-[36px] font-medium text-neutral-900 leading-[1.15] tracking-[-0.02em] mb-4"
               style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
             >
-              The hardest part of a new habit is{' '}
+              The hardest part of a new goal is
+              <br />
               <em>the first two weeks.</em>
             </h2>
             <p className="text-[15px] leading-[1.7] text-neutral-500 max-w-[560px] mx-auto">
-              Motivation is highest on day one and falls fast. The habit hasn&apos;t earned
-              its results yet, willpower runs thin, and most people quit long before the
-              behavior becomes automatic. This app is built around two small forces that
-              carry you through the gap.
+              Every goal has two phases. Here&apos;s how this app helps you through both.
             </p>
           </div>
 
-          {/* Three cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-[1000px] mx-auto">
+          {/* Phase 1 */}
+          <div className="max-w-[1000px] mx-auto mb-[10px]">
+            <div className="flex items-baseline gap-3.5 mb-[10px] flex-wrap">
+              <span
+                className="text-[38px] font-normal italic leading-none tracking-[-0.02em] text-primary-600"
+                style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+              >
+                01
+              </span>
+              <span className="text-[11px] font-semibold tracking-[.22em] uppercase text-neutral-500">
+                Phase · Goal-initiating
+              </span>
+            </div>
+            <p className="text-[14.5px] leading-[1.7] text-neutral-500 max-w-[720px] mb-[22px]">
+              Motivation is highest on day one but reality hits fast. The goal turns out to be bigger than expected, obstacles you didn&apos;t plan for show up, and most people quietly abandon ship within the first two weeks. This app is built around two small forces that get you through this critical period:
+            </p>
+          </div>
 
-            {/* Card 1: The dip */}
+          <div className="grid grid-cols-1 gap-4 max-w-[420px] mx-auto w-full">
+
+            {/* Card 1: Honest Tracking */}
             <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
               <div className="text-primary-600 h-8 flex items-center opacity-90">
-                <svg viewBox="0 0 80 40" width="64" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 10 C 18 8, 24 28, 40 28 S 64 8, 76 6" />
-                  <circle cx="4" cy="10" r="2" fill="currentColor" />
-                  <circle cx="76" cy="6" r="2" fill="currentColor" />
+                <svg viewBox="0 0 80 40" width="72" height="36" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="14" cy="20" r="10" fill="currentColor" />
+                  <path d="M10 20 l3 3 6 -6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  <circle cx="40" cy="20" r="10" />
+                  <path d="M40 10 a10 10 0 0 1 0 20 z" fill="currentColor" stroke="none" />
+                  <circle cx="66" cy="20" r="10" opacity="0.4" />
                 </svg>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-neutral-400 tracking-[0.16em] uppercase mb-1.5">
-                  The dip
-                </p>
+                <p className="text-[10px] font-semibold tracking-[.16em] uppercase text-neutral-400 mb-1.5">Honest Tracking</p>
                 <h3
                   className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
                   style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
-                >
-                  A valley before the climb
-                </h3>
+                >A circle that tells the truth</h3>
                 <p className="text-[13.5px] leading-[1.6] text-neutral-500">
-                  Habits become automatic on average around <strong className="text-neutral-900 font-semibold">two months in</strong> — but most people quit in the first one or two weeks, long before the results compound. Knowing the curve makes the dip easier to ride.
+                  Each day you mark how it really went — done, partially done, or not done. No streaks to protect, no all-or-nothing pressure. A partial is still a day you showed up. Watching that honest record fill in across the weeks is quietly more motivating than any perfect streak could be.
                 </p>
               </div>
             </div>
@@ -1023,58 +1036,68 @@ export default function ProgressPage() {
                 </svg>
               </div>
               <div>
-                <p className="text-[10px] font-semibold text-neutral-400 tracking-[0.16em] uppercase mb-1.5">
-                  Reflection
-                </p>
+                <p className="text-[10px] font-semibold tracking-[.16em] uppercase text-neutral-400 mb-1.5">Reflection</p>
                 <h3
                   className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
                   style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
-                >
-                  60 seconds beats 30 minutes
-                </h3>
+                >A few lines a day changes everything</h3>
                 <p className="text-[13.5px] leading-[1.6] text-neutral-500">
-                  A short daily check-in turns repetition into learning. You notice what&apos;s working, what&apos;s getting in the way, and what to try tomorrow — before the day blurs into the next one.
-                </p>
-              </div>
-            </div>
-
-            {/* Card 3: Visibility */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
-              <div className="text-primary-600 h-8 flex items-center opacity-90">
-                <svg viewBox="0 0 80 40" width="64" height="32" fill="currentColor">
-                  <circle cx="10" cy="20" r="5" />
-                  <circle cx="25" cy="20" r="5" />
-                  <circle cx="40" cy="20" r="5" />
-                  <circle cx="55" cy="20" r="5" fillOpacity=".4" />
-                  <circle cx="70" cy="20" r="5" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="2 2" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold text-neutral-400 tracking-[0.16em] uppercase mb-1.5">
-                  Visibility
-                </p>
-                <h3
-                  className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
-                  style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
-                >
-                  A row you don&apos;t want to break
-                </h3>
-                <p className="text-[13.5px] leading-[1.6] text-neutral-500">
-                  Seeing your streak laid out across the month creates a quiet pressure to keep it intact. The dot you might skip tomorrow is more motivating than the one you got yesterday.
+                  A short daily journal entry turns chaos into clarity. When something goes wrong, you write it down. When the goal feels too big, you write that down too. Patterns emerge fast — and so do the small adjustments that make the next day easier than the last.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Closing quote */}
-          <div className="max-w-[560px] mx-auto mt-9 text-center">
-            <p
-              className="text-lg italic text-neutral-500 leading-relaxed"
-              style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
-            >
-              Keep it small. Show up. Mark the day. The compounding is real — you just
-              have to outlast the first two weeks to see it.
+          {/* Then divider */}
+          <div className="max-w-[1000px] mx-auto my-10 flex items-center gap-3.5 text-neutral-400">
+            <div className="flex-1 h-px bg-neutral-200" />
+            <span className="text-[10px] font-semibold tracking-[.22em] uppercase">Then</span>
+            <div className="flex-1 h-px bg-neutral-200" />
+          </div>
+
+          {/* Phase 2 */}
+          <div className="max-w-[1000px] mx-auto mb-[10px]">
+            <div className="flex items-baseline gap-3.5 mb-[10px] flex-wrap">
+              <span
+                className="text-[38px] font-normal italic leading-none tracking-[-0.02em] text-primary-600"
+                style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+              >
+                02
+              </span>
+              <span className="text-[11px] font-semibold tracking-[.22em] uppercase text-neutral-500">
+                Phase · Goal-tracking
+              </span>
+            </div>
+            <p className="text-[14.5px] leading-[1.7] text-neutral-500 max-w-[720px] mb-[22px]">
+              The hardest part is behind you. After the inital two weeks, the goal has been stress-tested, adjusted, and survived. Now the work shifts from figuring it out to showing up consistently — and that still requires a daily signal.
             </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 max-w-[420px] mx-auto w-full">
+
+            {/* Card 3: Keep Filling the Circles */}
+            <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
+              <div className="text-primary-600 h-8 flex items-center opacity-90">
+                <svg viewBox="0 0 80 40" width="72" height="36" fill="currentColor">
+                  <circle cx="8" cy="20" r="4" />
+                  <circle cx="20" cy="20" r="4" />
+                  <circle cx="32" cy="20" r="4" />
+                  <circle cx="44" cy="20" r="4" />
+                  <circle cx="56" cy="20" r="4" />
+                  <circle cx="68" cy="20" r="4" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="2 2" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold tracking-[.16em] uppercase text-neutral-400 mb-1.5">Keep Filling the Circles</p>
+                <h3
+                  className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
+                  style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+                >Consistency is built, not assumed</h3>
+                <p className="text-[13.5px] leading-[1.6] text-neutral-500">
+                  Just because the habit is forming doesn&apos;t mean the check-in stops mattering. Filling in your circle each day keeps the goal visible and real. It takes seconds, but that small act of acknowledgment is what separates a habit that sticks from one that quietly fades.
+                </p>
+              </div>
+            </div>
           </div>
 
         </div>
