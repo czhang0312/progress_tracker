@@ -596,6 +596,8 @@ export default function ProgressPage() {
 
   const prevMonth = getPrevMonth();
   const nextMonth = getNextMonth();
+  const now = new Date();
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
 
   return (
     <div className="min-h-screen">
@@ -777,45 +779,34 @@ export default function ProgressPage() {
       <section className="min-h-screen">
         <div className="max-w-[1200px] mx-auto p-4">
           {/* Header */}
-          <div className="flex items-center justify-between gap-4 px-2">
+          <div className="flex items-end justify-between gap-4 px-2">
             <div>
               <h1 className="page-title">{formatDate(year, month)}</h1>
-              <div className="flex items-center gap-4 mt-0.5 text-xs text-neutral-500">
-                <span>Click circles to cycle:</span>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full border-2 border-neutral-300 bg-white" />
-                  <span>Empty</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full border-2 border-neutral-300 shrink-0" style={{ background: 'linear-gradient(135deg, #10B981 50%, white 50%)' }} />
-                  <span>Half</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full bg-secondary-500 flex items-center justify-center shrink-0">
-                    <span className="text-white font-bold text-xs">✓</span>
-                  </div>
-                  <span>Done</span>
-                </div>
-              </div>
             </div>
 
-            <div className="inline-flex items-center rounded-xl border border-neutral-200 overflow-hidden text-sm text-neutral-500 bg-white">
+            <div className="flex items-center gap-[6px] p-1 rounded-[10px] bg-white border border-neutral-200">
               <Link
                 href={`/progress/${prevMonth.year}/${prevMonth.month}`}
-                className="px-3 py-1.5 hover:bg-neutral-50 transition-colors duration-150"
+                className="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center text-neutral-500 text-[18px] hover:bg-neutral-100 transition-colors duration-[120ms]"
                 title={new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
               >
                 ‹
               </Link>
-              <Link
-                href={`/progress/${new Date().getFullYear()}/${new Date().getMonth() + 1}`}
-                className="px-3 py-1.5 border-x border-neutral-200 hover:bg-neutral-50 transition-colors duration-150"
-              >
-                Today
-              </Link>
+              {isCurrentMonth ? (
+                <span className="h-[30px] flex items-center px-[12px] rounded-[7px] text-xs font-semibold text-neutral-400 cursor-default select-none">
+                  Today
+                </span>
+              ) : (
+                <Link
+                  href={`/progress/${now.getFullYear()}/${now.getMonth() + 1}`}
+                  className="h-[30px] flex items-center px-[12px] rounded-[7px] text-xs font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors duration-[120ms]"
+                >
+                  Today
+                </Link>
+              )}
               <Link
                 href={`/progress/${nextMonth.year}/${nextMonth.month}`}
-                className="px-3 py-1.5 hover:bg-neutral-50 transition-colors duration-150"
+                className="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center text-neutral-500 text-[18px] hover:bg-neutral-100 transition-colors duration-[120ms]"
                 title={new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
               >
                 ›
