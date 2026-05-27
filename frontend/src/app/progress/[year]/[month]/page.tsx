@@ -969,67 +969,117 @@ export default function ProgressPage() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-primary-50 via-white to-secondary-50">
-        <div className="max-w-4xl mx-auto px-6 py-16 animate-fade-in">
-          <div className="text-center mb-10">
-            <h2 className="page-title">About This Progress Tracker</h2>
-            <p className="mt-3 text-neutral-500 text-base max-w-xl mx-auto leading-relaxed">
-              Turn long-term goals into small daily actions — and make your consistency visible over time.
+      <section className="max-w-[1200px] mx-auto px-4 pb-16">
+        <div className="mt-10 mb-4 border-t border-neutral-200 pt-10">
+
+          {/* Editorial intro */}
+          <div className="max-w-2xl mx-auto mb-9 text-center">
+            <h2
+              className="text-[36px] font-medium text-neutral-900 leading-[1.15] tracking-[-0.02em] mb-4"
+              style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+            >
+              The hardest part of a new habit is{' '}
+              <em>the first two weeks.</em>
+            </h2>
+            <p className="text-[15px] leading-[1.7] text-neutral-500 max-w-[560px] mx-auto">
+              Motivation is highest on day one and falls fast. The habit hasn&apos;t earned
+              its results yet, willpower runs thin, and most people quit long before the
+              behavior becomes automatic. This app is built around two small forces that
+              carry you through the gap.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="card card-body flex flex-col gap-3">
-              <div className="text-3xl">🎯</div>
-              <h3 className="font-semibold text-neutral-900 text-base">Set Your Goals</h3>
-              <p className="text-neutral-600 text-sm leading-relaxed">
-                Define what matters most to you. Each goal gets its own row in the monthly tracker so nothing falls through the cracks.
-              </p>
-            </div>
+          {/* Three cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-[1000px] mx-auto">
 
-            <div className="card card-body flex flex-col gap-3">
-              <div className="text-3xl">📅</div>
-              <h3 className="font-semibold text-neutral-900 text-base">Check In Daily</h3>
-              <p className="text-neutral-600 text-sm leading-relaxed">
-                Each day has a simple three-state check: tap once to mark it started, again for complete. No lengthy forms.
-              </p>
-              <div className="flex items-center gap-3 mt-1">
-                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                  <div className="w-5 h-5 rounded-full shrink-0 bg-white border-2 border-neutral-300" />
-                  Not started
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                  <div className="w-5 h-5 rounded-full shrink-0 border-2 border-neutral-300" style={{ background: 'linear-gradient(135deg, #10B981 50%, white 50%)' }} />
-                  Half done
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                  <div className="w-5 h-5 rounded-full shrink-0 bg-secondary-500 border-2 border-secondary-500 flex items-center justify-center text-white text-xs font-bold">✓</div>
-                  Complete
-                </div>
+            {/* Card 1: The dip */}
+            <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
+              <div className="text-primary-600 h-8 flex items-center opacity-90">
+                <svg viewBox="0 0 80 40" width="64" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 10 C 18 8, 24 28, 40 28 S 64 8, 76 6" />
+                  <circle cx="4" cy="10" r="2" fill="currentColor" />
+                  <circle cx="76" cy="6" r="2" fill="currentColor" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-neutral-400 tracking-[0.16em] uppercase mb-1.5">
+                  The dip
+                </p>
+                <h3
+                  className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
+                  style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+                >
+                  A valley before the climb
+                </h3>
+                <p className="text-[13.5px] leading-[1.6] text-neutral-500">
+                  Habits become automatic on average around <strong className="text-neutral-900 font-semibold">two months in</strong> — but most people quit in the first one or two weeks, long before the results compound. Knowing the curve makes the dip easier to ride.
+                </p>
               </div>
             </div>
 
-            <div className="card card-body flex flex-col gap-3">
-              <div className="text-3xl">📈</div>
-              <h3 className="font-semibold text-neutral-900 text-base">See Patterns</h3>
-              <p className="text-neutral-600 text-sm leading-relaxed">
-                The monthly view makes your effort visible at a glance. Inspired by{' '}
-                <a
-                  href="https://www.youtube.com/watch?v=qaozjfqXbfI&t=289s"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary-600 font-medium hover:text-primary-700 underline"
+            {/* Card 2: Reflection */}
+            <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
+              <div className="text-primary-600 h-8 flex items-center opacity-90">
+                <svg viewBox="0 0 80 40" width="64" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 14 h44 M8 22 h34 M8 30 h26" />
+                  <path d="M62 8 l8 8 -22 22 h-8 v-8 z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-neutral-400 tracking-[0.16em] uppercase mb-1.5">
+                  Reflection
+                </p>
+                <h3
+                  className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
+                  style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
                 >
-                  this habit tracker walkthrough
-                </a>
-                , adapted for goals and journal entries.
-              </p>
+                  60 seconds beats 30 minutes
+                </h3>
+                <p className="text-[13.5px] leading-[1.6] text-neutral-500">
+                  A short daily check-in turns repetition into learning. You notice what&apos;s working, what&apos;s getting in the way, and what to try tomorrow — before the day blurs into the next one.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3: Visibility */}
+            <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
+              <div className="text-primary-600 h-8 flex items-center opacity-90">
+                <svg viewBox="0 0 80 40" width="64" height="32" fill="currentColor">
+                  <circle cx="10" cy="20" r="5" />
+                  <circle cx="25" cy="20" r="5" />
+                  <circle cx="40" cy="20" r="5" />
+                  <circle cx="55" cy="20" r="5" fillOpacity=".4" />
+                  <circle cx="70" cy="20" r="5" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="2 2" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-neutral-400 tracking-[0.16em] uppercase mb-1.5">
+                  Visibility
+                </p>
+                <h3
+                  className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
+                  style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+                >
+                  A row you don&apos;t want to break
+                </h3>
+                <p className="text-[13.5px] leading-[1.6] text-neutral-500">
+                  Seeing your streak laid out across the month creates a quiet pressure to keep it intact. The dot you might skip tomorrow is more motivating than the one you got yesterday.
+                </p>
+              </div>
             </div>
           </div>
 
-          <p className="text-center text-neutral-400 text-sm mt-8">
-            Built to build momentum through clarity — track what matters, reflect as you go, and make progress tangible.
-          </p>
+          {/* Closing quote */}
+          <div className="max-w-[560px] mx-auto mt-9 text-center">
+            <p
+              className="text-lg italic text-neutral-500 leading-relaxed"
+              style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+            >
+              Keep it small. Show up. Mark the day. The compounding is real — you just
+              have to outlast the first two weeks to see it.
+            </p>
+          </div>
+
         </div>
       </section>
     </div>
