@@ -100,6 +100,8 @@ jobs:
     needs: [scan_ruby, scan_js, lint, test]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      deployments: write
 
     steps:
       - name: Create GitHub deployment
