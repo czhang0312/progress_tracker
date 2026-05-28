@@ -32,6 +32,38 @@ interface JournalEntry {
   content: string;
 }
 
+function JournalTabButton({ entry, isToday, isFuture, onClick }: {
+  entry: JournalEntry | null;
+  isToday: boolean;
+  isFuture: boolean;
+  onClick: () => void;
+}) {
+  const isFilled = !!entry;
+  let fill = '#E2E8F0';
+  let stroke = '#CBD5E1';
+  if (isFilled) { fill = '#DBEAFE'; stroke = '#BFDBFE'; }
+  if (isToday && !isFilled) { fill = '#EFF6FF'; stroke = '#2563EB'; }
+  else if (isToday && isFilled) { fill = '#BFDBFE'; stroke = '#2563EB'; }
+
+  const cls = isFuture ? 'journal-tab journal-tab-future'
+    : isFilled ? 'journal-tab journal-tab-filled'
+    : 'journal-tab journal-tab-empty';
+
+  const title = entry
+    ? entry.content.slice(0, 80) + (entry.content.length > 80 ? '…' : '')
+    : isFuture ? '' : 'Add journal entry';
+
+  return (
+    <button className={cls} disabled={isFuture} onClick={onClick} title={title}
+      aria-label={entry ? 'Open journal entry' : isFuture ? 'Future date' : 'Add journal entry'}>
+      <svg viewBox="0 0 44 16" preserveAspectRatio="none" width="100%" height="16">
+        <path d="M0 16 L6 3 Q7 0 10 0 L34 0 Q37 0 38 3 L44 16 Z"
+          fill={fill} stroke={stroke} strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
+      </svg>
+    </button>
+  );
+}
+
 interface ProgressData {
   year: number;
   month: number;
@@ -813,12 +845,30 @@ export default function ProgressPage() {
 
           <div className="animate-fade-in mt-4">
             {/* Progress Table */}
-            <div className="card sticky-table-container">
+            <div className="sticky-table-container">
               <div ref={tableScrollRef} className="overflow-x-auto scrollbar-thin">
                 <table className="table-modern">
                   <thead>
+                    {/* Journal tab row first — renders above the date headers visually */}
+                    <tr className="journal-tab-row">
+                      <th className="sticky left-0 z-20 bg-neutral-100 w-[200px] min-w-[200px] max-w-[200px] p-0" />
+                      {Array.from({ length: data.days_in_month }, (_, i) => {
+                        const day = i + 1;
+                        const date = localDateString(new Date(year, month - 1, day));
+                        return (
+                          <td key={day} className="p-0 align-bottom" style={{ width: 44, minWidth: 44 }}>
+                            <JournalTabButton
+                              entry={getJournalEntry(date)}
+                              isToday={date === todayLocalDateString()}
+                              isFuture={date > todayLocalDateString()}
+                              onClick={() => handleJournalClick(date)}
+                            />
+                          </td>
+                        );
+                      })}
+                    </tr>
                     <tr>
-                      <th className="sticky left-0 z-20 bg-neutral-100 w-[200px] min-w-[200px] max-w-[200px]">
+                      <th className="sticky left-0 z-20 w-[200px] min-w-[200px] max-w-[200px]" style={{ background: 'rgb(248, 250, 252)' }}>
                         <span className="text-sm font-semibold text-neutral-500 px-4">Goals</span>
                       </th>
                       {Array.from({ length: data.days_in_month }, (_, i) => {
@@ -919,45 +969,6 @@ export default function ProgressPage() {
                       ))}
                     </tr>
 
-                    {/* Journal row — separated from goals by a thick border */}
-                    <tr className="journal-row hover:bg-neutral-50 transition-colors duration-200">
-                      <td className="sticky left-0 z-20 bg-white h-12">
-                        <div className="px-4 h-full flex items-center gap-2">
-                          <span className="text-base leading-none">✏️</span>
-                          <span className="font-semibold text-[13px] text-neutral-600">Journal</span>
-                        </div>
-                      </td>
-                      {Array.from({ length: data.days_in_month }, (_, i) => {
-                        const day = i + 1;
-                        const date = localDateString(new Date(year, month - 1, day));
-                        const journalEntry = getJournalEntry(date);
-                        const isFuture = date > todayLocalDateString();
-
-                        return (
-                          <td key={day} className="p-1 text-center">
-                            {!isFuture && (
-                              <button
-                                onClick={() => handleJournalClick(date)}
-                                className={`w-7 h-7 rounded-lg flex items-center justify-center mx-auto transition-all duration-200 ${
-                                  journalEntry
-                                    ? 'bg-primary-100 text-primary-600 hover:bg-primary-200'
-                                    : 'text-neutral-300 hover:text-neutral-400 hover:bg-neutral-100'
-                                }`}
-                                title={
-                                  journalEntry
-                                    ? `Edit journal: "${journalEntry.content.substring(0, 60)}${journalEntry.content.length > 60 ? '…' : ''}"`
-                                    : `Add journal entry for ${date}`
-                                }
-                              >
-                                <span className="text-[11px] font-bold leading-none">
-                                  {journalEntry ? '✦' : '+'}
-                                </span>
-                              </button>
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
                   </tbody>
                 </table>
               </div>

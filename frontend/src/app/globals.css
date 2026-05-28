@@ -149,16 +149,69 @@
   }
 
   .table-modern td {
-    @apply p-1 border-b border-neutral-100;
+    @apply p-1 border-b border-neutral-200;
+  }
+
+  .table-modern tbody tr {
+    @apply bg-white;
   }
 
   .table-modern tr:hover {
     @apply bg-neutral-50;
   }
 
-  .table-modern .journal-row td {
-    border-top: 2px solid #CBD5E1;
+  .table-modern .journal-tab-row th,
+  .table-modern .journal-tab-row td {
+    padding: 0;
+    background: transparent;
+    border-top: none;
+    border-bottom: 1px solid #e5e7eb;
   }
+  .table-modern .journal-tab-row td {
+    padding-top: 8px;
+  }
+  .table-modern .journal-tab-row:hover {
+    background: transparent;
+  }
+  .table-modern thead tr:not(.journal-tab-row) th {
+    background: rgb(248, 250, 252);
+  }
+  .table-modern .journal-tab-row th.sticky {
+    @apply bg-neutral-100;
+  }
+  .table-modern th.sticky,
+  .table-modern td.sticky {
+    box-shadow: inset 1px 0 0 0 #e5e7eb, inset -1px 0 0 0 #e5e7eb;
+  }
+  .table-modern .journal-tab-row th.sticky {
+    box-shadow: none;
+  }
+  .table-modern th:last-child,
+  .table-modern td:last-child {
+    transform: translateZ(0);
+    box-shadow: inset -1px 0 0 0 #e5e7eb;
+  }
+  .table-modern .journal-tab-row td:last-child {
+    box-shadow: none;
+  }
+
+  .journal-tab {
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    height: 16px;
+    width: 100%;
+    display: block;
+    transition: transform .15s cubic-bezier(.34,1.56,.64,1);
+  }
+  .journal-tab:disabled { cursor: default; }
+  .journal-tab svg { display: block; transition: opacity .15s; }
+  .journal-tab-empty svg { opacity: .28; }
+  .journal-tab-empty:not(:disabled):hover { transform: translateY(-2px); }
+  .journal-tab-empty:not(:disabled):hover svg { opacity: .85; }
+  .journal-tab-filled:not(:disabled):hover { transform: translateY(-2px); }
+  .journal-tab-future svg { opacity: .1; }
 
   /* Navigation styles */
   .nav-link {
@@ -193,19 +246,10 @@
 
   /* Sticky table improvements */
   .sticky-table-container {
-    @apply relative overflow-hidden rounded-xl border border-neutral-200 shadow-soft;
+    @apply relative overflow-hidden rounded-xl;
   }
 
-  /* box-shadow draws inside the element boundary so it isn't clipped by border-collapse */
-  .table-modern th.sticky,
-  .table-modern td.sticky {
-    box-shadow: 1px 0 0 0 #e5e7eb;
-  }
 
-  .sticky-table-container::after {
-    content: '';
-    @apply absolute top-0 right-0 w-1 h-full bg-gradient-to-r from-transparent to-neutral-200 pointer-events-none;
-  }
 
   /* Responsive improvements */
   @media (max-width: 768px) {
