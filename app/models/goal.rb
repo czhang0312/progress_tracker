@@ -3,7 +3,6 @@ class Goal < ApplicationRecord
   has_many :daily_progresses, dependent: :destroy
 
   validates :name, presence: true, uniqueness: { scope: :user_id }
-  validates :description, presence: true
 
   # Status constants for daily progress
   STATUS_EMPTY = 0
