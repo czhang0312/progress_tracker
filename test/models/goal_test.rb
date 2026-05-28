@@ -12,10 +12,9 @@ class GoalTest < ActiveSupport::TestCase
     assert_includes goal.errors[:name], "can't be blank"
   end
 
-  test "should require description" do
+  test "should not require description" do
     goal = Goal.new(name: "Test Goal", user: users(:one))
-    assert_not goal.valid?
-    assert_includes goal.errors[:description], "can't be blank"
+    assert goal.valid?
   end
 
   test "should belong to user" do
