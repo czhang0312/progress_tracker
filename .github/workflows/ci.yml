@@ -116,10 +116,10 @@ jobs:
               required_contexts: [],
               description: 'Deploy to AWS EC2'
             });
-            if (!response.data.id) {
-              throw new Error(`Failed to create deployment: ${JSON.stringify(response.data)}`);
-            }
-            core.setOutput('deployment_id', response.data.id);
+            console.log(`HTTP ${response.status}: ${JSON.stringify(response.data)}`);
+            const id = response.data.id;
+            if (!id) throw new Error(`No deployment id in response: ${JSON.stringify(response.data)}`);
+            core.setOutput('deployment_id', String(id));
 
       - name: Set deployment in progress
         uses: actions/github-script@v7
@@ -127,10 +127,12 @@ jobs:
           DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
           script: |
+            const id = parseInt(process.env.DEPLOYMENT_ID);
+            if (isNaN(id)) { console.log('No deployment ID, skipping'); return; }
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: parseInt(process.env.DEPLOYMENT_ID),
+              deployment_id: id,
               state: 'in_progress',
               description: 'Deploying to AWS EC2...'
             });
@@ -169,10 +171,12 @@ jobs:
           DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
           script: |
+            const id = parseInt(process.env.DEPLOYMENT_ID);
+            if (isNaN(id)) { console.log('No deployment ID, skipping'); return; }
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: parseInt(process.env.DEPLOYMENT_ID),
+              deployment_id: id,
               state: 'success',
               description: 'Deployed to AWS EC2'
             });
@@ -184,10 +188,12 @@ jobs:
           DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
           script: |
+            const id = parseInt(process.env.DEPLOYMENT_ID);
+            if (isNaN(id)) { console.log('No deployment ID, skipping'); return; }
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: parseInt(process.env.DEPLOYMENT_ID),
+              deployment_id: id,
               state: 'failure',
               description: 'Deployment to AWS EC2 failed'
             });
