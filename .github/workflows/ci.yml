@@ -107,7 +107,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const deployment = await github.rest.repos.createDeployment({
+            const response = await github.rest.repos.createDeployment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: context.sha,
@@ -116,13 +116,15 @@ jobs:
               required_contexts: [],
               description: 'Deploy to AWS EC2'
             });
-            return deployment.data.id;
-          result-encoding: string
+            if (!response.data.id) {
+              throw new Error(`Failed to create deployment: ${JSON.stringify(response.data)}`);
+            }
+            core.setOutput('deployment_id', response.data.id);
 
       - name: Set deployment in progress
         uses: actions/github-script@v7
         env:
-          DEPLOYMENT_ID: ${{ steps.deployment.outputs.result }}
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
@@ -164,7 +166,7 @@ jobs:
         if: success()
         uses: actions/github-script@v7
         env:
-          DEPLOYMENT_ID: ${{ steps.deployment.outputs.result }}
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
@@ -179,7 +181,7 @@ jobs:
         if: failure()
         uses: actions/github-script@v7
         env:
-          DEPLOYMENT_ID: ${{ steps.deployment.outputs.result }}
+          DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
           script: |
             await github.rest.repos.createDeploymentStatus({
