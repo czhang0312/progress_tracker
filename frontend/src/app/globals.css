@@ -8,10 +8,11 @@
 @layer base {
   html {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: white;
   }
   
   body {
-    @apply bg-neutral-100 text-neutral-900 antialiased;
+    @apply bg-white text-neutral-900 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
