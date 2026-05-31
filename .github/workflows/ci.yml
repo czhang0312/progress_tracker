@@ -153,6 +153,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/my_key.pem
           chmod 600 ~/.ssh/my_key.pem
+          ssh-keygen -R 34.232.119.46
           ssh-keyscan -H 34.232.119.46 >> ~/.ssh/known_hosts
 
       - name: Write Kamal secrets
