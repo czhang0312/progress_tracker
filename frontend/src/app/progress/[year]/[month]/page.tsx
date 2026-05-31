@@ -1022,7 +1022,7 @@ export default function ProgressPage() {
                   <circle cx="14" cy="20" r="10" fill="currentColor" />
                   <path d="M10 20 l3 3 6 -6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
                   <circle cx="40" cy="20" r="10" />
-                  <path d="M40 10 a10 10 0 0 1 0 20 z" fill="currentColor" stroke="none" />
+                  <path d="M40 20 L47.1 12.9 A10 10 0 0 0 40 10 A10 10 0 0 0 32.9 27.1 Z" fill="currentColor" stroke="none" />
                   <circle cx="66" cy="20" r="10" opacity="0.4" />
                 </svg>
               </div>
