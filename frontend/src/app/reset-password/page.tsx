@@ -5,6 +5,21 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 
+const SERIF = "'Source Serif 4','Source Serif Pro',Georgia,serif";
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 10,
+  fontWeight: 600,
+  color: '#64748B',
+  letterSpacing: '0.1em',
+  textTransform: 'uppercase',
+};
+
+const inputOverride: React.CSSProperties = {
+  padding: '10px 14px',
+  fontSize: 14,
+};
+
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -37,11 +52,34 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="text-center space-y-4">
-        <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg">
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
+        <div style={{
+          background: '#EF444415',
+          border: '1px solid #EF444440',
+          color: '#DC2626',
+          padding: '10px 14px',
+          borderRadius: 8,
+          fontSize: 13.5,
+          lineHeight: 1.5,
+        }}>
           Invalid or missing reset token. Please request a new password reset link.
         </div>
-        <Link href="/forgot-password" className="btn-primary block text-center mt-4">
+        <Link
+          href="/forgot-password"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            padding: '11px',
+            fontSize: 14,
+            borderRadius: 8,
+            background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+            color: '#fff',
+            textDecoration: 'none',
+            fontWeight: 500,
+          }}
+        >
           Request Reset Link
         </Link>
       </div>
@@ -50,12 +88,40 @@ function ResetPasswordForm() {
 
   if (success) {
     return (
-      <div className="text-center space-y-4">
-        <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto">
-          <span className="text-success-600 text-2xl">✓</span>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
+        <div style={{
+          width: 48,
+          height: 48,
+          borderRadius: '50%',
+          background: '#F0FDF4',
+          border: '1px solid #BBF7D0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 20,
+          color: '#16A34A',
+        }}>
+          ✓
         </div>
-        <p className="text-neutral-700">Your password has been updated successfully.</p>
-        <Link href="/login" className="btn-primary block text-center mt-4">
+        <p style={{ color: '#475569', fontSize: 13.5, lineHeight: 1.6 }}>
+          Your password has been updated successfully.
+        </p>
+        <Link
+          href="/login"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            padding: '11px',
+            fontSize: 14,
+            borderRadius: 8,
+            background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+            color: '#fff',
+            textDecoration: 'none',
+            fontWeight: 500,
+          }}
+        >
           Sign In
         </Link>
       </div>
@@ -63,65 +129,80 @@ function ResetPasswordForm() {
   }
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="password" className="form-label">
-          New Password
-        </label>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <label htmlFor="password" style={labelStyle}>New Password</label>
         <input
           id="password"
           name="password"
+          className="form-input"
           type="password"
           autoComplete="new-password"
           required
           value={formData.password}
           onChange={handleChange}
-          className="form-input"
-          placeholder="Enter new password"
+          placeholder="At least 6 characters"
+          style={inputOverride}
         />
       </div>
 
-      <div>
-        <label htmlFor="password_confirmation" className="form-label">
-          Confirm New Password
-        </label>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <label htmlFor="password_confirmation" style={labelStyle}>Confirm New Password</label>
         <input
           id="password_confirmation"
           name="password_confirmation"
+          className="form-input"
           type="password"
           autoComplete="new-password"
           required
           value={formData.password_confirmation}
           onChange={handleChange}
-          className="form-input"
-          placeholder="Confirm new password"
+          placeholder="Repeat your new password"
+          style={inputOverride}
         />
       </div>
 
       {errors.length > 0 && (
-        <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg" role="alert">
-          <span className="text-error-600 mr-2">⚠️</span>
-          <ul className="inline">
-            {errors.map((err, i) => (
-              <li key={i}>{err}</li>
-            ))}
-          </ul>
+        <div style={{
+          background: '#EF444415',
+          border: '1px solid #EF444440',
+          color: '#DC2626',
+          padding: '8px 12px',
+          borderRadius: 8,
+          fontSize: 12.5,
+          lineHeight: 1.5,
+        }} role="alert">
+          {errors.map((err, i) => <div key={i}>{err}</div>)}
         </div>
       )}
 
       <button
         type="submit"
         disabled={loading}
-        className="btn-primary w-full text-lg py-3"
+        style={{
+          background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+          color: '#fff',
+          width: '100%',
+          padding: '11px',
+          fontSize: 14,
+          marginTop: 2,
+          border: 'none',
+          borderRadius: 8,
+          fontFamily: 'inherit',
+          fontWeight: 500,
+          cursor: loading ? 'not-allowed' : 'pointer',
+          opacity: loading ? 0.75 : 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          transition: 'opacity .15s',
+        }}
       >
-        {loading ? (
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Updating...
-          </div>
-        ) : (
-          'Update Password'
+        {loading && (
+          <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
         )}
+        {loading ? 'Updating…' : 'Update Password'}
       </button>
     </form>
   );
@@ -129,26 +210,49 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 animate-fade-in">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
-            <span className="text-white text-3xl font-bold">PT</span>
-          </div>
-          <h1 className="page-title mb-2">
-            New Password
+    <div style={{
+      minHeight: '100vh',
+      background: '#F1F5F9',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    }}>
+      <div style={{ width: '100%', maxWidth: 380, animation: 'fadeIn .25s ease-out' }}>
+
+        {/* Logo + heading */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 22 }}>
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            border: '3.2px solid #2563EB',
+            background: 'linear-gradient(135deg, #2563EB 50%, transparent 50%)',
+            flexShrink: 0,
+          }} />
+          <h1 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '16px 0 0' }}>
+            Choose a new password
           </h1>
-          <p className="text-lg text-neutral-600">
-            Choose a strong password for your account
+          <p style={{ color: '#64748B', fontSize: 13.5, marginTop: 6, lineHeight: 1.5 }}>
+            Pick something strong and memorable.
           </p>
         </div>
 
-        <div className="card">
-          <div className="card-body">
-            <Suspense fallback={<div className="text-center text-neutral-500">Loading...</div>}>
-              <ResetPasswordForm />
-            </Suspense>
-          </div>
+        {/* Card */}
+        <div style={{
+          background: '#ffffff',
+          border: '1px solid #E2E8F0',
+          borderRadius: 16,
+          padding: 24,
+          boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.16)',
+        }}>
+          <Suspense fallback={
+            <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 13.5, padding: '12px 0' }}>
+              Loading…
+            </div>
+          }>
+            <ResetPasswordForm />
+          </Suspense>
         </div>
       </div>
     </div>

@@ -4,6 +4,16 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 
+const SERIF = "'Source Serif 4','Source Serif Pro',Georgia,serif";
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 10,
+  fontWeight: 600,
+  color: '#64748B',
+  letterSpacing: '0.1em',
+  textTransform: 'uppercase',
+};
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,84 +29,161 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 animate-fade-in">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
-            <span className="text-white text-3xl font-bold">PT</span>
-          </div>
-          <h1 className="page-title mb-2">
-            Reset Password
+    <div style={{
+      minHeight: '100vh',
+      background: '#F1F5F9',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    }}>
+      <div style={{ width: '100%', maxWidth: 380, animation: 'fadeIn .25s ease-out' }}>
+
+        {/* Logo + heading */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 22 }}>
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            border: '3.2px solid #2563EB',
+            background: 'linear-gradient(135deg, #2563EB 50%, transparent 50%)',
+            flexShrink: 0,
+          }} />
+          <h1 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '16px 0 0' }}>
+            {submitted ? 'Check your email' : 'Reset your password'}
           </h1>
-          <p className="text-lg text-neutral-600">
-            Enter your email and we&apos;ll send you a reset link
+          <p style={{ color: '#64748B', fontSize: 13.5, marginTop: 6, lineHeight: 1.5 }}>
+            {submitted
+              ? `We sent a reset link to ${email}`
+              : "Enter your email and we'll send you a reset link."}
           </p>
         </div>
 
-        <div className="card">
-          <div className="card-body">
-            {submitted ? (
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto">
-                  <span className="text-success-600 text-2xl">✓</span>
-                </div>
-                <p className="text-neutral-700">
-                  If an account exists for <strong>{email}</strong>, you&apos;ll receive a password reset link shortly.
-                </p>
-                <Link href="/login" className="btn-primary block text-center mt-4">
-                  Back to Sign In
-                </Link>
+        {/* Card */}
+        <div style={{
+          background: '#ffffff',
+          border: '1px solid #E2E8F0',
+          borderRadius: 16,
+          padding: 24,
+          boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.16)',
+        }}>
+          {submitted ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
+              <div style={{
+                width: 48,
+                height: 48,
+                borderRadius: '50%',
+                background: '#F0FDF4',
+                border: '1px solid #BBF7D0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 20,
+                color: '#16A34A',
+              }}>
+                ✓
               </div>
-            ) : (
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div>
-                  <label htmlFor="email" className="form-label">
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="form-input"
-                    placeholder="Enter your email"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full text-lg py-3"
-                >
-                  {loading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Sending...
-                    </div>
-                  ) : (
-                    'Send Reset Link'
-                  )}
-                </button>
-              </form>
-            )}
-
-            {!submitted && (
-              <div className="mt-6 text-center">
-                <p className="text-neutral-600">
-                  Remember your password?{' '}
-                  <Link
-                    href="/login"
-                    className="font-semibold text-primary-600 hover:text-primary-700 transition-colors duration-200"
-                  >
-                    Sign in
-                  </Link>
-                </p>
+              <p style={{ color: '#475569', fontSize: 13.5, lineHeight: 1.6 }}>
+                If an account exists for <strong style={{ color: '#0F172A' }}>{email}</strong>, you&apos;ll receive a reset link shortly.
+              </p>
+              <Link
+                href="/login"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  padding: '11px',
+                  fontSize: 14,
+                  borderRadius: 8,
+                  background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  marginTop: 4,
+                }}
+              >
+                Back to Sign In
+              </Link>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={labelStyle}>Email</label>
+                <input
+                  className="form-input"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  style={{ padding: '10px 14px', fontSize: 14 }}
+                />
               </div>
-            )}
-          </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+                  color: '#fff',
+                  width: '100%',
+                  padding: '11px',
+                  fontSize: 14,
+                  marginTop: 2,
+                  border: 'none',
+                  borderRadius: 8,
+                  fontFamily: 'inherit',
+                  fontWeight: 500,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.75 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  transition: 'opacity .15s',
+                }}
+              >
+                {loading && (
+                  <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                )}
+                {loading ? 'Sending…' : 'Send Reset Link'}
+              </button>
+
+              {/* Divider */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '6px 0 0' }}>
+                <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                  or
+                </span>
+                <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
+              </div>
+
+              <Link
+                href="/login"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  padding: '10px',
+                  fontSize: 13.5,
+                  borderRadius: 8,
+                  border: '1px solid #E2E8F0',
+                  color: '#64748B',
+                  background: 'transparent',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                  transition: 'border-color .15s, color .15s',
+                }}
+              >
+                Back to Sign In
+              </Link>
+            </form>
+          )}
         </div>
       </div>
     </div>
