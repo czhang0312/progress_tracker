@@ -977,8 +977,9 @@ export default function ProgressPage() {
         </div>
       </section>
 
-      <section className="max-w-[800px] mx-auto px-4 pb-16">
-        <div className="mt-10 mb-4 border-t border-neutral-300 pt-10">
+      <section className="max-w-[960px] mx-auto px-4 pb-16">
+        <div className="mt-10 border-t border-neutral-300" />
+        <div className="max-w-[800px] mx-auto mb-4 pt-10">
 
           {/* Editorial intro */}
           <div className="max-w-2xl mx-auto mb-11 text-center">
