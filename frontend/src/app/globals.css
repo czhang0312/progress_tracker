@@ -180,21 +180,6 @@
   .table-modern .journal-tab-row th.sticky {
     @apply bg-neutral-100;
   }
-  .table-modern th.sticky,
-  .table-modern td.sticky {
-    box-shadow: inset 1px 0 0 0 #e5e7eb, inset -1px 0 0 0 #e5e7eb;
-  }
-  .table-modern .journal-tab-row th.sticky {
-    box-shadow: none;
-  }
-  .table-modern th:last-child,
-  .table-modern td:last-child {
-    transform: translateZ(0);
-    box-shadow: inset -1px 0 0 0 #e5e7eb;
-  }
-  .table-modern .journal-tab-row td:last-child {
-    box-shadow: none;
-  }
 
   .journal-tab {
     padding: 0;
@@ -247,7 +232,7 @@
 
   /* Sticky table improvements */
   .sticky-table-container {
-    @apply relative overflow-hidden rounded-xl;
+    @apply relative overflow-hidden;
   }
 
 

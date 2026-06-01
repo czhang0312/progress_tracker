@@ -842,7 +842,7 @@ export default function ProgressPage() {
           <div className="animate-fade-in mt-4">
             {/* Progress Table */}
             <div className="sticky-table-container">
-              <div ref={tableScrollRef} className="overflow-x-auto scrollbar-thin">
+              <div ref={tableScrollRef} className="overflow-x-auto scrollbar-thin pb-3">
                 <table className="table-modern">
                   <thead>
                     {/* Journal tab row first — renders above the date headers visually */}
@@ -864,7 +864,7 @@ export default function ProgressPage() {
                       })}
                     </tr>
                     <tr>
-                      <th className="sticky left-0 z-20 w-[200px] min-w-[200px] max-w-[200px]" style={{ background: 'rgb(248, 250, 252)' }}>
+                      <th className="sticky left-0 z-20 w-[200px] min-w-[200px] max-w-[200px]" style={{ background: 'rgb(248, 250, 252)', boxShadow: 'inset 1px 0 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>
                         <span className="text-sm font-semibold text-neutral-500 px-4">Goals</span>
                       </th>
                       {Array.from({ length: data.days_in_month }, (_, i) => {
@@ -900,7 +900,7 @@ export default function ProgressPage() {
                         onDragEnd={handleDragEnd}
                         className={`transition-colors duration-200 ${draggingGoalId === goal.id ? 'opacity-40' : 'hover:bg-neutral-50'} ${dragOverGoalId === goal.id ? 'bg-primary-50 outline outline-2 outline-primary-300' : ''}`}
                       >
-                        <td className="sticky left-0 z-20 bg-white h-12 border-b group w-[200px] min-w-[200px] max-w-[200px]">
+                        <td className="sticky left-0 z-20 bg-white h-12 border-b group w-[200px] min-w-[200px] max-w-[200px]" style={{ boxShadow: 'inset 1px 0 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>
                           <div className="relative h-full cursor-grab active:cursor-grabbing">
                             <div className="px-6 py-1.5 h-full flex flex-col justify-center">
                               <h3 className="font-semibold text-[13px] leading-tight line-clamp-2">{goal.name}</h3>
@@ -950,7 +950,7 @@ export default function ProgressPage() {
 
                     {/* Add goal row */}
                     <tr className="hover:bg-neutral-50 transition-colors duration-200">
-                      <td className="sticky left-0 z-20 bg-white h-10 border-b">
+                      <td className="sticky left-0 z-20 bg-white h-10 border-b" style={{ boxShadow: 'inset 1px 0 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>
                         <button
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={openAddGoal}
