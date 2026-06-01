@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
+import PageLoader from '@/components/PageLoader';
 import CheckinModal from '@/components/CheckinModal';
 import JournalEntryModal from '@/components/JournalEntryModal';
 import { RAILS_API_BASE } from '@/lib/config';
@@ -77,6 +78,9 @@ interface ProgressData {
 export default function ProgressPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // TEMP: visit ?preview to test the skeleton loading screen
+  const preview = searchParams.has('preview');
   const { user, loading: authLoading } = useAuth();
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -556,16 +560,8 @@ export default function ProgressPage() {
     };
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center animate-fade-in">
-          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Loading Progress</h1>
-          <p className="text-neutral-600">Getting your data ready...</p>
-        </div>
-      </div>
-    );
+  if (loading || preview) {
+    return <PageLoader />;
   }
 
   if (error) {

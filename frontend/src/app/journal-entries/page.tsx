@@ -6,6 +6,7 @@ import { RAILS_API_BASE } from '@/lib/config';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
+import PageLoader from '@/components/PageLoader';
 import { deleteGuestJournalEntry, getGuestJournalEntries } from '@/lib/guestStorage';
 
 interface JournalEntry {
@@ -128,15 +129,7 @@ export default function JournalEntriesPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-        <div className="text-center animate-fade-in">
-          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Loading Journal Entries</h1>
-          <p className="text-neutral-600">Getting your journal entries ready...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (error) {

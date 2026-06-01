@@ -1,44 +1,35 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import PageLoader from '../components/PageLoader';
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading } = useAuth();
+  // TEMP: visit /?preview to test the loading screen
+  const preview = searchParams.has('preview');
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !preview) {
       const now = new Date();
       router.push(`/progress/${now.getFullYear()}/${now.getMonth() + 1}`);
     }
-  }, [user, loading, router]);
+  }, [user, loading, preview, router]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center">
-        <div className="text-center animate-fade-in">
-          <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
-            <span className="text-white text-3xl font-bold">PT</span>
-          </div>
-          <h1 className="page-title mb-2">Progress Tracker</h1>
-          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mt-6"></div>
-          <p className="text-neutral-600 mt-4">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
+  if (loading || preview) {
+    return <PageLoader />;
   }
 
+  return <PageLoader />;
+}
+
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center">
-      <div className="text-center animate-fade-in">
-        <div className="w-20 h-20 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-medium">
-          <span className="text-white text-3xl font-bold">PT</span>
-        </div>
-        <h1 className="page-title mb-2">Progress Tracker</h1>
-        <p className="text-neutral-600">Redirecting to your dashboard...</p>
-      </div>
-    </div>
+    <Suspense>
+      <HomeContent />
+    </Suspense>
   );
 }

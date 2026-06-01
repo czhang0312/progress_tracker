@@ -133,6 +133,7 @@ const config: Config = {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
+        'bounce-dot': 'bounceDot 1.2s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -146,6 +147,10 @@ const config: Config = {
         scaleIn: {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        bounceDot: {
+          '0%, 80%, 100%': { transform: 'scale(0.55)', opacity: '0.35' },
+          '40%': { transform: 'scale(1)', opacity: '1' },
         },
       },
     },

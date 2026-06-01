@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import PageLoader from '@/components/PageLoader';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { RAILS_API_BASE } from '@/lib/config';
@@ -205,17 +206,7 @@ function NewJournalEntryForm() {
 
 export default function NewJournalEntryPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
-          <div className="text-center animate-fade-in">
-            <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <h1 className="text-2xl font-bold text-neutral-900 mb-2">Loading Form</h1>
-            <p className="text-neutral-600">Preparing journal entry details...</p>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<PageLoader />}>
       <NewJournalEntryForm />
     </Suspense>
   );
