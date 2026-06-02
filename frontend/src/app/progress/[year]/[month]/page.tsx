@@ -866,10 +866,12 @@ export default function ProgressPage() {
             <div className="flex items-center gap-[6px] p-1 rounded-[10px] bg-white border border-neutral-200">
               <Link
                 href={`/progress/${prevMonth.year}/${prevMonth.month}`}
-                className="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center text-neutral-500 text-[18px] hover:bg-neutral-100 transition-colors duration-[120ms]"
+                className="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors duration-[120ms]"
                 title={new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
               >
-                ‹
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
               </Link>
               {isCurrentMonth ? (
                 <span className="h-[30px] flex items-center px-[12px] rounded-[7px] text-xs font-semibold text-neutral-400 cursor-default select-none">
@@ -885,10 +887,12 @@ export default function ProgressPage() {
               )}
               <Link
                 href={`/progress/${nextMonth.year}/${nextMonth.month}`}
-                className="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center text-neutral-500 text-[18px] hover:bg-neutral-100 transition-colors duration-[120ms]"
+                className="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors duration-[120ms]"
                 title={new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
               >
-                ›
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
               </Link>
             </div>
           </div>
