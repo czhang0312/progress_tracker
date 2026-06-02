@@ -227,6 +227,7 @@
 
   /* Journal tabs strip — sits above the table card */
   .journal-tabs-strip { position: relative; z-index: 2; margin-bottom: -1px;
+    padding-top: 6px;
     overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
   .journal-tabs-strip::-webkit-scrollbar { display: none; }
 
