@@ -943,7 +943,6 @@ export default function ProgressPage() {
                         const isFuture = date > todayLocalDateString();
                         const jsDate = new Date(year, month - 1, day);
                         const dow = jsDate.toLocaleDateString('en-US', { weekday: 'narrow' });
-                        const isWeekend = jsDate.getDay() === 0 || jsDate.getDay() === 6;
                         return (
                           <th key={day}
                             ref={(el) => { if (isToday) todayThRef.current = el; }}
@@ -953,7 +952,7 @@ export default function ProgressPage() {
                             <button className="day-header-btn"
                               onClick={() => handleJournalClick(date)}
                               style={{ cursor: 'pointer', opacity: isFuture ? 0.4 : 1 }}>
-                              <div style={{ fontSize: 9, color: isWeekend ? T.textFaint : T.textMuted,
+                              <div style={{ fontSize: 9, color: T.textMuted,
                                 fontWeight: 600, letterSpacing: '.04em', marginBottom: 1 }}>
                                 {dow}
                               </div>
