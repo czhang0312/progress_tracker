@@ -44,18 +44,14 @@ const T = {
   tabFill: '#E2E8F0', tabStroke: '#CBD5E1',
 };
 
-function JournalTabButton({ entry, isToday, isFuture, onClick }: {
+function JournalTabButton({ entry, isFuture, onClick }: {
   entry: JournalEntry | null;
-  isToday: boolean;
   isFuture: boolean;
   onClick: () => void;
 }) {
   const isFilled = !!entry;
-  const isTodayEmpty = isToday && !isFilled;
-  let fill = T.tabFill;
-  let stroke = T.tabStroke;
-  if (isTodayEmpty) { fill = T.todayCol; stroke = T.todayRing; }
-  else if (isToday && isFilled) { stroke = T.todayRing; }
+  const fill = T.tabFill;
+  const stroke = T.tabStroke;
 
   const cls = isFuture ? 'journal-tab journal-tab-future'
     : isFilled ? 'journal-tab journal-tab-filled'
@@ -77,9 +73,9 @@ function JournalTabButton({ entry, isToday, isFuture, onClick }: {
 }
 
 // ─── Diagonal-fill progress circle (default "diag" style from the design) ─────
-function DiagCircle({ status, size, color, onClick, isFuture, isToday }: {
+function DiagCircle({ status, size, color, onClick, isFuture }: {
   status: number; size: number; color: string;
-  onClick: () => void; isFuture: boolean; isToday: boolean;
+  onClick: () => void; isFuture: boolean;
 }) {
   const [pop, setPop] = useState(false);
   const handleClick = (e?: React.MouseEvent) => {
@@ -101,7 +97,7 @@ function DiagCircle({ status, size, color, onClick, isFuture, isToday }: {
       margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
       color: '#fff', fontWeight: 700, fontSize: size * 0.42,
       boxShadow: status === 2 ? `0 2px 8px ${color}55` : 'none',
-      outline: isToday ? `2px solid ${T.todayRing}` : 'none', outlineOffset: 2,
+      outline: 'none', outlineOffset: 2,
       transform: pop ? 'scale(1.18)' : 'scale(1)',
       transition: 'transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s',
     }}>{status === 2 && '✓'}</div>
@@ -916,7 +912,6 @@ export default function ProgressPage() {
                   return (
                     <JournalTabButton key={day}
                       entry={getJournalEntry(date)}
-                      isToday={date === todayLocalDateString()}
                       isFuture={date > todayLocalDateString()}
                       onClick={() => handleJournalClick(date)} />
                   );
@@ -936,8 +931,7 @@ export default function ProgressPage() {
                       <th className="sticky-col-head" style={{
                         width: 200, minWidth: 200, maxWidth: 200, background: T.tableHead,
                         borderBottom: `1px solid ${T.cardBorder}`,
-                        borderRight: `1px solid ${T.cardBorder}`,
-                        textAlign: 'left', padding: '12px 16px',
+                        textAlign: 'left', padding: '12px 16px 12px 26px',
                         color: T.textMuted, textTransform: 'uppercase',
                         fontSize: 10, letterSpacing: '.08em' }}>
                         Goal
@@ -964,7 +958,7 @@ export default function ProgressPage() {
                                 {dow}
                               </div>
                               <div style={{ fontSize: isToday ? 14 : 12, fontWeight: isToday ? 800 : 600,
-                                color: isToday ? T.primary : T.text, lineHeight: 1 }}>
+                                color: T.text, lineHeight: 1 }}>
                                 {day}
                               </div>
                             </button>
@@ -983,9 +977,9 @@ export default function ProgressPage() {
                         className={`${draggingGoalId === goal.id ? 'dragging' : ''} ${dragOverGoalId === goal.id && draggingGoalId !== null && draggingGoalId !== goal.id ? 'drag-over' : ''}`}>
                         <td className="sticky-col goal-row-cell" draggable
                           onDragStart={() => handleDragStart(goal.id)}
-                          style={{ background: T.cardBg, borderRight: `1px solid ${T.cardBorder}`,
+                          style={{ background: T.cardBg,
                             padding: '8px 12px', cursor: 'grab' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 4, userSelect: 'none' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 14, userSelect: 'none' }}>
                             {/* Name + description */}
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div onClick={(e) => openGoalEdit(goal, e)} title="Click to edit"
@@ -1012,12 +1006,12 @@ export default function ProgressPage() {
                             <button
                               onClick={(e) => openGoalEdit(goal, e)}
                               title="Edit goal" aria-label="Edit goal"
-                              style={{ border: 'none', background: 'transparent', color: T.textMuted,
+                              style={{ border: `1px solid ${T.cardBorder}`, background: 'transparent', color: T.textMuted,
                                 cursor: 'pointer', padding: '4px 2px', lineHeight: 0, fontSize: 14,
                                 borderRadius: 4, flexShrink: 0, alignSelf: 'flex-start',
                                 display: 'flex', alignItems: 'center',
                                 justifyContent: 'center', width: 22, height: 24 }}>
-                              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style={{ opacity: 0.6 }}>
                                 <circle cx="8" cy="3" r="1.5" />
                                 <circle cx="8" cy="8" r="1.5" />
                                 <circle cx="8" cy="13" r="1.5" />
@@ -1031,17 +1025,15 @@ export default function ProgressPage() {
                           const status = getProgressStatus(goal.id, date);
                           const isToday = date === todayLocalDateString();
                           const isFuture = date > todayLocalDateString();
-                          const jsDate = new Date(year, month - 1, day);
-                          const isWeekend = jsDate.getDay() === 0 || jsDate.getDay() === 6;
                           const isBeforeCreation = date < (goal.started_at ?? goal.created_at?.substring(0, 10) ?? '');
 
                           return (
                             <td key={day} style={{ textAlign: 'center', padding: '5px 2px',
-                              background: isToday ? T.todayCol : isWeekend ? T.tableHead + '99' : undefined }}>
+                              background: isToday ? T.todayCol : undefined }}>
                               {!isBeforeCreation && (
                                 <DiagCircle status={status} size={30} color={T.circFull}
                                   onClick={() => updateProgress(goal.id, date, status)}
-                                  isFuture={isFuture} isToday={isToday} />
+                                  isFuture={isFuture} />
                               )}
                             </td>
                           );
@@ -1054,7 +1046,7 @@ export default function ProgressPage() {
                     <tr>
                       <td className="sticky-col" colSpan={1}
                         style={{ background: T.cardBg, padding: '6px 10px',
-                          borderRight: `1px solid ${T.cardBorder}`, borderBottom: `1px solid ${T.cardBorder}` }}>
+                          borderBottom: `1px solid ${T.cardBorder}` }}>
                         <button onClick={openAddGoal}
                           style={{ width: '100%', textAlign: 'left', background: 'transparent',
                             border: 'none', cursor: 'pointer', padding: '7px 4px 7px 22px',
@@ -1080,7 +1072,7 @@ export default function ProgressPage() {
                   {([['Empty', 0], ['Halfway', 1], ['Done', 2]] as const).map(([label, s]) => (
                     <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                       <DiagCircle status={s} size={14} color={T.circFull}
-                        onClick={() => {}} isFuture={false} isToday={false} />
+                        onClick={() => {}} isFuture={false} />
                       {label}
                     </span>
                   ))}
