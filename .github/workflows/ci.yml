@@ -106,7 +106,7 @@ jobs:
     steps:
       - name: Create GitHub deployment
         id: deployment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const response = await github.rest.repos.createDeployment({
@@ -124,7 +124,7 @@ jobs:
             core.setOutput('deployment_id', String(id));
 
       - name: Set deployment in progress
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
@@ -170,7 +170,7 @@ jobs:
 
       - name: Set deployment success
         if: success()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
@@ -187,7 +187,7 @@ jobs:
 
       - name: Set deployment failure
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           DEPLOYMENT_ID: ${{ steps.deployment.outputs.deployment_id }}
         with:
