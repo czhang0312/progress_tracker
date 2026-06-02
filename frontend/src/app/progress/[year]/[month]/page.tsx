@@ -990,16 +990,18 @@ export default function ProgressPage() {
                                   overflow: 'hidden' }}>
                                 {goal.name}
                               </div>
-                              <div onClick={(e) => openGoalEdit(goal, e)}
-                                title={goal.description ? `${goal.description}\n\nClick to edit` : 'Click to add a description'}
-                                style={{ fontSize: 11, color: goal.description ? T.textFaint : T.textFaint + '88',
-                                  lineHeight: 1.4, padding: '1px 6px', margin: '2px -6px 0', borderRadius: 4,
-                                  cursor: 'grab', fontStyle: goal.description ? 'normal' : 'italic',
-                                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-                                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden' }}>
-                                {goal.description || 'Add a description'}
-                              </div>
+                              {goal.description && (
+                                <div onClick={(e) => openGoalEdit(goal, e)}
+                                  title={`${goal.description}\n\nClick to edit`}
+                                  style={{ fontSize: 11, color: T.textFaint,
+                                    lineHeight: 1.4, padding: '1px 6px', margin: '2px -6px 0', borderRadius: 4,
+                                    cursor: 'grab',
+                                    whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden' }}>
+                                  {goal.description}
+                                </div>
+                              )}
                             </div>
 
                             {/* Edit menu — 3-dot vertical */}
