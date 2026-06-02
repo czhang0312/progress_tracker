@@ -186,7 +186,7 @@ export default function ProgressPage() {
     if (!container || !todayTh) return;
     const containerRect = container.getBoundingClientRect();
     const todayRect = todayTh.getBoundingClientRect();
-    const stickyWidth = 280;
+    const stickyWidth = 200;
     const availableWidth = containerRect.width - stickyWidth;
     const targetScrollLeft =
       container.scrollLeft + (todayRect.left - containerRect.left) - stickyWidth - availableWidth / 2 + todayRect.width / 2;
@@ -902,7 +902,7 @@ export default function ProgressPage() {
             <div ref={tabsStripRef} className="journal-tabs-strip">
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: `280px repeat(${data.days_in_month}, 40px) 8px`,
+                gridTemplateColumns: `200px repeat(${data.days_in_month}, 40px) 8px`,
                 alignItems: 'end', width: 'min-content',
               }}>
                 <div style={{ position: 'sticky', left: 0, zIndex: 5,
@@ -934,7 +934,7 @@ export default function ProgressPage() {
                   <thead>
                     <tr>
                       <th className="sticky-col-head" style={{
-                        minWidth: 280, background: T.tableHead,
+                        width: 200, minWidth: 200, maxWidth: 200, background: T.tableHead,
                         borderBottom: `1px solid ${T.cardBorder}`,
                         borderRight: `1px solid ${T.cardBorder}`,
                         textAlign: 'left', padding: '12px 16px',
@@ -981,32 +981,26 @@ export default function ProgressPage() {
                         onDrop={(e) => handleDrop(e, goal.id)}
                         onDragEnd={handleDragEnd}
                         className={`${draggingGoalId === goal.id ? 'dragging' : ''} ${dragOverGoalId === goal.id && draggingGoalId !== null && draggingGoalId !== goal.id ? 'drag-over' : ''}`}>
-                        <td className="sticky-col goal-row-cell"
+                        <td className="sticky-col goal-row-cell" draggable
+                          onDragStart={() => handleDragStart(goal.id)}
                           style={{ background: T.cardBg, borderRight: `1px solid ${T.cardBorder}`,
-                            padding: '8px 12px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 4 }}>
-                            {/* Drag handle */}
-                            <div draggable
-                              onDragStart={() => handleDragStart(goal.id)}
-                              className="goal-actions" title="Drag to reorder"
-                              style={{ cursor: 'grab', color: T.textFaint, fontSize: 14,
-                                padding: '4px 2px', userSelect: 'none', lineHeight: 1, flexShrink: 0 }}>
-                              ⋮⋮
-                            </div>
-
+                            padding: '8px 12px', cursor: 'grab' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 4, userSelect: 'none' }}>
                             {/* Name + description */}
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div onClick={(e) => openGoalEdit(goal, e)} title="Click to edit"
                                 style={{ fontWeight: 600, fontSize: 13.5, color: T.text, lineHeight: 1.3,
-                                  padding: '2px 6px', margin: '0 -6px', borderRadius: 6, cursor: 'text',
-                                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  padding: '2px 6px', margin: '0 -6px', borderRadius: 6, cursor: 'grab',
+                                  wordBreak: 'break-word',
+                                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden' }}>
                                 {goal.name}
                               </div>
                               <div onClick={(e) => openGoalEdit(goal, e)}
                                 title={goal.description ? `${goal.description}\n\nClick to edit` : 'Click to add a description'}
                                 style={{ fontSize: 11, color: goal.description ? T.textFaint : T.textFaint + '88',
                                   lineHeight: 1.4, padding: '1px 6px', margin: '2px -6px 0', borderRadius: 4,
-                                  cursor: 'text', fontStyle: goal.description ? 'normal' : 'italic',
+                                  cursor: 'grab', fontStyle: goal.description ? 'normal' : 'italic',
                                   whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                                   display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
                                   overflow: 'hidden' }}>
@@ -1098,7 +1092,7 @@ export default function ProgressPage() {
                   </span>
                 </div>
                 <div style={{ fontSize: 11, color: T.textFaint }}>
-                  {data.goals.length} goal{data.goals.length === 1 ? '' : 's'} · drag the ⋮⋮ handle to reorder
+                  {data.goals.length} goal{data.goals.length === 1 ? '' : 's'} · drag to reorder
                 </div>
               </div>
             </div>
