@@ -466,7 +466,7 @@ export default function JournalEntryModal({
               width: '100%', border: 'none', outline: 'none', resize: 'none',
               background: 'transparent', padding: 0,
               fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif",
-              fontSize: 18, lineHeight: 1, letterSpacing: '-0.005em',
+              fontSize: 18, lineHeight: 1.6, letterSpacing: '-0.005em',
               color: T.text, minHeight: 200, overflow: 'hidden',
               caretColor: T.primary,
               fontStyle: 'normal',
