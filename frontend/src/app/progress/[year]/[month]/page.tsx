@@ -6,7 +6,6 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import PageLoader from '@/components/PageLoader';
-import CheckinModal from '@/components/CheckinModal';
 import JournalEntryModal from '@/components/JournalEntryModal';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal, reorderGuestGoals } from '@/lib/guestStorage';
@@ -124,7 +123,6 @@ export default function ProgressPage() {
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCheckin, setShowCheckin] = useState(false);
   const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
   const [editFormData, setEditFormData] = useState({ name: '', description: '', started_at: '' });
   const [editSaving, setEditSaving] = useState(false);
@@ -157,23 +155,6 @@ export default function ProgressPage() {
     if (authLoading) return;
     fetchProgressData();
   }, [year, month, user, authLoading, router]);
-
-  useEffect(() => {
-    if (loading || authLoading) return;
-    const today = todayLocalDateString();
-    const now = new Date();
-    const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
-    if (isCurrentMonth && localStorage.getItem('last_checkin_date') !== today) {
-      setShowCheckin(true);
-    }
-
-    const onReset = () => {
-      if (isCurrentMonth) setShowCheckin(true);
-    };
-    window.addEventListener('checkin-reset', onReset);
-    return () => window.removeEventListener('checkin-reset', onReset);
-  }, [loading, authLoading, year, month]);
-
 
   useEffect(() => {
     if (loading || !data) return;
@@ -652,24 +633,6 @@ export default function ProgressPage() {
     );
   }
 
-  const handleCheckinClose = ({
-    progressUpdates,
-    journalUpdate,
-  }: {
-    progressUpdates: Record<string, DailyProgress>;
-    journalUpdate: JournalEntry | null;
-  }) => {
-    setShowCheckin(false);
-    setData(prev => {
-      if (!prev) return prev;
-      const merged = { ...prev.daily_progresses, ...progressUpdates };
-      const updatedJournals = journalUpdate
-        ? { ...prev.journal_entries, [journalUpdate.date]: journalUpdate }
-        : prev.journal_entries;
-      return { ...prev, daily_progresses: merged, journal_entries: updatedJournals };
-    });
-  };
-
   const prevMonth = getPrevMonth();
   const nextMonth = getNextMonth();
   const now = new Date();
@@ -808,17 +771,6 @@ export default function ProgressPage() {
             </button>
           </div>
         </div>
-      )}
-      {showCheckin && data && (
-        <CheckinModal
-          goals={data.goals}
-          dailyProgresses={data.daily_progresses}
-          journalEntries={data.journal_entries}
-          today={todayLocalDateString()}
-          year={year}
-          month={month}
-          onClose={handleCheckinClose}
-        />
       )}
       {journalModalDate && data && (
         <JournalEntryModal
