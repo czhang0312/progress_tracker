@@ -1009,12 +1009,13 @@ export default function ProgressPage() {
                             </div>
 
                             {/* Edit menu — 3-dot vertical */}
-                            <button className="goal-actions"
+                            <button
                               onClick={(e) => openGoalEdit(goal, e)}
                               title="Edit goal" aria-label="Edit goal"
                               style={{ border: 'none', background: 'transparent', color: T.textMuted,
                                 cursor: 'pointer', padding: '4px 2px', lineHeight: 0, fontSize: 14,
-                                borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center',
+                                borderRadius: 4, flexShrink: 0, alignSelf: 'flex-start',
+                                display: 'flex', alignItems: 'center',
                                 justifyContent: 'center', width: 22, height: 24 }}>
                               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                                 <circle cx="8" cy="3" r="1.5" />
