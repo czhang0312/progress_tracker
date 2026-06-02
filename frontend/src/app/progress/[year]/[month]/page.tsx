@@ -33,6 +33,17 @@ interface JournalEntry {
   content: string;
 }
 
+// ─── Design tokens (Claude design v8 — "Blue & Green" theme) ──────────────────
+const T = {
+  cardBg: '#ffffff', cardBorder: '#E2E8F0',
+  primary: '#2563EB',
+  text: '#0F172A', textMuted: '#64748B', textFaint: '#94A3B8',
+  tableHead: '#F8FAFC',
+  todayRing: '#2563EB', todayCol: '#EFF6FF',
+  circFull: '#10B981',
+  tabFill: '#E2E8F0', tabStroke: '#CBD5E1',
+};
+
 function JournalTabButton({ entry, isToday, isFuture, onClick }: {
   entry: JournalEntry | null;
   isToday: boolean;
@@ -40,11 +51,11 @@ function JournalTabButton({ entry, isToday, isFuture, onClick }: {
   onClick: () => void;
 }) {
   const isFilled = !!entry;
-  let fill = '#E2E8F0';
-  let stroke = '#CBD5E1';
-  if (isFilled) { fill = '#DBEAFE'; stroke = '#BFDBFE'; }
-  if (isToday && !isFilled) { fill = '#EFF6FF'; stroke = '#2563EB'; }
-  else if (isToday && isFilled) { fill = '#BFDBFE'; stroke = '#2563EB'; }
+  const isTodayEmpty = isToday && !isFilled;
+  let fill = T.tabFill;
+  let stroke = T.tabStroke;
+  if (isTodayEmpty) { fill = T.todayCol; stroke = T.todayRing; }
+  else if (isToday && isFilled) { stroke = T.todayRing; }
 
   const cls = isFuture ? 'journal-tab journal-tab-future'
     : isFilled ? 'journal-tab journal-tab-filled'
@@ -62,6 +73,38 @@ function JournalTabButton({ entry, isToday, isFuture, onClick }: {
           fill={fill} stroke={stroke} strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
       </svg>
     </button>
+  );
+}
+
+// ─── Diagonal-fill progress circle (default "diag" style from the design) ─────
+function DiagCircle({ status, size, color, onClick, isFuture, isToday }: {
+  status: number; size: number; color: string;
+  onClick: () => void; isFuture: boolean; isToday: boolean;
+}) {
+  const [pop, setPop] = useState(false);
+  const handleClick = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (isFuture) return;
+    setPop(true); setTimeout(() => setPop(false), 200);
+    onClick();
+  };
+  const bg = status === 0 ? 'transparent'
+    : status === 1 ? `linear-gradient(135deg, ${color} 50%, #FFFFFF 50%)`
+    : color;
+  const borderColor = status === 2 ? color : '#D4D4D4';
+  return (
+    <div onClick={handleClick} style={{
+      width: size, height: size, borderRadius: '50%',
+      border: `2px solid ${borderColor}`,
+      background: bg,
+      cursor: isFuture ? 'default' : 'pointer', opacity: isFuture ? 0.25 : 1,
+      margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: '#fff', fontWeight: 700, fontSize: size * 0.42,
+      boxShadow: status === 2 ? `0 2px 8px ${color}55` : 'none',
+      outline: isToday ? `2px solid ${T.todayRing}` : 'none', outlineOffset: 2,
+      transform: pop ? 'scale(1.18)' : 'scale(1)',
+      transition: 'transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s',
+    }}>{status === 2 && '✓'}</div>
   );
 }
 
@@ -108,6 +151,7 @@ export default function ProgressPage() {
   const draggingGoalIdRef = useRef<number | null>(null);
   const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
+  const tabsStripRef = useRef<HTMLDivElement>(null);
   const todayThRef = useRef<HTMLTableCellElement | null>(null);
 
   const year = parseInt(params.year as string);
@@ -142,11 +186,25 @@ export default function ProgressPage() {
     if (!container || !todayTh) return;
     const containerRect = container.getBoundingClientRect();
     const todayRect = todayTh.getBoundingClientRect();
-    const stickyWidth = 200;
+    const stickyWidth = 280;
     const availableWidth = containerRect.width - stickyWidth;
     const targetScrollLeft =
       container.scrollLeft + (todayRect.left - containerRect.left) - stickyWidth - availableWidth / 2 + todayRect.width / 2;
     container.scrollLeft = Math.max(0, targetScrollLeft);
+  }, [loading, data]);
+
+  // Keep the journal-tabs strip horizontally aligned with the table when it overflows.
+  useEffect(() => {
+    if (loading || !data) return;
+    const tableEl = tableScrollRef.current;
+    const tabsEl = tabsStripRef.current;
+    if (!tableEl || !tabsEl) return;
+    const sync = () => {
+      if (tabsEl.scrollLeft !== tableEl.scrollLeft) tabsEl.scrollLeft = tableEl.scrollLeft;
+    };
+    sync();
+    tableEl.addEventListener('scroll', sync, { passive: true });
+    return () => tableEl.removeEventListener('scroll', sync);
   }, [loading, data]);
 
   useEffect(() => {
@@ -265,7 +323,7 @@ export default function ProgressPage() {
     }
   };
 
-  const openGoalEdit = (goal: Goal, e: React.MouseEvent<HTMLButtonElement>) => {
+  const openGoalEdit = (goal: Goal, e: React.MouseEvent<HTMLElement>) => {
     setShowAddGoal(false);
     if (editingGoalId === goal.id) {
       setEditingGoalId(null);
@@ -840,83 +898,134 @@ export default function ProgressPage() {
           </div>
 
           <div className="animate-fade-in mt-4">
-            {/* Progress Table */}
-            <div className="sticky-table-container">
-              <div ref={tableScrollRef} className="overflow-x-auto scrollbar-thin pb-3">
-                <table className="table-modern">
+            {/* Journal tab strip — sits above the table card, one tab per day */}
+            <div ref={tabsStripRef} className="journal-tabs-strip">
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: `280px repeat(${data.days_in_month}, 40px) 8px`,
+                alignItems: 'end', width: 'min-content',
+              }}>
+                <div style={{ position: 'sticky', left: 0, zIndex: 5,
+                  alignSelf: 'stretch', background: '#F1F5F9' }}>
+                  <div style={{ position: 'absolute', bottom: 0, left: 11, right: 0,
+                    borderBottom: `1px solid ${T.cardBorder}` }} />
+                </div>
+                {Array.from({ length: data.days_in_month }, (_, i) => {
+                  const day = i + 1;
+                  const date = localDateString(new Date(year, month - 1, day));
+                  return (
+                    <JournalTabButton key={day}
+                      entry={getJournalEntry(date)}
+                      isToday={date === todayLocalDateString()}
+                      isFuture={date > todayLocalDateString()}
+                      onClick={() => handleJournalClick(date)} />
+                  );
+                })}
+                <div />
+              </div>
+            </div>
+
+            {/* Main table card */}
+            <div style={{ background: T.cardBg, borderRadius: 14, border: `1px solid ${T.cardBorder}`,
+              boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 4px 16px -8px rgba(15,23,42,.08)',
+              overflow: 'hidden' }}>
+              <div ref={tableScrollRef} className="scrollbar-thin" style={{ overflowX: 'auto' }}>
+                <table className="progress-table" style={{ minWidth: 'min-content' }}>
                   <thead>
-                    {/* Journal tab row first — renders above the date headers visually */}
-                    <tr className="journal-tab-row">
-                      <th className="sticky left-0 z-20 bg-neutral-100 w-[200px] min-w-[200px] max-w-[200px] p-0" />
-                      {Array.from({ length: data.days_in_month }, (_, i) => {
-                        const day = i + 1;
-                        const date = localDateString(new Date(year, month - 1, day));
-                        return (
-                          <td key={day} className="p-0 align-bottom" style={{ width: 44, minWidth: 44 }}>
-                            <JournalTabButton
-                              entry={getJournalEntry(date)}
-                              isToday={date === todayLocalDateString()}
-                              isFuture={date > todayLocalDateString()}
-                              onClick={() => handleJournalClick(date)}
-                            />
-                          </td>
-                        );
-                      })}
-                    </tr>
                     <tr>
-                      <th className="sticky left-0 z-20 w-[200px] min-w-[200px] max-w-[200px]" style={{ background: 'rgb(248, 250, 252)', boxShadow: 'inset 1px 0 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>
-                        <span className="text-sm font-semibold text-neutral-500 px-4">Goals</span>
+                      <th className="sticky-col-head" style={{
+                        minWidth: 280, background: T.tableHead,
+                        borderBottom: `1px solid ${T.cardBorder}`,
+                        borderRight: `1px solid ${T.cardBorder}`,
+                        textAlign: 'left', padding: '12px 16px',
+                        color: T.textMuted, textTransform: 'uppercase',
+                        fontSize: 10, letterSpacing: '.08em' }}>
+                        Goal
                       </th>
                       {Array.from({ length: data.days_in_month }, (_, i) => {
                         const day = i + 1;
                         const date = localDateString(new Date(year, month - 1, day));
                         const isToday = date === todayLocalDateString();
                         const isFuture = date > todayLocalDateString();
-                        const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'][new Date(year, month - 1, day).getDay()];
-
+                        const jsDate = new Date(year, month - 1, day);
+                        const dow = jsDate.toLocaleDateString('en-US', { weekday: 'narrow' });
+                        const isWeekend = jsDate.getDay() === 0 || jsDate.getDay() === 6;
                         return (
-                          <th key={i + 1} ref={(el) => { if (isToday) todayThRef.current = el; }} className="min-w-[44px]">
-                            <div className="flex flex-col items-center justify-center">
-                              <span className={`text-[9px] font-medium ${isToday ? 'text-primary-400' : isFuture ? 'text-neutral-200' : 'text-neutral-400'}`}>
-                                {dayOfWeek}
-                              </span>
-                              <span className={`text-xs font-bold ${isToday ? 'text-primary-600' : isFuture ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                          <th key={day}
+                            ref={(el) => { if (isToday) todayThRef.current = el; }}
+                            style={{ minWidth: 40, width: 40,
+                              background: isToday ? T.todayCol : T.tableHead,
+                              borderBottom: `1px solid ${T.cardBorder}`, padding: 0 }}>
+                            <button className="day-header-btn"
+                              onClick={() => handleJournalClick(date)}
+                              style={{ cursor: 'pointer', opacity: isFuture ? 0.4 : 1 }}>
+                              <div style={{ fontSize: 9, color: isWeekend ? T.textFaint : T.textMuted,
+                                fontWeight: 600, letterSpacing: '.04em', marginBottom: 1 }}>
+                                {dow}
+                              </div>
+                              <div style={{ fontSize: isToday ? 14 : 12, fontWeight: isToday ? 800 : 600,
+                                color: isToday ? T.primary : T.text, lineHeight: 1 }}>
                                 {day}
-                              </span>
-                            </div>
+                              </div>
+                            </button>
                           </th>
                         );
                       })}
+                      <th style={{ minWidth: 8, background: T.tableHead, borderBottom: `1px solid ${T.cardBorder}` }} />
                     </tr>
                   </thead>
                   <tbody>
                     {data.goals.map((goal) => (
-                      <tr
-                        key={goal.id}
-                        draggable
-                        onDragStart={() => handleDragStart(goal.id)}
+                      <tr key={goal.id}
                         onDragOver={(e) => handleDragOver(e, goal.id)}
                         onDrop={(e) => handleDrop(e, goal.id)}
                         onDragEnd={handleDragEnd}
-                        className={`transition-colors duration-200 ${draggingGoalId === goal.id ? 'opacity-40' : 'hover:bg-neutral-50'} ${dragOverGoalId === goal.id ? 'bg-primary-50 outline outline-2 outline-primary-300' : ''}`}
-                      >
-                        <td className="sticky left-0 z-20 bg-white h-12 border-b group w-[200px] min-w-[200px] max-w-[200px]" style={{ boxShadow: 'inset 1px 0 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>
-                          <div className="relative h-full cursor-grab active:cursor-grabbing">
-                            <div className="px-6 py-1.5 h-full flex flex-col justify-center">
-                              <h3 className="font-semibold text-[13px] leading-tight line-clamp-2">{goal.name}</h3>
-                              <p className="text-hint line-clamp-2 leading-tight mt-0.5">{goal.description}</p>
+                        className={`${draggingGoalId === goal.id ? 'dragging' : ''} ${dragOverGoalId === goal.id && draggingGoalId !== null && draggingGoalId !== goal.id ? 'drag-over' : ''}`}>
+                        <td className="sticky-col goal-row-cell"
+                          style={{ background: T.cardBg, borderRight: `1px solid ${T.cardBorder}`,
+                            padding: '8px 12px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 4 }}>
+                            {/* Drag handle */}
+                            <div draggable
+                              onDragStart={() => handleDragStart(goal.id)}
+                              className="goal-actions" title="Drag to reorder"
+                              style={{ cursor: 'grab', color: T.textFaint, fontSize: 14,
+                                padding: '4px 2px', userSelect: 'none', lineHeight: 1, flexShrink: 0 }}>
+                              ⋮⋮
                             </div>
-                            <button
-                              draggable={false}
-                              onMouseDown={(e) => e.stopPropagation()}
+
+                            {/* Name + description */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div onClick={(e) => openGoalEdit(goal, e)} title="Click to edit"
+                                style={{ fontWeight: 600, fontSize: 13.5, color: T.text, lineHeight: 1.3,
+                                  padding: '2px 6px', margin: '0 -6px', borderRadius: 6, cursor: 'text',
+                                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {goal.name}
+                              </div>
+                              <div onClick={(e) => openGoalEdit(goal, e)}
+                                title={goal.description ? `${goal.description}\n\nClick to edit` : 'Click to add a description'}
+                                style={{ fontSize: 11, color: goal.description ? T.textFaint : T.textFaint + '88',
+                                  lineHeight: 1.4, padding: '1px 6px', margin: '2px -6px 0', borderRadius: 4,
+                                  cursor: 'text', fontStyle: goal.description ? 'normal' : 'italic',
+                                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                                  overflow: 'hidden' }}>
+                                {goal.description || 'Add a description'}
+                              </div>
+                            </div>
+
+                            {/* Edit menu — 3-dot vertical */}
+                            <button className="goal-actions"
                               onClick={(e) => openGoalEdit(goal, e)}
-                              className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded text-neutral-300 hover:text-neutral-600 hover:bg-neutral-100 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
-                              title="Edit goal"
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                <circle cx="12" cy="5" r="2" />
-                                <circle cx="12" cy="12" r="2" />
-                                <circle cx="12" cy="19" r="2" />
+                              title="Edit goal" aria-label="Edit goal"
+                              style={{ border: 'none', background: 'transparent', color: T.textMuted,
+                                cursor: 'pointer', padding: '4px 2px', lineHeight: 0, fontSize: 14,
+                                borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', width: 22, height: 24 }}>
+                              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                                <circle cx="8" cy="3" r="1.5" />
+                                <circle cx="8" cy="8" r="1.5" />
+                                <circle cx="8" cy="13" r="1.5" />
                               </svg>
                             </button>
                           </div>
@@ -925,48 +1034,72 @@ export default function ProgressPage() {
                           const day = i + 1;
                           const date = localDateString(new Date(year, month - 1, day));
                           const status = getProgressStatus(goal.id, date);
-                          const statusText = status === 0 ? 'Not Started' : status === 1 ? 'Half Complete' : 'Complete';
                           const isToday = date === todayLocalDateString();
                           const isFuture = date > todayLocalDateString();
+                          const jsDate = new Date(year, month - 1, day);
+                          const isWeekend = jsDate.getDay() === 0 || jsDate.getDay() === 6;
                           const isBeforeCreation = date < (goal.started_at ?? goal.created_at?.substring(0, 10) ?? '');
 
                           return (
-                            <td key={day} className="p-1 text-center">
+                            <td key={day} style={{ textAlign: 'center', padding: '5px 2px',
+                              background: isToday ? T.todayCol : isWeekend ? T.tableHead + '99' : undefined }}>
                               {!isBeforeCreation && (
-                                <div
-                                  className={`progress-circle status-${status} ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''} ${isFuture ? 'opacity-25' : ''}`}
+                                <DiagCircle status={status} size={30} color={T.circFull}
                                   onClick={() => updateProgress(goal.id, date, status)}
-                                  data-goal-id={goal.id}
-                                  data-date={date}
-                                  data-status={status}
-                                  title={`${goal.name} - Day ${day}: ${statusText}`}
-                                />
+                                  isFuture={isFuture} isToday={isToday} />
                               )}
                             </td>
                           );
                         })}
+                        <td style={{ background: T.cardBg }} />
                       </tr>
                     ))}
 
                     {/* Add goal row */}
-                    <tr className="hover:bg-neutral-50 transition-colors duration-200">
-                      <td className="sticky left-0 z-20 bg-white h-10 border-b" style={{ boxShadow: 'inset 1px 0 0 #e5e7eb, inset -1px 0 0 #e5e7eb' }}>
-                        <button
-                          onMouseDown={(e) => e.stopPropagation()}
-                          onClick={openAddGoal}
-                          className="px-4 h-full w-full flex items-center gap-1.5 text-neutral-400 hover:text-primary-600 transition-colors text-xs font-medium"
-                        >
-                          <span className="text-sm leading-none">+</span>
-                          Add a goal
+                    <tr>
+                      <td className="sticky-col" colSpan={1}
+                        style={{ background: T.cardBg, padding: '6px 10px',
+                          borderRight: `1px solid ${T.cardBorder}`, borderBottom: `1px solid ${T.cardBorder}` }}>
+                        <button onClick={openAddGoal}
+                          style={{ width: '100%', textAlign: 'left', background: 'transparent',
+                            border: 'none', cursor: 'pointer', padding: '7px 4px 7px 22px',
+                            fontFamily: 'inherit', fontSize: 13, color: T.textFaint, fontWeight: 500,
+                            borderRadius: 6, transition: 'all .12s' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.color = T.primary; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = T.textFaint; }}>
+                          + Add a goal
                         </button>
                       </td>
-                      {Array.from({ length: data.days_in_month }, (_, i) => (
-                        <td key={i} className="border-b border-neutral-100" />
-                      ))}
+                      <td colSpan={data.days_in_month + 1}
+                        style={{ background: T.cardBg, borderBottom: `1px solid ${T.cardBorder}` }} />
                     </tr>
-
                   </tbody>
                 </table>
+              </div>
+
+              {/* Legend strip */}
+              <div style={{ padding: '10px 18px', borderTop: `1px solid ${T.cardBorder}`,
+                background: T.tableHead, display: 'flex', alignItems: 'center',
+                justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 14, fontSize: 11, color: T.textMuted, alignItems: 'center' }}>
+                  {([['Empty', 0], ['Halfway', 1], ['Done', 2]] as const).map(([label, s]) => (
+                    <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <DiagCircle status={s} size={14} color={T.circFull}
+                        onClick={() => {}} isFuture={false} isToday={false} />
+                      {label}
+                    </span>
+                  ))}
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
+                    <svg width="14" height="6" viewBox="0 0 44 16" preserveAspectRatio="none" style={{ display: 'block' }}>
+                      <path d="M0 16 L6 3 Q7 0 10 0 L34 0 Q37 0 38 3 L44 16 Z"
+                        fill={T.tabFill} stroke={T.tabStroke} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                    </svg>
+                    Journal entry
+                  </span>
+                </div>
+                <div style={{ fontSize: 11, color: T.textFaint }}>
+                  {data.goals.length} goal{data.goals.length === 1 ? '' : 's'} · drag the ⋮⋮ handle to reorder
+                </div>
               </div>
             </div>
           </div>

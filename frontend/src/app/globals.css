@@ -199,6 +199,33 @@
   .journal-tab-filled:not(:disabled):hover { transform: translateY(-2px); }
   .journal-tab-future svg { opacity: .1; }
 
+  /* ── Progress table (Claude design v8) ───────────────────────────────── */
+  .progress-table { border-collapse: collapse; width: 100%; }
+  .progress-table th, .progress-table td { padding: 0; vertical-align: middle; }
+  .progress-table thead th { font-size: 11px; font-weight: 600; color: #64748B;
+    padding: 0; text-align: center; white-space: nowrap; }
+  .progress-table tbody td { border-bottom: 1px solid #F1F5F9; padding: 7px 2px; }
+  .progress-table td.sticky-col, .progress-table th.sticky-col { position: sticky; left: 0; z-index: 10; }
+  .progress-table .sticky-col-head { position: sticky; left: 0; z-index: 20; }
+  /* keep the goal cells sticky even though .goal-row-cell needs a positioning context */
+  .progress-table td.sticky-col.goal-row-cell { position: sticky; }
+
+  .day-header-btn { all: unset; width: 100%; padding: 8px 0 6px; cursor: pointer;
+    border-radius: 6px 6px 0 0; transition: background .12s; display: block; text-align: center; }
+  .day-header-btn:hover { background: rgba(0,0,0,.04); }
+
+  /* Goal row hover affordances */
+  .progress-table .goal-row-cell { position: relative; }
+  .progress-table .goal-row-cell .goal-actions { opacity: 0; transition: opacity .12s; pointer-events: none; }
+  .progress-table tr:hover .goal-row-cell .goal-actions { opacity: 1; pointer-events: auto; }
+  .progress-table tr.dragging { opacity: .4; }
+  .progress-table tr.drag-over td.goal-row-cell { box-shadow: inset 0 2px 0 #3B82F6; }
+
+  /* Journal tabs strip — sits above the table card */
+  .journal-tabs-strip { position: relative; z-index: 2; margin-bottom: -1px;
+    overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+  .journal-tabs-strip::-webkit-scrollbar { display: none; }
+
   /* Navigation styles */
   .nav-link {
     @apply px-4 py-2 text-neutral-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200;
