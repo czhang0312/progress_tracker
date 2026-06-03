@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { RAILS_API_BASE } from '@/lib/config';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import PageLoader from '@/components/PageLoader';
-import { deleteGuestJournalEntry, getGuestJournalEntries } from '@/lib/guestStorage';
+import JournalEntryModal from '@/components/JournalEntryModal';
+import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
+import {
+  getGuestJournalEntries,
+  getGuestGoals,
+  getGuestMonthlyProgress,
+  setGuestProgressStatus,
+} from '@/lib/guestStorage';
 
 interface JournalEntry {
   id: number;
@@ -15,118 +21,394 @@ interface JournalEntry {
   content: string;
 }
 
+interface Goal {
+  id: number;
+  name: string;
+  description: string;
+}
+
+interface DailyProgress {
+  goal_id: number;
+  date: string;
+  status: number;
+}
+
+// ─── Design tokens (Claude design v9 — "Blue & Green" theme) ──────────────────
+const T = {
+  bg: '#F8FAFC',
+  pageBg: '#F1F5F9',
+  cardBg: '#ffffff',
+  cardBorder: '#E2E8F0',
+  text: '#0F172A',
+  textMuted: '#64748B',
+  textFaint: '#94A3B8',
+  primary: '#2563EB',
+  tableHead: '#F8FAFC',
+  inputBg: '#ffffff',
+  inputBorder: '#CBD5E1',
+};
+
+const SERIF = "'Source Serif 4', 'Source Serif Pro', Georgia, serif";
+
+const RANGE_OPTIONS = [
+  { id: 'all', label: 'All time' },
+  { id: 'month', label: 'This month' },
+  { id: '30d', label: 'Last 30 days' },
+  { id: 'year', label: 'This year' },
+  { id: 'custom', label: 'Custom…' },
+] as const;
+
+type RangeId = (typeof RANGE_OPTIONS)[number]['id'];
+
+// ─── Search highlighting ──────────────────────────────────────────────────────
+function escapeRegex(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function HighlightedText({ text, query }: { text: string; query: string }) {
+  if (!query || !query.trim()) return <>{text}</>;
+  const re = new RegExp(`(${escapeRegex(query.trim())})`, 'gi');
+  const parts = text.split(re);
+  return (
+    <>
+      {parts.map((part, i) =>
+        re.test(part) ? (
+          <mark
+            key={i}
+            style={{ background: T.primary + '33', color: T.text, padding: '0 2px', borderRadius: 2 }}
+          >
+            {part}
+          </mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
+// ─── Diary entry card — calendar-tear-off date + serif body ───────────────────
+function JournalEntryCard({
+  entry,
+  query,
+  isToday,
+  onOpen,
+}: {
+  entry: JournalEntry;
+  query: string;
+  isToday: boolean;
+  onOpen: () => void;
+}) {
+  const [y, m, d] = entry.date.split('-').map(Number);
+  const jsDate = new Date(y, m - 1, d);
+  const dayName = jsDate.toLocaleDateString('en-US', { weekday: 'long' });
+  const shortMonth = jsDate.toLocaleDateString('en-US', { month: 'short' });
+
+  return (
+    <article
+      onClick={onOpen}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '88px minmax(0,1fr)',
+        gap: 28,
+        padding: '22px 26px 24px',
+        background: T.cardBg,
+        border: `1px solid ${T.cardBorder}`,
+        borderRadius: 14,
+        cursor: 'pointer',
+        transition: 'border-color .15s, transform .15s, box-shadow .15s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = T.primary + '88';
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.boxShadow = `0 8px 24px -10px ${T.primary}33`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = T.cardBorder;
+        e.currentTarget.style.transform = 'none';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+    >
+      {/* Date column — calendar-tear-off feel */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          gap: 4,
+          borderRight: `1px solid ${T.cardBorder}`,
+          paddingRight: 24,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            color: T.textMuted,
+            textTransform: 'uppercase',
+            letterSpacing: '.12em',
+          }}
+        >
+          {shortMonth}
+        </div>
+        <div
+          style={{
+            fontFamily: SERIF,
+            fontSize: 44,
+            fontWeight: 500,
+            lineHeight: 1,
+            color: isToday ? T.primary : T.text,
+            letterSpacing: '-.02em',
+          }}
+        >
+          {d}
+        </div>
+        <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 500, marginTop: 2 }}>{dayName}</div>
+        {isToday && (
+          <span
+            style={{
+              marginTop: 6,
+              fontSize: 9,
+              fontWeight: 700,
+              color: T.primary,
+              letterSpacing: '.12em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Today
+          </span>
+        )}
+      </div>
+
+      {/* Body */}
+      <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div
+          style={{
+            fontFamily: SERIF,
+            fontSize: 17,
+            lineHeight: 1.7,
+            color: T.text,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            letterSpacing: '-.003em',
+          }}
+        >
+          <HighlightedText text={entry.content} query={query} />
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function JournalEntriesPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [entries, setEntries] = useState<JournalEntry[]>([]);
+
+  const [journal, setJournal] = useState<Record<string, JournalEntry>>({});
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [progress, setProgress] = useState<Record<string, DailyProgress>>({});
+  const loadedMonths = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
 
+  const [search, setSearch] = useState('');
+  const [range, setRange] = useState<RangeId>('all');
+  const [customFrom, setCustomFrom] = useState('');
+  const [customTo, setCustomTo] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const [modalDate, setModalDate] = useState<string | null>(null);
+
+  const todayDate = todayLocalDateString();
+
+  // ── Initial load: journal entries + goals ───────────────────────────────────
   useEffect(() => {
     if (authLoading) return;
-    fetchJournalEntries();
+    let cancelled = false;
+
+    const load = async () => {
+      if (user?.is_guest) {
+        const entries = getGuestJournalEntries();
+        const record: Record<string, JournalEntry> = {};
+        entries.forEach((e) => { record[e.date] = e; });
+        if (!cancelled) {
+          setJournal(record);
+          setGoals(getGuestGoals());
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const [entriesRes, goalsRes] = await Promise.all([
+          fetch(`${RAILS_API_BASE}/journal_entries`, {
+            credentials: 'include',
+            headers: { Accept: 'application/json' },
+          }),
+          fetch(`${RAILS_API_BASE}/goals`, {
+            credentials: 'include',
+            headers: { Accept: 'application/json' },
+          }),
+        ]);
+        if (!entriesRes.ok) throw new Error('Failed to fetch journal entries');
+        const entries: JournalEntry[] = await entriesRes.json();
+        const record: Record<string, JournalEntry> = {};
+        entries.forEach((e) => { record[e.date] = e; });
+        const goalsData: Goal[] = goalsRes.ok ? await goalsRes.json() : [];
+        if (!cancelled) {
+          setJournal(record);
+          setGoals(goalsData);
+        }
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => { cancelled = true; };
   }, [authLoading, user]);
 
-  const fetchJournalEntries = async () => {
+  // ── Lazily load a month's progress so the modal can show goal pills ──────────
+  const ensureMonthProgress = useCallback(async (year: number, month: number) => {
+    const key = `${year}-${month}`;
+    if (loadedMonths.current.has(key)) return;
+    loadedMonths.current.add(key);
+
     if (user?.is_guest) {
-      setEntries(getGuestJournalEntries());
-      setLoading(false);
+      const data = getGuestMonthlyProgress(year, month);
+      setProgress((prev) => ({ ...prev, ...data.daily_progresses }));
       return;
     }
 
     try {
-      setLoading(true);
-      const response = await fetch(`${RAILS_API_BASE}/journal_entries`, {
+      const res = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}.json`, {
         credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: { Accept: 'application/json' },
       });
-      if (!response.ok) {
-        throw new Error('Failed to fetch journal entries');
-      }
-      const data = await response.json();
-      setEntries(data);
+      if (!res.ok) return;
+      const data = await res.json();
+      setProgress((prev) => ({ ...prev, ...data.daily_progresses }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+      console.error('Failed to load month progress:', err);
     }
-  };
+  }, [user]);
 
-  const handleDelete = async (id: number) => {
+  const openEntry = useCallback(async (date: string) => {
+    const [y, m] = date.split('-').map(Number);
+    await ensureMonthProgress(y, m);
+    setModalDate(date);
+  }, [ensureMonthProgress]);
+
+  // ── Update a goal's progress status (from inside the modal) ──────────────────
+  const updateProgress = useCallback(async (goalId: number, date: string, currentStatus: number) => {
+    const newStatus = (currentStatus + 1) % 3;
+    const [year, month] = date.split('-').map(Number);
+    const key = `${goalId}-${date}`;
+
     if (user?.is_guest) {
-      deleteGuestJournalEntry(id);
-      setEntries(getGuestJournalEntries());
-      return;
-    }
-
-    if (!confirm('Are you sure you want to delete this journal entry?')) {
+      setGuestProgressStatus(goalId, date, newStatus);
+      setProgress((prev) => ({ ...prev, [key]: { goal_id: goalId, date, status: newStatus } }));
       return;
     }
 
     try {
-      const response = await fetch(`${RAILS_API_BASE}/journal_entries/${id}`, {
-        method: 'DELETE',
+      const res = await fetch(`${RAILS_API_BASE}/progress/${year}/${month}/${goalId}/${date}`, {
+        method: 'PATCH',
         credentials: 'include',
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
       });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          const body = await response.json().catch(() => null);
+      if (!res.ok) {
+        if (res.status === 401) {
+          const body = await res.json().catch(() => null);
           if (body?.code === 'AUTH_REQUIRED') {
             router.push('/login');
             return;
           }
         }
-        throw new Error('Failed to delete journal entry');
+        throw new Error('Failed to update progress');
       }
-
-      // Remove from local state
-      setEntries(prev => prev.filter(entry => entry.id !== id));
+      setProgress((prev) => ({ ...prev, [key]: { goal_id: goalId, date, status: newStatus } }));
     } catch (err) {
-      console.error('Error deleting journal entry:', err);
-      alert('Failed to delete journal entry');
+      console.error('Error updating progress:', err);
     }
-  };
+  }, [user, router]);
 
-  const filteredEntries = entries.filter(entry => {
-    const matchesSearch = searchTerm === '' || 
-      entry.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDate = dateFilter === '' || entry.date === dateFilter;
-    return matchesSearch && matchesDate;
-  });
+  // ⌘K / ⌃K focuses search
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchRef.current?.focus();
+        searchRef.current?.select();
+      }
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
 
-  const parseLocalDate = (dateString: string) => {
-    const [year, month, day] = dateString.split('-').map(Number);
-    // just for safety - if the date string is not in the expected format, fallback to Date parsing
-    if (!year || !month || !day) {
-      return new Date(dateString);
+  // All entries, newest first
+  const allEntries = useMemo(
+    () => Object.values(journal).sort((a, b) => b.date.localeCompare(a.date)),
+    [journal]
+  );
+
+  const inRange = useCallback((dateStr: string) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    const [ty, tm, td] = todayDate.split('-').map(Number);
+    const today = new Date(ty, tm - 1, td);
+    if (range === 'all') return true;
+    if (range === 'year') return y === ty;
+    if (range === 'month') return y === ty && m === tm;
+    if (range === '30d') {
+      const cutoff = new Date(today);
+      cutoff.setDate(cutoff.getDate() - 30);
+      return dt >= cutoff && dt <= today;
     }
-    // subtract 1 because JavaScript months are 0-indexed
-    return new Date(year, month - 1, day);
-  };
+    if (range === 'custom') {
+      if (customFrom && dateStr < customFrom) return false;
+      if (customTo && dateStr > customTo) return false;
+      return true;
+    }
+    return true;
+  }, [range, customFrom, customTo, todayDate]);
 
-  const formatDate = (dateString: string) => {
-    return parseLocalDate(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return allEntries.filter((e) => inRange(e.date) && (!q || e.content.toLowerCase().includes(q)));
+  }, [allEntries, search, inRange]);
 
-  const getMonthYear = (dateString: string) => {
-    return parseLocalDate(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long'
+  // Group by month for the spine label
+  const groupedByMonth = useMemo(() => {
+    const groups: { key: string; label: string; entries: JournalEntry[] }[] = [];
+    let cur: { key: string; label: string; entries: JournalEntry[] } | null = null;
+    filtered.forEach((e) => {
+      const [y, m] = e.date.split('-').map(Number);
+      const key = `${y}-${m}`;
+      if (!cur || cur.key !== key) {
+        cur = {
+          key,
+          label: new Date(y, m - 1, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+          entries: [],
+        };
+        groups.push(cur);
+      }
+      cur.entries.push(e);
     });
+    return groups;
+  }, [filtered]);
+
+  const clearAll = () => {
+    setSearch('');
+    setRange('all');
+    setCustomFrom('');
+    setCustomTo('');
   };
+  const hasFilters = !!search || range !== 'all';
 
   if (loading) {
     return <PageLoader />;
@@ -134,14 +416,14 @@ export default function JournalEntriesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade-in">
           <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-error-600 text-2xl">⚠️</span>
           </div>
           <h1 className="text-2xl font-bold text-error-600 mb-2">Something went wrong</h1>
           <p className="text-neutral-600 mb-4">{error}</p>
-          <button onClick={fetchJournalEntries} className="btn-primary">
+          <button onClick={() => window.location.reload()} className="btn-primary">
             Try Again
           </button>
         </div>
@@ -152,131 +434,467 @@ export default function JournalEntriesPage() {
   return (
     <div className="min-h-screen">
       <NavHeader />
-      <div className="max-w-[720px] mx-auto p-4">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
-          <div>
-            <h1 className="page-title">Journal Entries</h1>
-            <p className="text-description">Review, search, and manage your entries</p>
-          </div>
-          <Link
-            href="/journal-entries/new"
-            className="btn-primary"
-          >
-            <span className="mr-2">+</span>
-            New Entry
-          </Link>
-        </div>
 
-        {/* Search and Filter */}
-        <div className="card mb-4">
-          <div className="card-body">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  placeholder="Search journal content..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="form-input"
-                />
-              </div>
-              <div>
-                <input
-                  type="date"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="form-input w-full md:w-auto"
-                />
-              </div>
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setDateFilter('');
+      {modalDate && (
+        <JournalEntryModal
+          date={modalDate}
+          goals={goals}
+          progress={progress}
+          journal={journal}
+          year={Number(modalDate.split('-')[0])}
+          month={Number(modalDate.split('-')[1])}
+          onClose={() => setModalDate(null)}
+          onProgressUpdate={updateProgress}
+          onJournalChange={(date, entry) => {
+            setJournal((prev) => {
+              if (!entry) {
+                const next = { ...prev };
+                delete next[date];
+                return next;
+              }
+              return { ...prev, [date]: entry };
+            });
+          }}
+          onNavigate={(delta) => {
+            const current = new Date(modalDate + 'T00:00:00');
+            current.setDate(current.getDate() + delta);
+            const newDate = localDateString(current);
+            if (newDate <= todayDate) {
+              const [y, m] = newDate.split('-').map(Number);
+              ensureMonthProgress(y, m);
+              setModalDate(newDate);
+            }
+          }}
+        />
+      )}
+
+      <div className="animate-fade-in" style={{ minHeight: 'calc(100vh - 60px)', background: T.pageBg }}>
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: '0 auto',
+            padding: '32px 24px 80px',
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0,1fr) 280px',
+            gap: 48,
+            alignItems: 'start',
+          }}
+        >
+          {/* ── Diary (left, wider) ── */}
+          <div style={{ minWidth: 0 }}>
+            {/* Page title */}
+            <div style={{ marginBottom: 36, paddingLeft: 4 }}>
+              <h1
+                style={{
+                  fontFamily: SERIF,
+                  fontSize: 52,
+                  fontWeight: 500,
+                  letterSpacing: '-.02em',
+                  lineHeight: 1.05,
+                  color: T.text,
                 }}
-                className="btn-outline"
               >
-                Clear
-              </button>
+                Journal
+              </h1>
+            </div>
+
+            {/* Result count when filtering */}
+            {hasFilters && (
+              <div
+                style={{
+                  marginBottom: 20,
+                  padding: '10px 14px',
+                  background: T.cardBg,
+                  border: `1px solid ${T.cardBorder}`,
+                  borderRadius: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: 13,
+                }}
+              >
+                <span style={{ color: T.textMuted }}>
+                  <span style={{ fontWeight: 600, color: T.text }}>{filtered.length}</span>{' '}
+                  {filtered.length === 1 ? 'entry' : 'entries'}
+                  {search && (
+                    <span>
+                      {' '}matching{' '}
+                      <span
+                        style={{
+                          color: T.text,
+                          fontFamily: 'monospace',
+                          background: T.tableHead,
+                          padding: '1px 6px',
+                          borderRadius: 4,
+                        }}
+                      >
+                        {search}
+                      </span>
+                    </span>
+                  )}
+                </span>
+                <button
+                  onClick={clearAll}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: T.textMuted,
+                    fontSize: 12,
+                    fontFamily: 'inherit',
+                    fontWeight: 500,
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = T.primary)}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = T.textMuted)}
+                >
+                  Clear filters ×
+                </button>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {filtered.length === 0 && (
+              <div style={{ padding: '72px 0', textAlign: 'center' }}>
+                <div
+                  style={{
+                    fontFamily: SERIF,
+                    fontSize: 22,
+                    fontWeight: 400,
+                    color: T.textMuted,
+                    fontStyle: 'italic',
+                    marginBottom: 12,
+                  }}
+                >
+                  {allEntries.length === 0 ? 'A blank page.' : 'No entries found.'}
+                </div>
+                {hasFilters && (
+                  <button
+                    onClick={clearAll}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      fontSize: 13,
+                      color: T.textMuted,
+                      textDecoration: 'underline',
+                      textDecorationColor: T.cardBorder,
+                      textUnderlineOffset: 3,
+                      padding: 0,
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = T.text)}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = T.textMuted)}
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Diary entries — month-grouped */}
+            <div>
+              {groupedByMonth.map((group, gi) => (
+                <div key={group.key} style={{ marginBottom: gi === groupedByMonth.length - 1 ? 0 : 32 }}>
+                  {/* Month spine label */}
+                  <div
+                    style={{
+                      position: 'sticky',
+                      top: 60,
+                      zIndex: 5,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 14,
+                      padding: '8px 0 16px',
+                      background: `linear-gradient(${T.pageBg} 70%, transparent)`,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: SERIF,
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: T.textMuted,
+                        fontStyle: 'italic',
+                        letterSpacing: '.01em',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {group.label}
+                    </span>
+                    <span style={{ flex: 1, height: 1, background: T.cardBorder }} />
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: T.textFaint,
+                        fontWeight: 500,
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {group.entries.length}
+                    </span>
+                  </div>
+
+                  {/* Entries in this month */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    {group.entries.map((entry) => (
+                      <JournalEntryCard
+                        key={entry.id}
+                        entry={entry}
+                        query={search}
+                        isToday={entry.date === todayDate}
+                        onOpen={() => openEntry(entry.date)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Results count */}
-        <div className="mb-4 text-sm text-neutral-600">
-          {filteredEntries.length} of {entries.length} entries
-        </div>
-
-        {/* Journal Entries List */}
-        {filteredEntries.length > 0 ? (
-          <div className="space-y-4 animate-fade-in">
-            {filteredEntries.map((entry) => (
-              <div
-                key={entry.id}
-                className="card hover:shadow-medium transition-all duration-200"
+          {/* ── Sidebar (right) ── */}
+          <aside
+            style={{
+              position: 'sticky',
+              top: 80,
+              alignSelf: 'start',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 24,
+            }}
+          >
+            {/* Search */}
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: T.textMuted,
+                  textTransform: 'uppercase',
+                  letterSpacing: '.1em',
+                  marginBottom: 8,
+                }}
               >
-                <div className="card-body">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
-                    <div>
-                      <h3 className="text-base font-bold text-neutral-900 mb-[3px]">{formatDate(entry.date)}</h3>
-                      <p className="text-hint">{getMonthYear(entry.date)}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/journal-entries/${entry.id}/edit`}
-                        className="btn-outline"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(entry.id)}
-                        className="btn-outline"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-description whitespace-pre-wrap leading-relaxed">
-                    {entry.content.length > 300
-                      ? `${entry.content.substring(0, 300)}...`
-                      : entry.content
-                    }
-                  </div>
-                  {entry.content.length > 300 && (
-                    <Link
-                      href={`/journal-entries/${entry.id}/edit`}
-                      className="inline-block mt-3 text-primary-600 hover:text-primary-700 font-medium"
-                    >
-                      Read more
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="card text-center py-6 animate-fade-in">
-            {entries.length === 0 ? (
-              <>
-                <div className="w-10 h-10 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-neutral-400 text-lg">📝</span>
-                </div>
-                <h2 className="text-base font-bold text-neutral-900 mb-1">No journal entries yet</h2>
-                <p className="text-description mb-4 max-w-sm mx-auto">
-                  Create your first journal entry to capture your thoughts and reflect on your progress.
-                </p>
-                <Link
-                  href="/journal-entries/new"
-                  className="btn-primary"
+                Search entries
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span
+                  style={{
+                    position: 'absolute',
+                    left: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: T.textFaint,
+                    fontSize: 14,
+                    pointerEvents: 'none',
+                  }}
                 >
-                  Create your first journal entry
-                </Link>
-              </>
-            ) : (
-              <p className="text-description">No entries match your search criteria.</p>
-            )}
-          </div>
-        )}
+                  ⌕
+                </span>
+                <input
+                  ref={searchRef}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="What are you looking for?"
+                  style={{
+                    width: '100%',
+                    font: 'inherit',
+                    fontSize: 13.5,
+                    padding: '9px 32px 9px 32px',
+                    background: T.cardBg,
+                    color: T.text,
+                    border: `1px solid ${T.cardBorder}`,
+                    borderRadius: 9,
+                    outline: 'none',
+                    transition: 'border-color .12s, box-shadow .12s',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = T.primary;
+                    e.target.style.boxShadow = `0 0 0 3px ${T.primary}22`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = T.cardBorder;
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+                {search ? (
+                  <button
+                    onClick={() => {
+                      setSearch('');
+                      searchRef.current?.focus();
+                    }}
+                    aria-label="Clear search"
+                    style={{
+                      position: 'absolute',
+                      right: 8,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      width: 22,
+                      height: 22,
+                      border: 'none',
+                      background: T.tableHead,
+                      color: T.textMuted,
+                      cursor: 'pointer',
+                      fontSize: 13,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0,
+                    }}
+                  >
+                    ×
+                  </button>
+                ) : (
+                  <kbd
+                    style={{
+                      position: 'absolute',
+                      right: 10,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      fontFamily: 'inherit',
+                      fontSize: 10,
+                      padding: '1px 5px',
+                      border: `1px solid ${T.cardBorder}`,
+                      borderRadius: 4,
+                      color: T.textFaint,
+                      background: T.tableHead,
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    ⌘K
+                  </kbd>
+                )}
+              </div>
+            </div>
 
+            {/* Date range */}
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: T.textMuted,
+                  textTransform: 'uppercase',
+                  letterSpacing: '.1em',
+                  marginBottom: 8,
+                }}
+              >
+                Date range
+              </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {RANGE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => setRange(opt.id)}
+                    style={{
+                      textAlign: 'left',
+                      padding: '7px 10px',
+                      background: range === opt.id ? T.primary + '14' : 'transparent',
+                      color: range === opt.id ? T.primary : T.text,
+                      border: 'none',
+                      borderRadius: 7,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      fontSize: 13,
+                      fontWeight: range === opt.id ? 600 : 500,
+                      transition: 'background .12s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (range !== opt.id) e.currentTarget.style.background = T.tableHead;
+                    }}
+                    onMouseLeave={(e) => {
+                      if (range !== opt.id) e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span>{opt.label}</span>
+                    {range === opt.id && <span style={{ fontSize: 11 }}>✓</span>}
+                  </button>
+                ))}
+              </div>
+
+              {range === 'custom' && (
+                <div
+                  style={{
+                    marginTop: 10,
+                    padding: 10,
+                    background: T.cardBg,
+                    border: `1px solid ${T.cardBorder}`,
+                    borderRadius: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                  }}
+                >
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        color: T.textMuted,
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '.06em',
+                      }}
+                    >
+                      From
+                    </span>
+                    <input
+                      type="date"
+                      value={customFrom}
+                      onChange={(e) => setCustomFrom(e.target.value)}
+                      style={{
+                        font: 'inherit',
+                        fontSize: 12,
+                        padding: '5px 8px',
+                        background: T.inputBg,
+                        color: T.text,
+                        border: `1px solid ${T.inputBorder}`,
+                        borderRadius: 6,
+                        outline: 'none',
+                        fontFamily: 'inherit',
+                      }}
+                    />
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        color: T.textMuted,
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '.06em',
+                      }}
+                    >
+                      To
+                    </span>
+                    <input
+                      type="date"
+                      value={customTo}
+                      onChange={(e) => setCustomTo(e.target.value)}
+                      style={{
+                        font: 'inherit',
+                        fontSize: 12,
+                        padding: '5px 8px',
+                        background: T.inputBg,
+                        color: T.text,
+                        border: `1px solid ${T.inputBorder}`,
+                        borderRadius: 6,
+                        outline: 'none',
+                        fontFamily: 'inherit',
+                      }}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
