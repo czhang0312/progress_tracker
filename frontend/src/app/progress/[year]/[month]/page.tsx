@@ -11,6 +11,15 @@ import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal, reorderGuestGoals } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 
+// Whether the browser can drive an animation off a scroll container's position
+// on the compositor. When true we sync the journal tabs to the table with a CSS
+// scroll-driven animation (zero lag, no scroll listener); otherwise we fall back
+// to mirroring scrollLeft from a JS scroll event.
+const SUPPORTS_SCROLL_TIMELINE =
+  typeof CSS !== 'undefined' && !!CSS.supports &&
+  CSS.supports('animation-timeline: scroll()') &&
+  CSS.supports('timeline-scope: --x');
+
 interface Goal {
   id: number;
   name: string;
@@ -146,6 +155,7 @@ export default function ProgressPage() {
   const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const tabsStripRef = useRef<HTMLDivElement>(null);
+  const tabsGridRef = useRef<HTMLDivElement>(null);
   const todayThRef = useRef<HTMLTableCellElement | null>(null);
 
   const year = parseInt(params.year as string);
@@ -171,11 +181,29 @@ export default function ProgressPage() {
   }, [loading, data]);
 
   // Keep the journal-tabs strip horizontally aligned with the table when it overflows.
+  // Preferred path: a CSS scroll-driven animation reads the table scroller's position
+  // on the compositor, so the tabs track it with zero lag (no scroll event listener).
+  // We only need JS to keep the animation's end-translate equal to the scroll range.
   useEffect(() => {
     if (loading || !data) return;
     const tableEl = tableScrollRef.current;
     const tabsEl = tabsStripRef.current;
+    const gridEl = tabsGridRef.current;
     if (!tableEl || !tabsEl) return;
+
+    if (SUPPORTS_SCROLL_TIMELINE && gridEl) {
+      const setMax = () => {
+        const max = tableEl.scrollWidth - tableEl.clientWidth;
+        gridEl.style.setProperty('--tabs-max', `${-max}px`);
+      };
+      setMax();
+      const ro = new ResizeObserver(setMax);
+      ro.observe(tableEl);
+      window.addEventListener('resize', setMax);
+      return () => { ro.disconnect(); window.removeEventListener('resize', setMax); };
+    }
+
+    // Fallback for browsers without scroll-driven animations: mirror scrollLeft.
     const sync = () => {
       if (tabsEl.scrollLeft !== tableEl.scrollLeft) tabsEl.scrollLeft = tableEl.scrollLeft;
     };
@@ -849,14 +877,35 @@ export default function ProgressPage() {
             </div>
           </div>
 
-          <div className="animate-fade-in mt-4">
+          <div className="animate-fade-in mt-4" style={{ timelineScope: '--tableScroll' }}>
             {/* Journal tab strip — sits above the table card, one tab per day */}
-            <div ref={tabsStripRef} className="journal-tabs-strip">
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: `200px repeat(${data.days_in_month}, 40px) 8px`,
-                alignItems: 'end', width: 'min-content',
-              }}>
+            <div
+              ref={tabsStripRef}
+              className="journal-tabs-strip"
+              style={SUPPORTS_SCROLL_TIMELINE ? { overflowX: 'hidden' } : undefined}
+            >
+              {/* In transform mode the grid's sticky cell can't stick (no real scroll),
+                  so this non-translated cover masks tabs sliding under the first column. */}
+              {SUPPORTS_SCROLL_TIMELINE && (
+                <div aria-hidden="true" style={{ position: 'absolute', top: 0, bottom: 0, left: 0,
+                  width: 200, background: '#F1F5F9', zIndex: 6 }}>
+                  <div style={{ position: 'absolute', bottom: 0, left: 11, right: 0,
+                    borderBottom: `1px solid ${T.cardBorder}` }} />
+                </div>
+              )}
+              <div
+                ref={tabsGridRef}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `200px repeat(${data.days_in_month}, 40px) 8px`,
+                  alignItems: 'end', width: 'min-content',
+                  ...(SUPPORTS_SCROLL_TIMELINE ? {
+                    animationName: 'tabsSync', animationDuration: '1ms',
+                    animationTimingFunction: 'linear', animationFillMode: 'both',
+                    animationTimeline: '--tableScroll', willChange: 'transform',
+                  } : null),
+                }}
+              >
                 <div style={{ position: 'sticky', left: 0, zIndex: 5,
                   alignSelf: 'stretch', background: '#F1F5F9' }}>
                   <div style={{ position: 'absolute', bottom: 0, left: 11, right: 0,
@@ -880,7 +929,8 @@ export default function ProgressPage() {
             <div style={{ background: T.cardBg, borderRadius: 14, border: `1px solid ${T.cardBorder}`,
               boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 4px 16px -8px rgba(15,23,42,.08)',
               overflow: 'hidden' }}>
-              <div ref={tableScrollRef} className="scrollbar-thin" style={{ overflowX: 'auto' }}>
+              <div ref={tableScrollRef} className="scrollbar-thin"
+                style={{ overflowX: 'auto', scrollTimelineName: '--tableScroll', scrollTimelineAxis: 'x' }}>
                 <table className="progress-table" style={{ minWidth: 'min-content' }}>
                   <thead>
                     <tr>

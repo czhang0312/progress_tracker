@@ -226,6 +226,11 @@
     overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
   .journal-tabs-strip::-webkit-scrollbar { display: none; }
 
+  /* Drives the journal-tabs row off the table's horizontal scroll, on the
+     compositor (no JS scroll listener → no lag). --tabs-max is set to the
+     negative scroll range in JS so the tabs track the table 1:1. */
+  @keyframes tabsSync { to { transform: translateX(var(--tabs-max, 0px)); } }
+
   /* Navigation styles */
   .nav-link {
     @apply px-4 py-2 text-neutral-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200;
