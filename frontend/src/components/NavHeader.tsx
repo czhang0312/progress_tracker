@@ -16,7 +16,6 @@ export default function NavHeader() {
   const links = [
     { href: `/progress/${year}/${month}`, label: 'Progress', match: '/progress' },
     { href: '/journal-entries', label: 'Journal', match: '/journal-entries' },
-    { href: '/stats', label: 'Stats', match: '/stats' },
   ];
 
   const handleLogout = async () => {

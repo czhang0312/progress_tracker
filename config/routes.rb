@@ -24,9 +24,6 @@ Rails.application.routes.draw do
     root "progress#index", as: :unauthenticated_root
   end
 
-  # Stats / analytics
-  get "stats", to: "stats#show", as: :stats
-
   # Progress tracking by month
   get "progress/:year/:month", to: "progress#show", as: :monthly_progress
   patch "progress/:year/:month/:goal_id/:date", to: "progress#update", as: :update_progress
