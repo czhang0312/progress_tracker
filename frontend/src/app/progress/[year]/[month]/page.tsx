@@ -930,7 +930,7 @@ export default function ProgressPage() {
               boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 4px 16px -8px rgba(15,23,42,.08)',
               overflow: 'hidden' }}>
               <div ref={tableScrollRef} className="scrollbar-thin"
-                style={{ overflowX: 'auto', scrollTimelineName: '--tableScroll', scrollTimelineAxis: 'x' }}>
+                style={{ overflowX: 'auto', overscrollBehaviorX: 'none', scrollTimelineName: '--tableScroll', scrollTimelineAxis: 'x' }}>
                 <table className="progress-table" style={{ minWidth: 'min-content' }}>
                   <thead>
                     <tr>
