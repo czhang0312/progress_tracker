@@ -38,7 +38,6 @@ function LoginContent() {
   const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
 
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -153,26 +152,6 @@ function LoginContent() {
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {isSignup && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={labelStyle}>
-                  Name{' '}
-                  <span style={{ color: '#94A3B8', fontWeight: 500, letterSpacing: 0, textTransform: 'none' }}>
-                    · optional
-                  </span>
-                </label>
-                <input
-                  className="form-input"
-                  type="text"
-                  value={name}
-                  placeholder="Your name"
-                  onChange={e => setName(e.target.value)}
-                  style={inputOverride}
-                  autoComplete="name"
-                />
-              </div>
-            )}
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={labelStyle}>Email</label>
               <input
