@@ -364,25 +364,23 @@
     @apply bg-white/80 backdrop-blur-sm border border-white/20;
   }
 
-  /* Custom scrollbar */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: #CBD5E1 #F1F5F9;
-  }
-
+  /* Custom scrollbar — matches the Progress Tracker v9 design (the horizontal
+     scrollbar below the progress table). The design styles the scrollbar purely
+     through ::-webkit-scrollbar; we deliberately do NOT set the standard
+     `scrollbar-width`, because Chrome ignores ::-webkit-scrollbar rules whenever
+     `scrollbar-width` is present and falls back to a thin overlay scrollbar that
+     floats inset from the edges. */
   .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
+    height: 8px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
-    @apply bg-neutral-100 rounded-full;
+    background: transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    @apply bg-neutral-300 rounded-full;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    @apply bg-neutral-400;
+    background: #E2E8F0;
+    border-radius: 99px;
   }
 }
