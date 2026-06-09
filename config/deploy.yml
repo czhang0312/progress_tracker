@@ -40,6 +40,14 @@ env:
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
     SOLID_QUEUE_IN_PUMA: true
 
+    # --- Email (Amazon SES SMTP) ---
+    # Frontend host used to build links in mailer emails (e.g. password reset). Hostname only.
+    APP_HOST: progress-tracker-navy.vercel.app
+    # Verified SES "From" identity.
+    MAIL_FROM: czhang0312@gmail.com
+    # SES SMTP endpoint for your SES region (us-east-1).
+    SES_SMTP_ADDRESS: email-smtp.us-east-1.amazonaws.com
+
     # Set number of processes dedicated to Solid Queue (default: 1)
     # JOB_CONCURRENCY: 3
 

@@ -53,21 +53,26 @@ Rails.application.configure do
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :solid_queue
 
-  # Ignore bad email addresses and do not raise email delivery errors.
-  # Set this to true and configure the email server for immediate delivery to raise delivery errors.
-  # config.action_mailer.raise_delivery_errors = false
+  # Surface mail delivery failures in logs (instead of silently swallowing them).
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.delivery_method = :smtp
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # Set host used by links generated in mailer templates (e.g. the reset
+  # password link). Must be your real frontend domain.
+  config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "example.com"), protocol: "https" }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # Outgoing mail via Amazon SES SMTP interface.
+  # NOTE: SES SMTP credentials are generated in the SES console and are NOT the
+  # same as your IAM access keys. Store them via `rails credentials:edit`.
+  config.action_mailer.smtp_settings = {
+    user_name:      Rails.application.credentials.dig(:smtp, :user_name),
+    password:       Rails.application.credentials.dig(:smtp, :password),
+    address:        ENV.fetch("SES_SMTP_ADDRESS", "email-smtp.us-east-1.amazonaws.com"),
+    port:           587,
+    authentication: :login,
+    enable_starttls_auto: true
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
