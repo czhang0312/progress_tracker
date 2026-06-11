@@ -43,6 +43,8 @@ env:
     # --- Email (Amazon SES SMTP) ---
     # Frontend host used to build links in mailer emails (e.g. password reset). Hostname only.
     APP_HOST: progress-tracker-navy.vercel.app
+    # Full frontend base URL used to build the clickable reset-password link in emails.
+    FRONTEND_URL: https://progress-tracker-navy.vercel.app
     # Verified SES "From" identity.
     MAIL_FROM: czhang0312@gmail.com
     # SES SMTP endpoint for your SES region (us-east-1).
