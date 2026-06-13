@@ -1,0 +1,11 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circle">
+      <circle cx="16" cy="16" r="13" />
+    </clipPath>
+  </defs>
+  <!-- Half fill: top-left triangle (matches linear-gradient(135deg, #2563EB 50%, transparent 50%)) -->
+  <polygon points="0,0 32,0 0,32" fill="#2563EB" clip-path="url(#circle)" />
+  <!-- Circle border -->
+  <circle cx="16" cy="16" r="13" fill="none" stroke="#2563EB" stroke-width="3" />
+</svg>
