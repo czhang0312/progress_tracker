@@ -879,6 +879,7 @@ export default function ProgressPage() {
 
           <div className="animate-fade-in mt-4" style={{ timelineScope: '--tableScroll' }}>
             {/* Journal tab strip — sits above the table card, one tab per day */}
+            <div style={{ marginRight: 10 }}>
             <div
               ref={tabsStripRef}
               className="journal-tabs-strip"
@@ -923,6 +924,7 @@ export default function ProgressPage() {
                 })}
                 <div />
               </div>
+            </div>
             </div>
 
             {/* Main table card */}
