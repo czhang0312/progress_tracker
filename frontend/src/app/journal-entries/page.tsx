@@ -481,18 +481,7 @@ export default function JournalEntriesPage() {
           <div style={{ minWidth: 0 }}>
             {/* Page title */}
             <div style={{ marginBottom: 36, paddingLeft: 4 }}>
-              <h1
-                style={{
-                  fontFamily: SERIF,
-                  fontSize: 'clamp(36px, 10vw, 52px)',
-                  fontWeight: 500,
-                  letterSpacing: '-.02em',
-                  lineHeight: 1.05,
-                  color: T.text,
-                }}
-              >
-                Journal
-              </h1>
+              <h1 className="page-title">Journal</h1>
             </div>
 
             {/* Result count when filtering */}
