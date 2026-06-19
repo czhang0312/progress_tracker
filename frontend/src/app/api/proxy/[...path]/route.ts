@@ -62,8 +62,12 @@ async function proxy(
     // Get response body
     const data = await railsResponse.text();
 
+    // 204/205/304 responses must have a null body — passing any body
+    // (even an empty string) to the Response constructor throws a TypeError.
+    const nullBodyStatus = [204, 205, 304].includes(railsResponse.status);
+
     // Create response
-    const response = new NextResponse(data, {
+    const response = new NextResponse(nullBodyStatus ? null : data, {
       status: railsResponse.status,
       headers: {
         'Content-Type': railsResponse.headers.get('content-type') || 'application/json',
