@@ -175,7 +175,8 @@ export default function ProgressPage() {
     if (!container || !todayTh) return;
     const containerRect = container.getBoundingClientRect();
     const todayRect = todayTh.getBoundingClientRect();
-    const stickyWidth = 200;
+    const stickyEl = container.querySelector<HTMLElement>('.sticky-col-head');
+    const stickyWidth = stickyEl ? stickyEl.getBoundingClientRect().width : 200;
     const availableWidth = containerRect.width - stickyWidth;
     const targetScrollLeft =
       container.scrollLeft + (todayRect.left - containerRect.left) - stickyWidth - availableWidth / 2 + todayRect.width / 2;
@@ -220,7 +221,7 @@ export default function ProgressPage() {
     const updatePos = () => {
       if (!editTdRef.current) return;
       const rect = editTdRef.current.getBoundingClientRect();
-      setEditPopoverPos({ top: rect.bottom, left: rect.left + 10 });
+      setEditPopoverPos({ top: rect.bottom, left: clampPopoverLeft(rect.left + 10) });
     };
     window.addEventListener('scroll', updatePos, true);
     return () => window.removeEventListener('scroll', updatePos, true);
@@ -250,7 +251,7 @@ export default function ProgressPage() {
     const updatePos = () => {
       if (!addGoalTdRef.current) return;
       const rect = addGoalTdRef.current.getBoundingClientRect();
-      setAddGoalPos({ top: rect.bottom, left: rect.left + 10 });
+      setAddGoalPos({ top: rect.bottom, left: clampPopoverLeft(rect.left + 10) });
     };
     window.addEventListener('scroll', updatePos, true);
     return () => window.removeEventListener('scroll', updatePos, true);
@@ -267,6 +268,14 @@ export default function ProgressPage() {
     return () => document.removeEventListener('mousedown', handleMouseDown);
   }, [showAddGoal]);
 
+  // Keep popovers on-screen: their natural width is 480px but capped to the
+  // viewport, so clamp the left edge so they never overflow off small screens.
+  const clampPopoverLeft = (left: number) => {
+    if (typeof window === 'undefined') return left;
+    const w = Math.min(480, window.innerWidth - 16);
+    return Math.max(8, Math.min(left, window.innerWidth - w - 8));
+  };
+
   const openAddGoal = (e: React.MouseEvent<HTMLButtonElement>) => {
     setEditingGoalId(null);
     if (showAddGoal) {
@@ -276,7 +285,7 @@ export default function ProgressPage() {
     const td = (e.currentTarget as HTMLElement).closest('td')!;
     addGoalTdRef.current = td as HTMLElement;
     const rect = td.getBoundingClientRect();
-    setAddGoalPos({ top: rect.bottom, left: rect.left + 10 });
+    setAddGoalPos({ top: rect.bottom, left: clampPopoverLeft(rect.left + 10) });
     setAddGoalFormData({ name: '', description: '' });
     setAddGoalErrors({});
     setShowAddDescription(false);
@@ -340,7 +349,7 @@ export default function ProgressPage() {
     const td = (e.currentTarget as HTMLElement).closest('td')!;
     editTdRef.current = td as HTMLElement;
     const rect = td.getBoundingClientRect();
-    setEditPopoverPos({ top: rect.bottom, left: rect.left + 10 });
+    setEditPopoverPos({ top: rect.bottom, left: clampPopoverLeft(rect.left + 10) });
     setEditingGoalId(goal.id);
     const initial = {
       name: goal.name,
@@ -674,7 +683,7 @@ export default function ProgressPage() {
       {editingGoalId && editPopoverPos && (
         <div
           ref={editPopoverRef}
-          className="fixed z-[200] w-[480px] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 overflow-hidden"
+          className="fixed z-[200] w-[480px] max-w-[calc(100vw-16px)] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 overflow-hidden"
           style={{ top: editPopoverPos.top, left: editPopoverPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
         >
           <form id="edit-goal-form" onSubmit={handleGoalEditSubmit} className="space-y-3 p-4 pb-3">
@@ -751,7 +760,7 @@ export default function ProgressPage() {
       {showAddGoal && addGoalPos && (
         <div
           ref={addGoalPopoverRef}
-          className="fixed z-[200] w-[480px] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 overflow-hidden"
+          className="fixed z-[200] w-[480px] max-w-[calc(100vw-16px)] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 overflow-hidden"
           style={{ top: addGoalPos.top, left: addGoalPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
         >
           <form id="add-goal-form" onSubmit={handleAddGoalSubmit} className="space-y-3 p-4 pb-3">
@@ -892,7 +901,7 @@ export default function ProgressPage() {
                   so this non-translated cover masks tabs sliding under the first column. */}
               {SUPPORTS_SCROLL_TIMELINE && (
                 <div aria-hidden="true" style={{ position: 'absolute', top: 0, bottom: 0, left: 0,
-                  width: 200, background: '#F1F5F9', zIndex: 6 }}>
+                  width: 'var(--sticky-w)', background: '#F1F5F9', zIndex: 6 }}>
                   <div style={{ position: 'absolute', bottom: 0, left: 11, right: 0,
                     borderBottom: `1px solid ${T.cardBorder}` }} />
                 </div>
@@ -901,7 +910,7 @@ export default function ProgressPage() {
                 ref={tabsGridRef}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: `200px repeat(${data.days_in_month}, 40px) 8px`,
+                  gridTemplateColumns: `var(--sticky-w) repeat(${data.days_in_month}, 40px) 8px`,
                   alignItems: 'end', width: 'min-content',
                   ...(SUPPORTS_SCROLL_TIMELINE ? {
                     animationName: 'tabsSync', animationDuration: '1ms',
@@ -940,7 +949,7 @@ export default function ProgressPage() {
                   <thead>
                     <tr>
                       <th className="sticky-col-head" style={{
-                        width: 200, minWidth: 200, maxWidth: 200, background: T.tableHead,
+                        width: 'var(--sticky-w)', minWidth: 'var(--sticky-w)', maxWidth: 'var(--sticky-w)', background: T.tableHead,
                         borderBottom: `1px solid ${T.cardBorder}`,
                         textAlign: 'left', padding: '12px 16px 12px 26px',
                         color: T.textMuted, textTransform: 'uppercase',

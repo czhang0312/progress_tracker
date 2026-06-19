@@ -350,7 +350,7 @@ export default function JournalEntryModal({
         WebkitBackdropFilter: 'blur(12px) saturate(110%)',
         zIndex: 200,
         display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-        padding: '5vh 24px 24px',
+        padding: '5vh clamp(10px,3vw,24px) 24px',
         overflowY: 'auto',
         animation: 'backdropIn .2s ease-out',
       }}
@@ -380,7 +380,7 @@ export default function JournalEntryModal({
         </div>
 
         {/* ── Section 2: Date headline ── */}
-        <div style={{ padding: '36px 56px 22px', textAlign: 'center' }}>
+        <div style={{ padding: 'clamp(24px,5vw,36px) var(--jmodal-px) 22px', textAlign: 'center' }}>
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: 8, marginBottom: 10,
@@ -409,7 +409,7 @@ export default function JournalEntryModal({
           </div>
           <h1 style={{
             fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif",
-            fontSize: 48, fontWeight: 500, color: T.text,
+            fontSize: 'clamp(32px,8vw,48px)', fontWeight: 500, color: T.text,
             lineHeight: 1.05, letterSpacing: '-0.02em', margin: 0,
           }}>
             {monthName}{' '}
@@ -420,7 +420,7 @@ export default function JournalEntryModal({
         {/* ── Section 3: Goal pills ── */}
         {goals.length > 0 && !isFuture && (
           <div style={{
-            padding: '0 32px 18px',
+            padding: '0 clamp(16px,5vw,32px) 18px',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
           }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>
@@ -441,7 +441,7 @@ export default function JournalEntryModal({
         )}
 
         {/* ── Section 4: Journal divider ── */}
-        <div style={{ position: 'relative', padding: '0 56px', marginBottom: 18 }}>
+        <div style={{ position: 'relative', padding: '0 var(--jmodal-px)', marginBottom: 18 }}>
           <div style={{ height: 1, background: T.cardBorder }} />
           <span style={{
             position: 'absolute', top: -7, left: '50%', transform: 'translateX(-50%)',
@@ -454,7 +454,7 @@ export default function JournalEntryModal({
         </div>
 
         {/* ── Section 5: Textarea ── */}
-        <div style={{ padding: '0 56px 28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '0 var(--jmodal-px) 28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <textarea
             ref={textareaRef}
             className="journal-hero-textarea"

@@ -470,14 +470,11 @@ export default function JournalEntriesPage() {
 
       <div className="animate-fade-in" style={{ minHeight: 'calc(100vh - 60px)', background: T.pageBg }}>
         <div
+          className="journal-layout-grid"
           style={{
             maxWidth: 1200,
             margin: '0 auto',
-            padding: '32px 24px 80px',
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0,1fr) 280px',
-            gap: 48,
-            alignItems: 'start',
+            padding: '32px clamp(16px,5vw,24px) 80px',
           }}
         >
           {/* ── Diary (left, wider) ── */}
@@ -487,7 +484,7 @@ export default function JournalEntriesPage() {
               <h1
                 style={{
                   fontFamily: SERIF,
-                  fontSize: 52,
+                  fontSize: 'clamp(36px, 10vw, 52px)',
                   fontWeight: 500,
                   letterSpacing: '-.02em',
                   lineHeight: 1.05,

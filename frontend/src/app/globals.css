@@ -10,6 +10,20 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: white;
   }
+
+  /* Responsive design tokens. Driven via CSS vars so deeply inline-styled
+     components (progress table, journal modal) can react to viewport without
+     a JS media-query hook or hydration flash. */
+  :root {
+    --sticky-w: 200px;   /* progress table's sticky goal column */
+    --jmodal-px: 56px;   /* journal modal horizontal padding */
+  }
+  @media (max-width: 640px) {
+    :root {
+      --sticky-w: 140px;
+      --jmodal-px: 22px;
+    }
+  }
   
   body {
     @apply bg-white text-neutral-900 antialiased;
@@ -68,10 +82,29 @@
   }
 
   .page-title {
-    @apply text-[40px] leading-[1] text-neutral-900;
+    @apply text-[clamp(28px,8vw,40px)] leading-[1] text-neutral-900;
     font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
     font-weight: 500;
     font-feature-settings: "lnum", "kern";
+  }
+
+  /* Journal page: diary + filter sidebar. Collapses to a single column on
+     narrow screens, with the filter sidebar floated above the entry list. */
+  .journal-layout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .journal-layout-grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .journal-layout-grid > aside {
+      order: -1;
+      position: static !important;
+    }
   }
 
   .text-description {

@@ -28,7 +28,7 @@ export default function NavHeader() {
       className="sticky top-0 z-50 border-b border-neutral-200"
       style={{ background: '#FFFFFF', boxShadow: '0 1px 0 rgba(0,0,0,.02)' }}
     >
-      <div className="max-w-[1100px] mx-auto px-6 h-[60px] flex items-center gap-3.5">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 h-[60px] flex items-center gap-3.5">
         {/* Logo — signature half-filled circle mark */}
         <div className="flex items-center gap-2.5 shrink-0">
           <div
@@ -41,7 +41,7 @@ export default function NavHeader() {
               flexShrink: 0,
             }}
           />
-          <span style={{ fontWeight: 600, fontSize: 15, color: '#0F172A', letterSpacing: '-0.015em' }}>
+          <span className="hidden min-[500px]:inline" style={{ fontWeight: 600, fontSize: 15, color: '#0F172A', letterSpacing: '-0.015em' }}>
             Progress Tracker
           </span>
         </div>
