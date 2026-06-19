@@ -1,13 +1,21 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { downloadExport } from '@/lib/dataTransfer';
+import ImportModal from '@/components/ImportModal';
 
 export default function NavHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const today = new Date();
   const year = today.getFullYear();
@@ -18,9 +26,46 @@ export default function NavHeader() {
     { href: '/journal-entries', label: 'Journal', match: '/journal-entries' },
   ];
 
+  // Close the menu on outside click or Escape.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
+
   const handleLogout = async () => {
+    setMenuOpen(false);
     await logout();
     router.push('/login');
+  };
+
+  const handleExport = async () => {
+    setMenuOpen(false);
+    setExporting(true);
+    try {
+      await downloadExport(user);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Export failed.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const accountLabel = user?.is_guest ? 'Guest' : (user?.email ?? 'Account');
+
+  const itemStyle: React.CSSProperties = {
+    display: 'block', width: '100%', textAlign: 'left',
+    padding: '8px 12px', fontSize: 13, color: '#334155',
+    background: 'transparent', border: 'none', cursor: 'pointer',
+    fontFamily: 'inherit', borderRadius: 6, whiteSpace: 'nowrap',
   };
 
   return (
@@ -79,32 +124,84 @@ export default function NavHeader() {
           })}
         </div>
 
-        {/* User info */}
-        <div className="flex items-center gap-2.5">
-          {user?.email && !user?.is_guest && (
-            <span style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }} className="hidden sm:block">
-              {user.email}
+        {/* Account menu */}
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            className="flex items-center gap-1.5 transition-colors duration-150 hover:bg-black/[0.04]"
+            style={{
+              fontSize: 12, color: '#64748B', fontWeight: 500,
+              padding: '6px 8px', borderRadius: 8, background: 'transparent',
+              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              maxWidth: 200,
+            }}
+          >
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {accountLabel}
             </span>
-          )}
-          {user?.is_guest ? (
-            <Link
-              href="/login"
-              style={{ fontSize: 12, color: '#64748B', fontWeight: 500, padding: '6px 10px', borderRadius: 8, background: 'transparent', whiteSpace: 'nowrap' }}
-              className="transition-colors duration-150 hover:bg-black/[0.04] hover:text-neutral-900"
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.7 }}>
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          {menuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 mt-1.5 bg-white border border-neutral-200 rounded-xl overflow-hidden"
+              style={{ minWidth: 180, padding: 4, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.18), 0 2px 8px 0 rgba(0,0,0,0.10)', zIndex: 60 }}
             >
-              Sign In
-            </Link>
-          ) : (
-            <button
-              onClick={handleLogout}
-              style={{ fontSize: 12, color: '#64748B', fontWeight: 500, padding: '6px 10px', borderRadius: 8, background: 'transparent', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
-              className="transition-colors duration-150 hover:bg-black/[0.04] hover:text-neutral-900"
-            >
-              Sign out
-            </button>
+              <button
+                role="menuitem"
+                onClick={handleExport}
+                disabled={exporting}
+                style={itemStyle}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                {exporting ? 'Exporting…' : 'Export data'}
+              </button>
+              <button
+                role="menuitem"
+                onClick={() => { setMenuOpen(false); setImportOpen(true); }}
+                style={itemStyle}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                Import data
+              </button>
+
+              <div style={{ height: 1, background: '#F1F5F9', margin: '4px 0' }} />
+
+              {user?.is_guest ? (
+                <Link
+                  role="menuitem"
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  style={itemStyle}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                >
+                  Sign in
+                </Link>
+              ) : (
+                <button
+                  role="menuitem"
+                  onClick={handleLogout}
+                  style={itemStyle}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                >
+                  Sign out
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
+
+      {importOpen && <ImportModal user={user} onClose={() => setImportOpen(false)} />}
     </nav>
   );
 }

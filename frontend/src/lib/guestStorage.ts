@@ -224,6 +224,63 @@ export function setGuestProgressStatus(goalId: number, date: string, status: num
   writeStore(store);
 }
 
+// Shape accepted by replaceGuestData — mirrors the export file's `goals`
+// (with nested daily progress) and journal entries, minus database ids.
+export interface GuestImportData {
+  goals: Array<{
+    name: string;
+    description?: string;
+    position?: number;
+    started_at?: string;
+    daily_progresses?: Array<{ date: string; status: number }>;
+  }>;
+  journalEntries: Array<{ date: string; content: string }>;
+}
+
+// Raw store contents, used to build an export.
+export function getGuestStore() {
+  const store = readStore();
+  return {
+    goals: store.goals.slice().sort((a, b) => a.position - b.position),
+    journalEntries: store.journalEntries.slice(),
+    dailyProgresses: store.dailyProgresses.slice(),
+  };
+}
+
+// Wipes the guest store and repopulates it from imported data, assigning fresh
+// negative ids (and remapping each goal's daily progress to its new id).
+export function replaceGuestData(data: GuestImportData) {
+  const today = todayLocalDateString();
+  const goals: GuestGoal[] = [];
+  const dailyProgresses: GuestDailyProgress[] = [];
+  let nextGoalId = -1;
+
+  data.goals.forEach((g, index) => {
+    const id = nextGoalId;
+    nextGoalId -= 1;
+    goals.push({
+      id,
+      name: g.name,
+      description: g.description ?? '',
+      position: typeof g.position === 'number' ? g.position : index + 1,
+      created_at: today,
+      started_at: g.started_at ?? today,
+    });
+    (g.daily_progresses ?? []).forEach((dp) => {
+      dailyProgresses.push({ goal_id: id, date: dp.date, status: dp.status });
+    });
+  });
+
+  let nextJournalEntryId = -1;
+  const journalEntries: GuestJournalEntry[] = data.journalEntries.map((e) => {
+    const id = nextJournalEntryId;
+    nextJournalEntryId -= 1;
+    return { id, date: e.date, content: e.content };
+  });
+
+  writeStore({ goals, journalEntries, dailyProgresses, nextGoalId, nextJournalEntryId });
+}
+
 export function getGuestMonthlyProgress(year: number, month: number) {
   const store = readStore();
   const monthDate = new Date(year, month - 1, 1);
