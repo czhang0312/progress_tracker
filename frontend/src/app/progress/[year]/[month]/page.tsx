@@ -157,17 +157,19 @@ export default function ProgressPage() {
   const tabsStripRef = useRef<HTMLDivElement>(null);
   const tabsGridRef = useRef<HTMLDivElement>(null);
   const todayThRef = useRef<HTMLTableCellElement | null>(null);
+  const hasScrolledToTodayRef = useRef(false);
 
   const year = parseInt(params.year as string);
   const month = parseInt(params.month as string);
 
   useEffect(() => {
     if (authLoading) return;
+    hasScrolledToTodayRef.current = false;
     fetchProgressData();
   }, [year, month, user, authLoading, router]);
 
   useEffect(() => {
-    if (loading || !data) return;
+    if (loading || !data || hasScrolledToTodayRef.current) return;
     const container = tableScrollRef.current;
     const todayTh = todayThRef.current;
     if (!container || !todayTh) return;
@@ -178,6 +180,7 @@ export default function ProgressPage() {
     const targetScrollLeft =
       container.scrollLeft + (todayRect.left - containerRect.left) - stickyWidth - availableWidth / 2 + todayRect.width / 2;
     container.scrollLeft = Math.max(0, targetScrollLeft);
+    hasScrolledToTodayRef.current = true;
   }, [loading, data]);
 
   // Keep the journal-tabs strip horizontally aligned with the table when it overflows.
