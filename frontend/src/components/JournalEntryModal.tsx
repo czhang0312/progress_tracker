@@ -505,7 +505,7 @@ export default function JournalEntryModal({
             type="button"
             onClick={handleClose}
             style={{
-              background: T.btnPrimary, color: '#fff',
+              background: T.primary, color: '#fff',
               padding: '7px 18px', fontSize: 13, fontWeight: 500,
               borderRadius: 8, border: 'none', cursor: 'pointer',
               fontFamily: 'inherit', letterSpacing: '-0.01em',
