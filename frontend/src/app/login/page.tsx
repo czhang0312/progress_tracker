@@ -4,27 +4,14 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
-
-const SERIF = "'Source Serif 4','Source Serif Pro',Georgia,serif";
-
-function Mark({ size = 40, stroke = 3.2 }: { size?: number; stroke?: number }) {
-  return (
-    <div style={{
-      width: size,
-      height: size,
-      borderRadius: '50%',
-      border: `${stroke}px solid #2563EB`,
-      background: 'linear-gradient(135deg, #2563EB 50%, transparent 50%)',
-      flexShrink: 0,
-    }} />
-  );
-}
+import { LogoMark } from '@/components/ProgressCircle';
+import { T, SERIF, TRACKING } from '@/lib/theme';
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: 11,
   fontWeight: 600,
-  color: '#64748B',
-  letterSpacing: '0.1em',
+  color: T.muted,
+  letterSpacing: TRACKING,
   textTransform: 'uppercase',
 };
 
@@ -78,7 +65,7 @@ function LoginContent() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#F1F5F9',
+      background: 'var(--bg)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -88,11 +75,11 @@ function LoginContent() {
 
         {/* Logo + heading */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 22 }}>
-          <Mark />
-          <h1 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.15, marginTop: 16, margin: '16px 0 0' }}>
+          <LogoMark size={40} />
+          <h1 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.15, marginTop: 16, margin: '16px 0 0' }}>
             {isSignup ? 'Create your account' : 'Welcome back'}
           </h1>
-          <p style={{ color: '#64748B', fontSize: 13.5, marginTop: 6, lineHeight: 1.5 }}>
+          <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 6, lineHeight: 1.5 }}>
             {isSignup
               ? 'Start tracking your goals in under a minute.'
               : 'Sign in to continue tracking your progress.'}
@@ -101,11 +88,11 @@ function LoginContent() {
 
         {/* Card */}
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #E2E8F0',
-          borderRadius: 16,
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
           padding: 24,
-          boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.16)',
+          boxShadow: 'var(--shadow-sm)',
         }}>
 
           {/* Sign in / Sign up segmented toggle */}
@@ -113,10 +100,10 @@ function LoginContent() {
             display: 'flex',
             gap: 4,
             padding: 4,
-            borderRadius: 11,
-            marginBottom: 22,
-            background: '#F8FAFC',
-            border: '1px solid #E2E8F0',
+            borderRadius: 'var(--radius)',
+            marginBottom: 24,
+            background: 'var(--well)',
+            border: '1px solid var(--border)',
           }}>
             {([ ['signin', 'Sign in'], ['signup', 'Sign up'] ] as [string, string][]).map(([m, label]) => {
               const typedM = m as 'signin' | 'signup';
@@ -134,15 +121,13 @@ function LoginContent() {
                     fontFamily: 'inherit',
                     fontSize: 11,
                     fontWeight: 600,
-                    letterSpacing: '0.13em',
+                    letterSpacing: TRACKING,
                     textTransform: 'uppercase',
-                    borderRadius: 8,
+                    borderRadius: 'calc(var(--radius) - 2px)',
                     transition: 'color .18s, background .18s, box-shadow .18s',
-                    background: active ? '#ffffff' : 'transparent',
-                    color: active ? '#0F172A' : '#64748B',
-                    boxShadow: active
-                      ? '0 1px 2px rgba(15,23,42,.06), 0 2px 8px -4px rgba(15,23,42,.14)'
-                      : 'none',
+                    background: active ? 'var(--surface)' : 'transparent',
+                    color: active ? 'var(--ink)' : 'var(--muted)',
+                    boxShadow: active ? 'var(--shadow-sm)' : 'none',
                   }}
                 >
                   {label}
@@ -171,7 +156,7 @@ function LoginContent() {
                 {!isSignup && (
                   <Link
                     href="/forgot-password"
-                    style={{ fontSize: 11, color: '#2563EB', fontWeight: 500, textDecoration: 'none' }}
+                    style={{ fontSize: 11, color: T.accent, fontWeight: 500, textDecoration: 'none' }}
                   >
                     Forgot Password?
                   </Link>
@@ -190,12 +175,12 @@ function LoginContent() {
 
             {error && (
               <div style={{
-                background: '#EF444415',
-                border: '1px solid #EF444440',
-                color: '#DC2626',
+                background: 'var(--danger-tint)',
+                border: '1px solid var(--danger-border)',
+                color: 'var(--danger)',
                 padding: '8px 12px',
-                borderRadius: 8,
-                fontSize: 12.5,
+                borderRadius: 'var(--radius)',
+                fontSize: 12,
               }}>
                 {error}
               </div>
@@ -205,14 +190,14 @@ function LoginContent() {
               type="submit"
               disabled={loading}
               style={{
-                background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+                background: 'var(--accent)',
                 color: '#fff',
                 width: '100%',
                 padding: '11px',
                 fontSize: 14,
                 marginTop: 2,
                 border: 'none',
-                borderRadius: 8,
+                borderRadius: 'var(--radius)',
                 fontFamily: 'inherit',
                 fontWeight: 500,
                 cursor: loading ? 'not-allowed' : 'pointer',
@@ -235,11 +220,11 @@ function LoginContent() {
 
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-            <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
-            <span style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--faint)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               or
             </span>
-            <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
           </div>
 
           <Link
@@ -250,10 +235,10 @@ function LoginContent() {
               justifyContent: 'center',
               width: '100%',
               padding: '10px',
-              fontSize: 13.5,
-              borderRadius: 8,
-              border: '1px solid #E2E8F0',
-              color: '#64748B',
+              fontSize: 13,
+              borderRadius: 'var(--radius)',
+              border: '1px solid var(--border)',
+              color: 'var(--muted)',
               background: 'transparent',
               textDecoration: 'none',
               fontWeight: 500,

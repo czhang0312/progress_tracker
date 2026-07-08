@@ -4,13 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 
-const SERIF = "'Source Serif 4','Source Serif Pro',Georgia,serif";
+import { LogoMark } from '@/components/ProgressCircle';
+import { T, SERIF, TRACKING } from '@/lib/theme';
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: 11,
   fontWeight: 600,
-  color: '#64748B',
-  letterSpacing: '0.1em',
+  color: T.muted,
+  letterSpacing: TRACKING,
   textTransform: 'uppercase',
 };
 
@@ -31,7 +32,7 @@ export default function ForgotPasswordPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#F1F5F9',
+      background: 'var(--bg)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -41,18 +42,11 @@ export default function ForgotPasswordPage() {
 
         {/* Logo + heading */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 22 }}>
-          <div style={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            border: '3.2px solid #2563EB',
-            background: 'linear-gradient(135deg, #2563EB 50%, transparent 50%)',
-            flexShrink: 0,
-          }} />
-          <h1 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '16px 0 0' }}>
+          <LogoMark size={40} />
+          <h1 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '16px 0 0' }}>
             {submitted ? 'Check your email' : 'Reset your password'}
           </h1>
-          <p style={{ color: '#64748B', fontSize: 13.5, marginTop: 6, lineHeight: 1.5 }}>
+          <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 6, lineHeight: 1.5 }}>
             {submitted
               ? `We sent a reset link to ${email}`
               : "Enter your email and we'll send you a reset link."}
@@ -61,11 +55,11 @@ export default function ForgotPasswordPage() {
 
         {/* Card */}
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #E2E8F0',
-          borderRadius: 16,
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
           padding: 24,
-          boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.16)',
+          boxShadow: 'var(--shadow-sm)',
         }}>
           {submitted ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
@@ -73,18 +67,18 @@ export default function ForgotPasswordPage() {
                 width: 48,
                 height: 48,
                 borderRadius: '50%',
-                background: '#F0FDF4',
-                border: '1px solid #BBF7D0',
+                background: 'var(--accent-tint)',
+                border: '1px solid var(--border)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: 20,
-                color: '#16A34A',
+                color: 'var(--accent)',
               }}>
                 ✓
               </div>
-              <p style={{ color: '#475569', fontSize: 13.5, lineHeight: 1.6 }}>
-                If an account exists for <strong style={{ color: '#0F172A' }}>{email}</strong>, you&apos;ll receive a reset link shortly.
+              <p style={{ color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
+                If an account exists for <strong style={{ color: 'var(--ink)' }}>{email}</strong>, you&apos;ll receive a reset link shortly.
               </p>
               <Link
                 href="/login"
@@ -95,8 +89,8 @@ export default function ForgotPasswordPage() {
                   width: '100%',
                   padding: '11px',
                   fontSize: 14,
-                  borderRadius: 8,
-                  background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+                  borderRadius: 'var(--radius)',
+                  background: 'var(--accent)',
                   color: '#fff',
                   textDecoration: 'none',
                   fontWeight: 500,
@@ -128,14 +122,14 @@ export default function ForgotPasswordPage() {
                 type="submit"
                 disabled={loading}
                 style={{
-                  background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+                  background: 'var(--accent)',
                   color: '#fff',
                   width: '100%',
                   padding: '11px',
                   fontSize: 14,
                   marginTop: 2,
                   border: 'none',
-                  borderRadius: 8,
+                  borderRadius: 'var(--radius)',
                   fontFamily: 'inherit',
                   fontWeight: 500,
                   cursor: loading ? 'not-allowed' : 'pointer',
@@ -155,11 +149,11 @@ export default function ForgotPasswordPage() {
 
               {/* Divider */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '6px 0 0' }}>
-                <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
-                <span style={{ fontSize: 10, fontWeight: 600, color: '#94A3B8', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--faint)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                   or
                 </span>
-                <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
+                <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
               </div>
 
               <Link
@@ -170,10 +164,10 @@ export default function ForgotPasswordPage() {
                   justifyContent: 'center',
                   width: '100%',
                   padding: '10px',
-                  fontSize: 13.5,
-                  borderRadius: 8,
-                  border: '1px solid #E2E8F0',
-                  color: '#64748B',
+                  fontSize: 13,
+                  borderRadius: 'var(--radius)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--muted)',
                   background: 'transparent',
                   textDecoration: 'none',
                   fontWeight: 500,

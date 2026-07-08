@@ -1,20 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Base styles */
 @layer base {
-  html {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: white;
-  }
-
-  /* Responsive design tokens. Driven via CSS vars so deeply inline-styled
-     components (progress table, journal modal) can react to viewport without
-     a JS media-query hook or hydration flash. */
+  /* ── Design tokens — the single source of truth ─────────────────────────
+     Every color, radius, and shadow in the app resolves to one of these.
+     Components consume them via Tailwind utilities (tailwind.config.ts)
+     or via src/lib/theme.ts for inline-styled components. */
   :root {
+    /* Neutrals */
+    --bg: #F8FAFC;          /* app background + table heads */
+    --surface: #FFFFFF;     /* cards, table, modals, popovers */
+    --well: #F1F5F9;        /* input wells, hover fills, row dividers */
+    --border: #E2E8F0;
+    --ink: #0F172A;
+    --muted: #64748B;
+    --faint: #94A3B8;
+    --ring-empty: #CBD5E1;  /* empty progress-circle stroke */
+
+    /* The one accent */
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --accent-tint: #EFF6FF;
+
+    /* Destructive only */
+    --danger: #DC2626;
+    --danger-tint: #FEF2F2;
+    --danger-border: #FECACA;
+
+    /* Shape + elevation: borders do the work, shadows stay minimal */
+    --radius: 8px;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-overlay: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 24px 64px -16px rgba(15, 23, 42, 0.28);
+
+    /* Responsive layout vars. Driven via CSS vars so deeply inline-styled
+       components (progress table, journal modal) can react to viewport without
+       a JS media-query hook or hydration flash. */
     --sticky-w: 200px;   /* progress table's sticky goal column */
     --jmodal-px: 56px;   /* journal modal horizontal padding */
   }
@@ -24,57 +46,45 @@
       --jmodal-px: 22px;
     }
   }
-  
+
+  html {
+    background-color: var(--bg);
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-white text-neutral-900 antialiased;
+    @apply bg-bg text-ink antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   /* Improved focus styles for accessibility */
   *:focus-visible {
-    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
-  }
-
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
+    @apply outline-none ring-2 ring-accent ring-offset-2;
   }
 }
 
 /* Component styles */
 @layer components {
-  /* Modern button styles */
+  /* Buttons — flat, one accent, no gradients or hover lift */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-primary {
-    @apply btn bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 focus:ring-primary-500 shadow-soft hover:shadow-medium transform hover:-translate-y-0.5;
-  }
-
-  .btn-secondary {
-    @apply btn bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 shadow-soft hover:shadow-medium;
-  }
-
-  .btn-accent {
-    @apply btn bg-accent-600 text-white hover:bg-accent-700 focus:ring-accent-500 shadow-soft hover:shadow-medium;
+    @apply btn bg-accent text-white hover:bg-accent-hover focus:ring-accent;
   }
 
   .btn-outline {
-    @apply btn border-2 border-neutral-300 text-neutral-700 hover:bg-neutral-50 focus:ring-primary-500;
+    @apply btn border border-edge text-muted hover:bg-well hover:text-ink focus:ring-accent;
   }
 
   .btn-ghost {
-    @apply btn text-neutral-600 hover:bg-neutral-100 focus:ring-primary-500;
+    @apply btn text-muted hover:bg-well focus:ring-accent;
   }
 
-  /* Modern card styles */
+  /* Cards — border + minimal shadow (no hover elevation) */
   .card {
-    @apply bg-white rounded-xl shadow-soft border border-neutral-200 hover:shadow-medium transition-shadow duration-200;
-  }
-
-  .card-header {
-    @apply px-6 py-5 border-b border-neutral-200;
+    @apply bg-surface rounded border border-edge shadow-sm;
   }
 
   .card-body {
@@ -82,8 +92,8 @@
   }
 
   .page-title {
-    @apply text-[clamp(28px,8vw,40px)] leading-[1] text-neutral-900;
-    font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
+    @apply text-[clamp(28px,8vw,40px)] leading-[1] text-ink;
+    font-family: var(--font-serif), Georgia, serif;
     font-weight: 500;
     font-feature-settings: "lnum", "kern";
   }
@@ -99,7 +109,7 @@
   @media (max-width: 768px) {
     .journal-layout-grid {
       grid-template-columns: 1fr;
-      gap: 28px;
+      gap: 24px;
     }
     .journal-layout-grid > aside {
       order: -1;
@@ -108,105 +118,18 @@
   }
 
   .text-description {
-    @apply text-[13px] text-neutral-500;
+    @apply text-[13px] text-muted;
   }
 
-  .text-hint {
-    @apply text-xs text-neutral-400;
-  }
-
-  .card-footer {
-    @apply p-6 border-t border-neutral-200 bg-neutral-50 rounded-b-xl;
-  }
-
-  /* Section heading used inside cards */
-  .section-title {
-    @apply text-sm font-semibold text-neutral-700 mb-4;
-  }
-
-  /* Modern progress circles */
-  .progress-circle {
-    @apply w-8 h-8 rounded-full border-2 cursor-pointer mx-auto transition-all duration-300;
-    @apply hover:scale-110;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-    @apply flex items-center justify-center;
-    @apply relative;
-  }
-
-  .progress-circle.status-0 {
-    @apply bg-white border-neutral-300 hover:border-neutral-400;
-  }
-
-  .progress-circle.status-1 {
-    background: linear-gradient(135deg, #10B981 50%, white 50%);
-    @apply border-neutral-300;
-  }
-
-  .progress-circle.status-2 {
-    @apply bg-secondary-500 border-secondary-500;
-    @apply hover:bg-secondary-600;
-  }
-
-  /* Progress circle with checkmark for completed */
-  .progress-circle.status-2::after {
-    content: '✓';
-    @apply text-white font-bold text-xs;
-    @apply relative z-10;
-  }
-
-  /* Modern form styles */
+  /* Form styles */
   .form-input {
-    @apply w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
-    @apply placeholder-neutral-400;
+    @apply w-full px-3 py-2 text-sm bg-surface text-ink border border-edge rounded focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-150;
+    @apply placeholder-faint;
   }
 
   .form-label {
-    @apply block text-neutral-600 text-[13px] mb-1;
-  }
-
-  .form-error {
-    @apply text-error-600 text-sm mt-1;
-  }
-
-  /* Modern table styles */
-  .table-modern {
-    @apply w-full border-collapse;
-  }
-
-  .table-modern th {
-    @apply bg-neutral-100 text-neutral-700 font-semibold text-left p-2 border-b border-neutral-200;
-  }
-
-  .table-modern td {
-    @apply p-1 border-b border-neutral-200;
-  }
-
-  .table-modern tbody tr {
-    @apply bg-white;
-  }
-
-  .table-modern tr:hover {
-    @apply bg-neutral-50;
-  }
-
-  .table-modern .journal-tab-row th,
-  .table-modern .journal-tab-row td {
-    padding: 0;
-    background: transparent;
-    border-top: none;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  .table-modern .journal-tab-row td {
-    padding-top: 8px;
-  }
-  .table-modern .journal-tab-row:hover {
-    background: transparent;
-  }
-  .table-modern thead tr:not(.journal-tab-row) th {
-    background: rgb(248, 250, 252);
-  }
-  .table-modern .journal-tab-row th.sticky {
-    @apply bg-neutral-100;
+    @apply block text-[11px] font-semibold uppercase text-muted mb-1;
+    letter-spacing: 0.08em;
   }
 
   .journal-tab {
@@ -227,23 +150,23 @@
   .journal-tab-filled:not(:disabled):hover { transform: translateY(-2px); }
   .journal-tab-future svg { opacity: .1; }
 
-  /* ── Progress table (Claude design v8) ───────────────────────────────── */
+  /* ── Progress table ──────────────────────────────────────────────────── */
   .progress-table { border-collapse: collapse; width: 100%; }
   .progress-table th, .progress-table td { padding: 0; vertical-align: middle; }
-  .progress-table thead th { font-size: 11px; font-weight: 600; color: #64748B;
+  .progress-table thead th { font-size: 11px; font-weight: 600; color: var(--muted);
     padding: 0; text-align: center; white-space: nowrap; }
-  .progress-table tbody td { border-bottom: 1px solid #F1F5F9; padding: 7px 2px; }
+  .progress-table tbody td { border-bottom: 1px solid var(--well); padding: 8px 2px; }
   .progress-table td.sticky-col, .progress-table th.sticky-col { position: sticky; left: 0; z-index: 10; }
   .progress-table .sticky-col-head { position: sticky; left: 0; z-index: 20; }
   /* Draw the sticky column's right divider as a box-shadow so it sticks while
      scrolling (a collapsed border would be painted on the table grid and scroll away). */
   .progress-table th.sticky-col-head,
-  .progress-table td.sticky-col { box-shadow: inset -1px 0 0 #E2E8F0; }
+  .progress-table td.sticky-col { box-shadow: inset -1px 0 0 var(--border); }
   /* keep the goal cells sticky even though .goal-row-cell needs a positioning context */
   .progress-table td.sticky-col.goal-row-cell { position: sticky; }
 
   .day-header-btn { all: unset; width: 100%; padding: 8px 0 6px; cursor: pointer;
-    border-radius: 6px 6px 0 0; transition: background .12s; display: block; text-align: center; }
+    border-radius: var(--radius) var(--radius) 0 0; transition: background .12s; display: block; text-align: center; }
   .day-header-btn:hover { background: rgba(0,0,0,.04); }
 
   /* Goal row hover affordances */
@@ -251,11 +174,11 @@
   .progress-table .goal-row-cell .goal-actions { opacity: 0; transition: opacity .12s; pointer-events: none; }
   .progress-table tr:hover .goal-row-cell .goal-actions { opacity: 1; pointer-events: auto; }
   .progress-table tr.dragging { opacity: .4; }
-  .progress-table tr.drag-over td.goal-row-cell { box-shadow: inset 0 2px 0 #3B82F6, inset -1px 0 0 #E2E8F0; }
+  .progress-table tr.drag-over td.goal-row-cell { box-shadow: inset 0 2px 0 var(--accent), inset -1px 0 0 var(--border); }
 
   /* Journal tabs strip — sits above the table card */
   .journal-tabs-strip { position: relative; z-index: 2; margin-bottom: -1px;
-    padding-top: 6px;
+    padding-top: 8px;
     overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
   .journal-tabs-strip::-webkit-scrollbar { display: none; }
 
@@ -263,55 +186,6 @@
      compositor (no JS scroll listener → no lag). --tabs-max is set to the
      negative scroll range in JS so the tabs track the table 1:1. */
   @keyframes tabsSync { to { transform: translateX(var(--tabs-max, 0px)); } }
-
-  /* Navigation styles */
-  .nav-link {
-    @apply px-4 py-2 text-neutral-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200;
-  }
-
-  .nav-link.active {
-    @apply text-primary-600 bg-primary-50 font-medium;
-  }
-
-  /* Loading states */
-  .loading-skeleton {
-    @apply animate-pulse bg-neutral-200 rounded;
-  }
-
-  /* Status indicators */
-  .status-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-  }
-
-  .status-badge.success {
-    @apply bg-success-100 text-success-800;
-  }
-
-  .status-badge.warning {
-    @apply bg-warning-100 text-warning-800;
-  }
-
-  .status-badge.error {
-    @apply bg-error-100 text-error-800;
-  }
-
-  /* Sticky table improvements */
-  .sticky-table-container {
-    @apply relative overflow-hidden;
-  }
-
-
-
-  /* Responsive improvements */
-  @media (max-width: 768px) {
-    .progress-circle {
-      @apply w-7 h-7;
-    }
-    
-    .card {
-      @apply rounded-lg;
-    }
-  }
 }
 
 @layer components {
@@ -327,61 +201,13 @@
 
   .journal-hero-textarea::placeholder {
     font-style: italic;
-    color: #94A3B8;
+    color: var(--faint);
   }
 
   .journal-hero-textarea:focus,
   .journal-hero-textarea:focus-visible {
     outline: none;
     box-shadow: none;
-  }
-  @keyframes softPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.04); }
-  }
-
-  /* Journal entry modal */
-  .journal-modal-sheet {
-    @apply w-full bg-white flex flex-col overflow-hidden;
-    max-width: 480px;
-    max-height: calc(100vh - 80px);
-    border-radius: 20px;
-    box-shadow: 0 30px 80px -20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06);
-    animation: focusIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .journal-modal-header {
-    @apply relative flex items-center;
-    padding: 20px 24px 16px;
-    border-bottom: 1px solid #E2E8F0;
-  }
-
-  .journal-modal-date {
-    @apply text-neutral-500 font-medium;
-    font-size: 13px;
-  }
-
-  .journal-modal-body {
-    @apply flex-1 overflow-y-auto;
-    padding: 16px 24px;
-  }
-
-  .journal-modal-textarea {
-    @apply w-full rounded-xl bg-neutral-50 text-neutral-800 placeholder:text-neutral-300 resize-none outline-none border-none;
-    font-size: 14px;
-    line-height: 1.7;
-    padding: 14px 16px;
-    transition: background 0.15s;
-  }
-
-  .journal-modal-textarea:focus {
-    @apply bg-neutral-100;
-  }
-
-  .journal-modal-footer {
-    @apply flex items-center gap-2;
-    padding: 12px 24px 20px;
-    border-top: 1px solid #F1F5F9;
   }
 }
 
@@ -391,18 +217,12 @@
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: none; }
   }
-  /* Text gradients */
-  /* Glass morphism effect */
-  .glass {
-    @apply bg-white/80 backdrop-blur-sm border border-white/20;
-  }
 
-  /* Custom scrollbar — matches the Progress Tracker v9 design (the horizontal
-     scrollbar below the progress table). The design styles the scrollbar purely
-     through ::-webkit-scrollbar; we deliberately do NOT set the standard
-     `scrollbar-width`, because Chrome ignores ::-webkit-scrollbar rules whenever
-     `scrollbar-width` is present and falls back to a thin overlay scrollbar that
-     floats inset from the edges. */
+  /* Custom scrollbar (the horizontal scrollbar below the progress table).
+     Styled purely through ::-webkit-scrollbar; we deliberately do NOT set the
+     standard `scrollbar-width`, because Chrome ignores ::-webkit-scrollbar
+     rules whenever `scrollbar-width` is present and falls back to a thin
+     overlay scrollbar that floats inset from the edges. */
   .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
     height: 8px;
@@ -413,7 +233,7 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: #E2E8F0;
+    background: var(--border);
     border-radius: 99px;
   }
 }

@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import PageLoader from '@/components/PageLoader';
 import JournalEntryModal from '@/components/JournalEntryModal';
+import { T, SERIF, TRACKING, tint } from '@/lib/theme';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 import {
   getGuestJournalEntries,
@@ -33,22 +34,6 @@ interface DailyProgress {
   status: number;
 }
 
-// ─── Design tokens (Claude design v9 — "Blue & Green" theme) ──────────────────
-const T = {
-  bg: '#F8FAFC',
-  pageBg: '#F1F5F9',
-  cardBg: '#ffffff',
-  cardBorder: '#E2E8F0',
-  text: '#0F172A',
-  textMuted: '#64748B',
-  textFaint: '#94A3B8',
-  primary: '#2563EB',
-  tableHead: '#F8FAFC',
-  inputBg: '#ffffff',
-  inputBorder: '#CBD5E1',
-};
-
-const SERIF = "'Source Serif 4', 'Source Serif Pro', Georgia, serif";
 
 const RANGE_OPTIONS = [
   { id: 'all', label: 'All time' },
@@ -75,7 +60,7 @@ function HighlightedText({ text, query }: { text: string; query: string }) {
         re.test(part) ? (
           <mark
             key={i}
-            style={{ background: T.primary + '33', color: T.text, padding: '0 2px', borderRadius: 2 }}
+            style={{ background: tint(T.accent, 20), color: T.ink, padding: '0 2px', borderRadius: 2 }}
           >
             {part}
           </mark>
@@ -112,21 +97,18 @@ function JournalEntryCard({
         gridTemplateColumns: '88px minmax(0,1fr)',
         gap: 28,
         padding: '22px 26px 24px',
-        background: T.cardBg,
-        border: `1px solid ${T.cardBorder}`,
-        borderRadius: 14,
+        background: T.surface,
+        border: `1px solid ${T.border}`,
+        borderRadius: 'var(--radius)',
+        boxShadow: 'var(--shadow-sm)',
         cursor: 'pointer',
-        transition: 'border-color .15s, transform .15s, box-shadow .15s',
+        transition: 'border-color .15s',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = T.primary + '88';
-        e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.boxShadow = `0 8px 24px -10px ${T.primary}33`;
+        e.currentTarget.style.borderColor = tint(T.accent, 53);
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = T.cardBorder;
-        e.currentTarget.style.transform = 'none';
-        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.borderColor = T.border;
       }}
     >
       {/* Date column — calendar-tear-off feel */}
@@ -136,17 +118,17 @@ function JournalEntryCard({
           flexDirection: 'column',
           alignItems: 'flex-start',
           gap: 4,
-          borderRight: `1px solid ${T.cardBorder}`,
+          borderRight: `1px solid ${T.border}`,
           paddingRight: 24,
         }}
       >
         <div
           style={{
-            fontSize: 10,
-            fontWeight: 700,
-            color: T.textMuted,
+            fontSize: 11,
+            fontWeight: 600,
+            color: T.muted,
             textTransform: 'uppercase',
-            letterSpacing: '.12em',
+            letterSpacing: TRACKING,
           }}
         >
           {shortMonth}
@@ -157,21 +139,21 @@ function JournalEntryCard({
             fontSize: 44,
             fontWeight: 500,
             lineHeight: 1,
-            color: isToday ? T.primary : T.text,
+            color: isToday ? T.accent : T.ink,
             letterSpacing: '-.02em',
           }}
         >
           {d}
         </div>
-        <div style={{ fontSize: 11, color: T.textMuted, fontWeight: 500, marginTop: 2 }}>{dayName}</div>
+        <div style={{ fontSize: 11, color: T.muted, fontWeight: 500, marginTop: 2 }}>{dayName}</div>
         {isToday && (
           <span
             style={{
               marginTop: 6,
-              fontSize: 9,
-              fontWeight: 700,
-              color: T.primary,
-              letterSpacing: '.12em',
+              fontSize: 11,
+              fontWeight: 600,
+              color: T.accent,
+              letterSpacing: TRACKING,
               textTransform: 'uppercase',
             }}
           >
@@ -187,7 +169,7 @@ function JournalEntryCard({
             fontFamily: SERIF,
             fontSize: 17,
             lineHeight: 1.7,
-            color: T.text,
+            color: T.ink,
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
             letterSpacing: '-.003em',
@@ -418,10 +400,10 @@ export default function JournalEntriesPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade-in">
-          <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-error-600 text-2xl">⚠️</span>
+          <div className="w-16 h-16 bg-danger-tint rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-danger text-2xl">⚠️</span>
           </div>
-          <h1 className="text-2xl font-bold text-error-600 mb-2">Something went wrong</h1>
+          <h1 className="text-2xl font-bold text-danger mb-2">Something went wrong</h1>
           <p className="text-neutral-600 mb-4">{error}</p>
           <button onClick={() => window.location.reload()} className="btn-primary">
             Try Again
@@ -468,7 +450,7 @@ export default function JournalEntriesPage() {
         />
       )}
 
-      <div className="animate-fade-in" style={{ minHeight: 'calc(100vh - 60px)', background: T.pageBg }}>
+      <div className="animate-fade-in" style={{ minHeight: 'calc(100vh - 60px)', background: T.bg }}>
         <div
           className="journal-layout-grid"
           style={{
@@ -490,26 +472,26 @@ export default function JournalEntriesPage() {
                 style={{
                   marginBottom: 20,
                   padding: '10px 14px',
-                  background: T.cardBg,
-                  border: `1px solid ${T.cardBorder}`,
-                  borderRadius: 10,
+                  background: T.surface,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 'var(--radius)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   fontSize: 13,
                 }}
               >
-                <span style={{ color: T.textMuted }}>
-                  <span style={{ fontWeight: 600, color: T.text }}>{filtered.length}</span>{' '}
+                <span style={{ color: T.muted }}>
+                  <span style={{ fontWeight: 600, color: T.ink }}>{filtered.length}</span>{' '}
                   {filtered.length === 1 ? 'entry' : 'entries'}
                   {search && (
                     <span>
                       {' '}matching{' '}
                       <span
                         style={{
-                          color: T.text,
+                          color: T.ink,
                           fontFamily: 'monospace',
-                          background: T.tableHead,
+                          background: T.well,
                           padding: '1px 6px',
                           borderRadius: 4,
                         }}
@@ -525,15 +507,15 @@ export default function JournalEntriesPage() {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    color: T.textMuted,
+                    color: T.muted,
                     fontSize: 12,
                     fontFamily: 'inherit',
                     fontWeight: 500,
                     padding: '2px 6px',
                     borderRadius: 4,
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = T.primary)}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = T.textMuted)}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = T.accent)}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = T.muted)}
                 >
                   Clear filters ×
                 </button>
@@ -548,7 +530,7 @@ export default function JournalEntriesPage() {
                     fontFamily: SERIF,
                     fontSize: 22,
                     fontWeight: 400,
-                    color: T.textMuted,
+                    color: T.muted,
                     fontStyle: 'italic',
                     marginBottom: 12,
                   }}
@@ -564,14 +546,14 @@ export default function JournalEntriesPage() {
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                       fontSize: 13,
-                      color: T.textMuted,
+                      color: T.muted,
                       textDecoration: 'underline',
-                      textDecorationColor: T.cardBorder,
+                      textDecorationColor: T.border,
                       textUnderlineOffset: 3,
                       padding: 0,
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = T.text)}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = T.textMuted)}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = T.ink)}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = T.muted)}
                   >
                     Clear filters
                   </button>
@@ -593,7 +575,7 @@ export default function JournalEntriesPage() {
                       alignItems: 'center',
                       gap: 14,
                       padding: '8px 0 16px',
-                      background: `linear-gradient(${T.pageBg} 70%, transparent)`,
+                      background: `linear-gradient(${T.bg} 70%, transparent)`,
                     }}
                   >
                     <span
@@ -601,7 +583,7 @@ export default function JournalEntriesPage() {
                         fontFamily: SERIF,
                         fontSize: 14,
                         fontWeight: 500,
-                        color: T.textMuted,
+                        color: T.muted,
                         fontStyle: 'italic',
                         letterSpacing: '.01em',
                         whiteSpace: 'nowrap',
@@ -609,11 +591,11 @@ export default function JournalEntriesPage() {
                     >
                       {group.label}
                     </span>
-                    <span style={{ flex: 1, height: 1, background: T.cardBorder }} />
+                    <span style={{ flex: 1, height: 1, background: T.border }} />
                     <span
                       style={{
                         fontSize: 11,
-                        color: T.textFaint,
+                        color: T.faint,
                         fontWeight: 500,
                         fontVariantNumeric: 'tabular-nums',
                       }}
@@ -655,11 +637,11 @@ export default function JournalEntriesPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: 600,
-                  color: T.textMuted,
+                  color: T.muted,
                   textTransform: 'uppercase',
-                  letterSpacing: '.1em',
+                  letterSpacing: TRACKING,
                   marginBottom: 8,
                 }}
               >
@@ -672,7 +654,7 @@ export default function JournalEntriesPage() {
                     left: 12,
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    color: T.textFaint,
+                    color: T.faint,
                     fontSize: 14,
                     pointerEvents: 'none',
                   }}
@@ -687,21 +669,21 @@ export default function JournalEntriesPage() {
                   style={{
                     width: '100%',
                     font: 'inherit',
-                    fontSize: 13.5,
+                    fontSize: 13,
                     padding: '9px 32px 9px 32px',
-                    background: T.cardBg,
-                    color: T.text,
-                    border: `1px solid ${T.cardBorder}`,
-                    borderRadius: 9,
+                    background: T.surface,
+                    color: T.ink,
+                    border: `1px solid ${T.border}`,
+                    borderRadius: 'var(--radius)',
                     outline: 'none',
                     transition: 'border-color .12s, box-shadow .12s',
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = T.primary;
-                    e.target.style.boxShadow = `0 0 0 3px ${T.primary}22`;
+                    e.target.style.borderColor = T.accent;
+                    e.target.style.boxShadow = `0 0 0 3px ${T.accent}22`;
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = T.cardBorder;
+                    e.target.style.borderColor = T.border;
                     e.target.style.boxShadow = 'none';
                   }}
                 />
@@ -720,8 +702,8 @@ export default function JournalEntriesPage() {
                       width: 22,
                       height: 22,
                       border: 'none',
-                      background: T.tableHead,
-                      color: T.textMuted,
+                      background: T.well,
+                      color: T.muted,
                       cursor: 'pointer',
                       fontSize: 13,
                       borderRadius: '50%',
@@ -743,10 +725,10 @@ export default function JournalEntriesPage() {
                       fontFamily: 'inherit',
                       fontSize: 10,
                       padding: '1px 5px',
-                      border: `1px solid ${T.cardBorder}`,
+                      border: `1px solid ${T.border}`,
                       borderRadius: 4,
-                      color: T.textFaint,
-                      background: T.tableHead,
+                      color: T.faint,
+                      background: T.well,
                       pointerEvents: 'none',
                     }}
                   >
@@ -761,11 +743,11 @@ export default function JournalEntriesPage() {
               <label
                 style={{
                   display: 'block',
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: 600,
-                  color: T.textMuted,
+                  color: T.muted,
                   textTransform: 'uppercase',
-                  letterSpacing: '.1em',
+                  letterSpacing: TRACKING,
                   marginBottom: 8,
                 }}
               >
@@ -779,10 +761,10 @@ export default function JournalEntriesPage() {
                     style={{
                       textAlign: 'left',
                       padding: '7px 10px',
-                      background: range === opt.id ? T.primary + '14' : 'transparent',
-                      color: range === opt.id ? T.primary : T.text,
+                      background: range === opt.id ? tint(T.accent, 8) : 'transparent',
+                      color: range === opt.id ? T.accent : T.ink,
                       border: 'none',
-                      borderRadius: 7,
+                      borderRadius: 'var(--radius)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                       fontSize: 13,
@@ -793,7 +775,7 @@ export default function JournalEntriesPage() {
                       justifyContent: 'space-between',
                     }}
                     onMouseEnter={(e) => {
-                      if (range !== opt.id) e.currentTarget.style.background = T.tableHead;
+                      if (range !== opt.id) e.currentTarget.style.background = T.well;
                     }}
                     onMouseLeave={(e) => {
                       if (range !== opt.id) e.currentTarget.style.background = 'transparent';
@@ -810,9 +792,9 @@ export default function JournalEntriesPage() {
                   style={{
                     marginTop: 10,
                     padding: 10,
-                    background: T.cardBg,
-                    border: `1px solid ${T.cardBorder}`,
-                    borderRadius: 8,
+                    background: T.surface,
+                    border: `1px solid ${T.border}`,
+                    borderRadius: 'var(--radius)',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 8,
@@ -821,11 +803,11 @@ export default function JournalEntriesPage() {
                   <label style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <span
                       style={{
-                        fontSize: 10,
-                        color: T.textMuted,
+                        fontSize: 11,
+                        color: T.muted,
                         fontWeight: 600,
                         textTransform: 'uppercase',
-                        letterSpacing: '.06em',
+                        letterSpacing: TRACKING,
                       }}
                     >
                       From
@@ -838,10 +820,10 @@ export default function JournalEntriesPage() {
                         font: 'inherit',
                         fontSize: 12,
                         padding: '5px 8px',
-                        background: T.inputBg,
-                        color: T.text,
-                        border: `1px solid ${T.inputBorder}`,
-                        borderRadius: 6,
+                        background: T.surface,
+                        color: T.ink,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 'var(--radius)',
                         outline: 'none',
                         fontFamily: 'inherit',
                       }}
@@ -850,11 +832,11 @@ export default function JournalEntriesPage() {
                   <label style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <span
                       style={{
-                        fontSize: 10,
-                        color: T.textMuted,
+                        fontSize: 11,
+                        color: T.muted,
                         fontWeight: 600,
                         textTransform: 'uppercase',
-                        letterSpacing: '.06em',
+                        letterSpacing: TRACKING,
                       }}
                     >
                       To
@@ -867,10 +849,10 @@ export default function JournalEntriesPage() {
                         font: 'inherit',
                         fontSize: 12,
                         padding: '5px 8px',
-                        background: T.inputBg,
-                        color: T.text,
-                        border: `1px solid ${T.inputBorder}`,
-                        borderRadius: 6,
+                        background: T.surface,
+                        color: T.ink,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 'var(--radius)',
                         outline: 'none',
                         fontFamily: 'inherit',
                       }}

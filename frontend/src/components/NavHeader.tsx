@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { downloadExport } from '@/lib/dataTransfer';
 import ImportModal from '@/components/ImportModal';
+import { LogoMark } from '@/components/ProgressCircle';
+import { T, TRACKING } from '@/lib/theme';
 
 export default function NavHeader() {
   const pathname = usePathname();
@@ -63,30 +65,21 @@ export default function NavHeader() {
 
   const itemStyle: React.CSSProperties = {
     display: 'block', width: '100%', textAlign: 'left',
-    padding: '8px 12px', fontSize: 13, color: '#334155',
+    padding: '8px 12px', fontSize: 13, color: T.ink,
     background: 'transparent', border: 'none', cursor: 'pointer',
-    fontFamily: 'inherit', borderRadius: 6, whiteSpace: 'nowrap',
+    fontFamily: 'inherit', borderRadius: 'var(--radius)', whiteSpace: 'nowrap',
   };
 
   return (
     <nav
-      className="sticky top-0 z-50 border-b border-neutral-200"
-      style={{ background: '#FFFFFF', boxShadow: '0 1px 0 rgba(0,0,0,.02)' }}
+      className="sticky top-0 z-50 border-b border-edge"
+      style={{ background: T.surface }}
     >
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 h-[60px] flex items-center gap-3.5">
         {/* Logo — signature half-filled circle mark */}
         <div className="flex items-center gap-2.5 shrink-0">
-          <div
-            style={{
-              width: 22,
-              height: 22,
-              borderRadius: '50%',
-              border: '2.4px solid #2563EB',
-              background: 'linear-gradient(135deg, #2563EB 50%, transparent 50%)',
-              flexShrink: 0,
-            }}
-          />
-          <span className="hidden min-[500px]:inline" style={{ fontWeight: 600, fontSize: 15, color: '#0F172A', letterSpacing: '-0.015em' }}>
+          <LogoMark size={22} />
+          <span className="hidden min-[500px]:inline" style={{ fontWeight: 600, fontSize: 15, color: T.ink, letterSpacing: '-0.015em' }}>
             Progress Tracker
           </span>
         </div>
@@ -103,9 +96,9 @@ export default function NavHeader() {
                 style={{
                   fontSize: 11,
                   fontWeight: 600,
-                  letterSpacing: '0.18em',
+                  letterSpacing: TRACKING,
                   textTransform: 'uppercase',
-                  color: isActive ? '#0F172A' : '#94A3B8',
+                  color: isActive ? T.ink : T.faint,
                 }}
               >
                 <span
@@ -113,7 +106,7 @@ export default function NavHeader() {
                     width: 5,
                     height: 5,
                     borderRadius: '50%',
-                    background: isActive ? '#2563EB' : 'transparent',
+                    background: isActive ? T.accent : 'transparent',
                     flexShrink: 0,
                     transition: 'background 0.15s',
                   }}
@@ -132,8 +125,8 @@ export default function NavHeader() {
             aria-expanded={menuOpen}
             className="flex items-center gap-1.5 transition-colors duration-150 hover:bg-black/[0.04]"
             style={{
-              fontSize: 12, color: '#64748B', fontWeight: 500,
-              padding: '6px 8px', borderRadius: 8, background: 'transparent',
+              fontSize: 12, color: T.muted, fontWeight: 500,
+              padding: '6px 8px', borderRadius: 'var(--radius)', background: 'transparent',
               border: 'none', cursor: 'pointer', fontFamily: 'inherit',
               maxWidth: 200,
             }}
@@ -149,15 +142,15 @@ export default function NavHeader() {
           {menuOpen && (
             <div
               role="menu"
-              className="absolute right-0 mt-1.5 bg-white border border-neutral-200 rounded-xl overflow-hidden"
-              style={{ minWidth: 180, padding: 4, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.18), 0 2px 8px 0 rgba(0,0,0,0.10)', zIndex: 60 }}
+              className="absolute right-0 mt-1.5 bg-surface border border-edge rounded overflow-hidden"
+              style={{ minWidth: 180, padding: 4, boxShadow: 'var(--shadow-overlay)', zIndex: 60 }}
             >
               <button
                 role="menuitem"
                 onClick={handleExport}
                 disabled={exporting}
                 style={itemStyle}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--well)')}
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               >
                 {exporting ? 'Exporting…' : 'Export data'}
@@ -166,13 +159,13 @@ export default function NavHeader() {
                 role="menuitem"
                 onClick={() => { setMenuOpen(false); setImportOpen(true); }}
                 style={itemStyle}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--well)')}
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               >
                 Import data
               </button>
 
-              <div style={{ height: 1, background: '#F1F5F9', margin: '4px 0' }} />
+              <div style={{ height: 1, background: T.well, margin: '4px 0' }} />
 
               {user?.is_guest ? (
                 <Link
@@ -180,7 +173,7 @@ export default function NavHeader() {
                   href="/login"
                   onClick={() => setMenuOpen(false)}
                   style={itemStyle}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--well)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
                   Sign in
@@ -190,7 +183,7 @@ export default function NavHeader() {
                   role="menuitem"
                   onClick={handleLogout}
                   style={itemStyle}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = '#F1F5F9')}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--well)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
                   Sign out

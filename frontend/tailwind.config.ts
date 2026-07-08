@@ -1,5 +1,7 @@
 import type { Config } from 'tailwindcss'
 
+// Design tokens live in globals.css :root — this config only maps them to
+// utility names. No raw hex values here beyond the neutral gray ramp.
 const config: Config = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -9,42 +11,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Modern Blue & Green Color Scheme
-        primary: {
-          50: '#EFF6FF',
-          100: '#DBEAFE',
-          200: '#BFDBFE',
-          300: '#93C5FD',
-          400: '#60A5FA',
-          500: '#3B82F6', // Primary Blue
-          600: '#2563EB',
-          700: '#1D4ED8',
-          800: '#1E40AF',
-          900: '#1E3A8A',
-        },
-        secondary: {
-          50: '#ECFDF5',
-          100: '#D1FAE5',
-          200: '#A7F3D0',
-          300: '#6EE7B7',
-          400: '#34D399',
-          500: '#10B981', // Secondary Green
-          600: '#059669',
-          700: '#047857',
-          800: '#065F46',
-          900: '#064E3B',
-        },
+        bg: 'var(--bg)',
+        surface: 'var(--surface)',
+        well: 'var(--well)',
+        edge: 'var(--border)',
+        ink: 'var(--ink)',
+        muted: 'var(--muted)',
+        faint: 'var(--faint)',
         accent: {
-          50: '#F3E8FF',
-          100: '#E9D5FF',
-          200: '#D8B4FE',
-          300: '#C084FC',
-          400: '#A855F7',
-          500: '#8B5CF6', // Accent Purple
-          600: '#7C3AED',
-          700: '#6D28D9',
-          800: '#5B21B6',
-          900: '#4C1D95',
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          tint: 'var(--accent-tint)',
+        },
+        danger: {
+          DEFAULT: 'var(--danger)',
+          tint: 'var(--danger-tint)',
+          border: 'var(--danger-border)',
         },
         neutral: {
           50: '#F8FAFC',
@@ -58,95 +40,32 @@ const config: Config = {
           800: '#1E293B',
           900: '#0F172A',
         },
-        success: {
-          50: '#ECFDF5',
-          100: '#D1FAE5',
-          200: '#A7F3D0',
-          300: '#6EE7B7',
-          400: '#34D399',
-          500: '#10B981',
-          600: '#059669',
-          700: '#047857',
-          800: '#065F46',
-          900: '#064E3B',
-        },
-        warning: {
-          50: '#FFFBEB',
-          100: '#FEF3C7',
-          200: '#FDE68A',
-          300: '#FCD34D',
-          400: '#FBBF24',
-          500: '#F59E0B',
-          600: '#D97706',
-          700: '#B45309',
-          800: '#92400E',
-          900: '#78350F',
-        },
-        error: {
-          50: '#FEF2F2',
-          100: '#FEE2E2',
-          200: '#FECACA',
-          300: '#FCA5A5',
-          400: '#F87171',
-          500: '#EF4444',
-          600: '#DC2626',
-          700: '#B91C1C',
-          800: '#991B1B',
-          900: '#7F1D1D',
-        },
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Georgia', 'serif'],
       },
-      fontSize: {
-        'xs': ['0.75rem', { lineHeight: '1.4' }],
-        'sm': ['0.875rem', { lineHeight: '1.5' }],
-        'base': ['1rem', { lineHeight: '1.6' }],
-        'lg': ['1.125rem', { lineHeight: '1.7' }],
-        'xl': ['1.25rem', { lineHeight: '1.3' }],
-        '2xl': ['1.5rem', { lineHeight: '1.3' }],
-        '3xl': ['2rem', { lineHeight: '1.2' }],
-        '4xl': ['2.5rem', { lineHeight: '1.2' }],
-        '5xl': ['3rem', { lineHeight: '1.1' }],
-        '6xl': ['3.75rem', { lineHeight: '1.1' }],
-      },
-      spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
-      },
-      borderWidth: {
-        '3': '3px',
-      },
+      // One radius for cards/buttons/inputs — existing rounded-lg/xl/2xl
+      // classes all resolve to the same token. rounded-full stays round.
       borderRadius: {
-        'xl': '0.75rem',
-        '2xl': '1rem',
-        '3xl': '1.5rem',
+        DEFAULT: 'var(--radius)',
+        md: 'var(--radius)',
+        lg: 'var(--radius)',
+        xl: 'var(--radius)',
+        '2xl': 'var(--radius)',
+        '3xl': 'var(--radius)',
       },
       boxShadow: {
-        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-        'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        'large': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 2px 10px -2px rgba(0, 0, 0, 0.05)',
+        sm: 'var(--shadow-sm)',
+        overlay: 'var(--shadow-overlay)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out',
-        'scale-in': 'scaleIn 0.2s ease-out',
         'bounce-dot': 'bounceDot 1.2s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
-        },
-        slideUp: {
-          '0%': { transform: 'translateY(10px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
-        scaleIn: {
-          '0%': { transform: 'scale(0.95)', opacity: '0' },
-          '100%': { transform: 'scale(1)', opacity: '1' },
         },
         bounceDot: {
           '0%, 80%, 100%': { transform: 'scale(0.55)', opacity: '0.35' },
@@ -158,4 +77,4 @@ const config: Config = {
   plugins: [],
 }
 
-export default config 
+export default config

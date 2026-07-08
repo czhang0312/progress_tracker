@@ -5,13 +5,14 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 
-const SERIF = "'Source Serif 4','Source Serif Pro',Georgia,serif";
+import { LogoMark } from '@/components/ProgressCircle';
+import { T, SERIF, TRACKING } from '@/lib/theme';
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 10,
+  fontSize: 11,
   fontWeight: 600,
-  color: '#64748B',
-  letterSpacing: '0.1em',
+  color: T.muted,
+  letterSpacing: TRACKING,
   textTransform: 'uppercase',
 };
 
@@ -54,12 +55,12 @@ function ResetPasswordForm() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
         <div style={{
-          background: '#EF444415',
-          border: '1px solid #EF444440',
-          color: '#DC2626',
+          background: 'var(--danger-tint)',
+          border: '1px solid var(--danger-border)',
+          color: 'var(--danger)',
           padding: '10px 14px',
-          borderRadius: 8,
-          fontSize: 13.5,
+          borderRadius: 'var(--radius)',
+          fontSize: 13,
           lineHeight: 1.5,
         }}>
           Invalid or missing reset token. Please request a new password reset link.
@@ -73,8 +74,8 @@ function ResetPasswordForm() {
             width: '100%',
             padding: '11px',
             fontSize: 14,
-            borderRadius: 8,
-            background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+            borderRadius: 'var(--radius)',
+            background: 'var(--accent)',
             color: '#fff',
             textDecoration: 'none',
             fontWeight: 500,
@@ -93,17 +94,17 @@ function ResetPasswordForm() {
           width: 48,
           height: 48,
           borderRadius: '50%',
-          background: '#F0FDF4',
-          border: '1px solid #BBF7D0',
+          background: 'var(--accent-tint)',
+          border: '1px solid var(--border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 20,
-          color: '#16A34A',
+          color: 'var(--accent)',
         }}>
           ✓
         </div>
-        <p style={{ color: '#475569', fontSize: 13.5, lineHeight: 1.6 }}>
+        <p style={{ color: 'var(--muted)', fontSize: 13, lineHeight: 1.6 }}>
           Your password has been updated successfully.
         </p>
         <Link
@@ -115,8 +116,8 @@ function ResetPasswordForm() {
             width: '100%',
             padding: '11px',
             fontSize: 14,
-            borderRadius: 8,
-            background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+            borderRadius: 'var(--radius)',
+            background: 'var(--accent)',
             color: '#fff',
             textDecoration: 'none',
             fontWeight: 500,
@@ -164,12 +165,12 @@ function ResetPasswordForm() {
 
       {errors.length > 0 && (
         <div style={{
-          background: '#EF444415',
-          border: '1px solid #EF444440',
-          color: '#DC2626',
+          background: 'var(--danger-tint)',
+          border: '1px solid var(--danger-border)',
+          color: 'var(--danger)',
           padding: '8px 12px',
-          borderRadius: 8,
-          fontSize: 12.5,
+          borderRadius: 'var(--radius)',
+          fontSize: 12,
           lineHeight: 1.5,
         }} role="alert">
           {errors.map((err, i) => <div key={i}>{err}</div>)}
@@ -180,14 +181,14 @@ function ResetPasswordForm() {
         type="submit"
         disabled={loading}
         style={{
-          background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
+          background: 'var(--accent)',
           color: '#fff',
           width: '100%',
           padding: '11px',
           fontSize: 14,
           marginTop: 2,
           border: 'none',
-          borderRadius: 8,
+          borderRadius: 'var(--radius)',
           fontFamily: 'inherit',
           fontWeight: 500,
           cursor: loading ? 'not-allowed' : 'pointer',
@@ -212,7 +213,7 @@ export default function ResetPasswordPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#F1F5F9',
+      background: 'var(--bg)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -222,32 +223,25 @@ export default function ResetPasswordPage() {
 
         {/* Logo + heading */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: 22 }}>
-          <div style={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            border: '3.2px solid #2563EB',
-            background: 'linear-gradient(135deg, #2563EB 50%, transparent 50%)',
-            flexShrink: 0,
-          }} />
-          <h1 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '16px 0 0' }}>
+          <LogoMark size={40} />
+          <h1 style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.15, margin: '16px 0 0' }}>
             Choose a new password
           </h1>
-          <p style={{ color: '#64748B', fontSize: 13.5, marginTop: 6, lineHeight: 1.5 }}>
+          <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 6, lineHeight: 1.5 }}>
             Pick something strong and memorable.
           </p>
         </div>
 
         {/* Card */}
         <div style={{
-          background: '#ffffff',
-          border: '1px solid #E2E8F0',
-          borderRadius: 16,
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
           padding: 24,
-          boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.16)',
+          boxShadow: 'var(--shadow-sm)',
         }}>
           <Suspense fallback={
-            <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 13.5, padding: '12px 0' }}>
+            <div style={{ textAlign: 'center', color: 'var(--faint)', fontSize: 13, padding: '12px 0' }}>
               Loading…
             </div>
           }>

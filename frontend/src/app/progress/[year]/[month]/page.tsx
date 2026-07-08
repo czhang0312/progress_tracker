@@ -7,6 +7,8 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import PageLoader from '@/components/PageLoader';
 import JournalEntryModal from '@/components/JournalEntryModal';
+import ProgressCircle from '@/components/ProgressCircle';
+import { T, SERIF, TRACKING } from '@/lib/theme';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal, reorderGuestGoals } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
@@ -41,25 +43,14 @@ interface JournalEntry {
   content: string;
 }
 
-// ─── Design tokens (Claude design v8 — "Blue & Green" theme) ──────────────────
-const T = {
-  cardBg: '#ffffff', cardBorder: '#E2E8F0',
-  primary: '#2563EB',
-  text: '#0F172A', textMuted: '#64748B', textFaint: '#94A3B8',
-  tableHead: '#F8FAFC',
-  todayRing: '#2563EB', todayCol: '#EFF6FF',
-  circFull: '#10B981',
-  tabFill: '#E2E8F0', tabStroke: '#CBD5E1',
-};
-
 function JournalTabButton({ entry, isFuture, onClick }: {
   entry: JournalEntry | null;
   isFuture: boolean;
   onClick: () => void;
 }) {
   const isFilled = !!entry;
-  const fill = T.tabFill;
-  const stroke = T.tabStroke;
+  const fill = T.border;
+  const stroke = T.ringEmpty;
 
   const cls = isFuture ? 'journal-tab journal-tab-future'
     : isFilled ? 'journal-tab journal-tab-filled'
@@ -77,38 +68,6 @@ function JournalTabButton({ entry, isFuture, onClick }: {
           fill={fill} stroke={stroke} strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
       </svg>
     </button>
-  );
-}
-
-// ─── Diagonal-fill progress circle (default "diag" style from the design) ─────
-function DiagCircle({ status, size, color, onClick, isFuture }: {
-  status: number; size: number; color: string;
-  onClick: () => void; isFuture: boolean;
-}) {
-  const [pop, setPop] = useState(false);
-  const handleClick = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (isFuture) return;
-    setPop(true); setTimeout(() => setPop(false), 200);
-    onClick();
-  };
-  const bg = status === 0 ? 'transparent'
-    : status === 1 ? `linear-gradient(135deg, ${color} 50%, #FFFFFF 50%)`
-    : color;
-  const borderColor = status === 2 ? color : '#D4D4D4';
-  return (
-    <div onClick={handleClick} style={{
-      width: size, height: size, borderRadius: '50%',
-      border: `2px solid ${borderColor}`,
-      background: bg,
-      cursor: isFuture ? 'default' : 'pointer', opacity: isFuture ? 0.25 : 1,
-      margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      color: '#fff', fontWeight: 700, fontSize: size * 0.42,
-      boxShadow: status === 2 ? `0 2px 8px ${color}55` : 'none',
-      outline: 'none', outlineOffset: 2,
-      transform: pop ? 'scale(1.18)' : 'scale(1)',
-      transition: 'transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s',
-    }}>{status === 2 && '✓'}</div>
   );
 }
 
@@ -643,10 +602,10 @@ export default function ProgressPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade-in">
-          <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-error-600 text-2xl">⚠️</span>
+          <div className="w-16 h-16 bg-danger-tint rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-danger text-2xl">⚠️</span>
           </div>
-          <h1 className="text-2xl font-bold text-error-600 mb-2">Something went wrong</h1>
+          <h1 className="text-2xl font-bold text-danger mb-2">Something went wrong</h1>
           <p className="text-neutral-600 mb-4">{error}</p>
           <button 
             onClick={fetchProgressData}
@@ -683,8 +642,8 @@ export default function ProgressPage() {
       {editingGoalId && editPopoverPos && (
         <div
           ref={editPopoverRef}
-          className="fixed z-[200] w-[480px] max-w-[calc(100vw-16px)] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 overflow-hidden"
-          style={{ top: editPopoverPos.top, left: editPopoverPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
+          className="fixed z-[200] w-[480px] max-w-[calc(100vw-16px)] bg-surface border border-edge rounded overflow-hidden"
+          style={{ top: editPopoverPos.top, left: editPopoverPos.left, boxShadow: 'var(--shadow-overlay)' }}
         >
           <form id="edit-goal-form" onSubmit={handleGoalEditSubmit} className="space-y-3 p-4 pb-3">
             <div className="flex items-center gap-3">
@@ -694,7 +653,7 @@ export default function ProgressPage() {
                 value={editFormData.name}
                 onChange={handleGoalEditChange}
                 placeholder="Add goal name"
-                className={`flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300 ${editErrors.name ? 'text-error-600' : ''}`}
+                className={`flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300 ${editErrors.name ? 'text-danger' : ''}`}
                 style={{ fontSize: '15px' }}
                 required
               />
@@ -708,7 +667,7 @@ export default function ProgressPage() {
                 title="Start date — progress circles hidden before this date"
               />
             </div>
-            {editErrors.name && <p className="mt-0.5 text-xs text-error-600">{editErrors.name}</p>}
+            {editErrors.name && <p className="mt-0.5 text-xs text-danger">{editErrors.name}</p>}
 
             {!showEditDescription ? (
               <button
@@ -727,9 +686,9 @@ export default function ProgressPage() {
                   rows={3}
                   placeholder="Add goal description"
                   autoFocus={!editFormData.description}
-                  className={`w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0 ${editErrors.description ? 'ring-2 ring-error-500' : ''}`}
+                  className={`w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0 ${editErrors.description ? 'ring-2 ring-danger' : ''}`}
                 />
-                {editErrors.description && <p className="mt-0.5 text-xs text-error-600">{editErrors.description}</p>}
+                {editErrors.description && <p className="mt-0.5 text-xs text-danger">{editErrors.description}</p>}
               </div>
             )}
 
@@ -744,7 +703,7 @@ export default function ProgressPage() {
             <button
               type="button"
               onClick={handleGoalDelete}
-              className="ml-auto text-neutral-400 hover:text-error-500 p-1.5 rounded transition-colors"
+              className="ml-auto text-neutral-400 hover:text-danger p-1.5 rounded transition-colors"
               title="Delete goal"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -760,8 +719,8 @@ export default function ProgressPage() {
       {showAddGoal && addGoalPos && (
         <div
           ref={addGoalPopoverRef}
-          className="fixed z-[200] w-[480px] max-w-[calc(100vw-16px)] bg-white border border-neutral-200 rounded-xl ring-1 ring-neutral-900/10 overflow-hidden"
-          style={{ top: addGoalPos.top, left: addGoalPos.left, boxShadow: '0 8px 40px 0 rgba(0,0,0,0.22), 0 2px 8px 0 rgba(0,0,0,0.12)' }}
+          className="fixed z-[200] w-[480px] max-w-[calc(100vw-16px)] bg-surface border border-edge rounded overflow-hidden"
+          style={{ top: addGoalPos.top, left: addGoalPos.left, boxShadow: 'var(--shadow-overlay)' }}
         >
           <form id="add-goal-form" onSubmit={handleAddGoalSubmit} className="space-y-3 p-4 pb-3">
             <div>
@@ -771,12 +730,12 @@ export default function ProgressPage() {
                 value={addGoalFormData.name}
                 onChange={(e) => setAddGoalFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Add goal name"
-                className={`w-full bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300 ${addGoalErrors.name ? 'text-error-600' : ''}`}
+                className={`w-full bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300 ${addGoalErrors.name ? 'text-danger' : ''}`}
                 style={{ fontSize: '15px' }}
                 autoFocus
                 required
               />
-              {addGoalErrors.name && <p className="mt-0.5 text-xs text-error-600">{addGoalErrors.name}</p>}
+              {addGoalErrors.name && <p className="mt-0.5 text-xs text-danger">{addGoalErrors.name}</p>}
             </div>
 
             {!showAddDescription ? (
@@ -855,10 +814,10 @@ export default function ProgressPage() {
               </h1>
             </div>
 
-            <div className="flex items-center gap-[6px] p-1 rounded-[10px] bg-white border border-neutral-200">
+            <div className="flex items-center gap-[6px] p-1 rounded bg-surface border border-edge">
               <Link
                 href={`/progress/${prevMonth.year}/${prevMonth.month}`}
-                className="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors duration-[120ms]"
+                className="w-[30px] h-[30px] rounded-[6px] flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors duration-[120ms]"
                 title={new Date(prevMonth.year, prevMonth.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -866,20 +825,20 @@ export default function ProgressPage() {
                 </svg>
               </Link>
               {isCurrentMonth ? (
-                <span className="h-[30px] flex items-center px-[12px] rounded-[7px] text-xs font-semibold text-neutral-400 cursor-default select-none">
+                <span className="h-[30px] flex items-center px-[12px] rounded-[6px] text-xs font-semibold text-neutral-400 cursor-default select-none">
                   Today
                 </span>
               ) : (
                 <Link
                   href={`/progress/${now.getFullYear()}/${now.getMonth() + 1}`}
-                  className="h-[30px] flex items-center px-[12px] rounded-[7px] text-xs font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors duration-[120ms]"
+                  className="h-[30px] flex items-center px-[12px] rounded-[6px] text-xs font-semibold text-neutral-900 hover:bg-neutral-100 transition-colors duration-[120ms]"
                 >
                   Today
                 </Link>
               )}
               <Link
                 href={`/progress/${nextMonth.year}/${nextMonth.month}`}
-                className="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors duration-[120ms]"
+                className="w-[30px] h-[30px] rounded-[6px] flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors duration-[120ms]"
                 title={new Date(nextMonth.year, nextMonth.month - 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -901,9 +860,9 @@ export default function ProgressPage() {
                   so this non-translated cover masks tabs sliding under the first column. */}
               {SUPPORTS_SCROLL_TIMELINE && (
                 <div aria-hidden="true" style={{ position: 'absolute', top: 0, bottom: 0, left: 0,
-                  width: 'var(--sticky-w)', background: '#F1F5F9', zIndex: 6 }}>
+                  width: 'var(--sticky-w)', background: T.bg, zIndex: 6 }}>
                   <div style={{ position: 'absolute', bottom: 0, left: 11, right: 0,
-                    borderBottom: `1px solid ${T.cardBorder}` }} />
+                    borderBottom: `1px solid ${T.border}` }} />
                 </div>
               )}
               <div
@@ -920,9 +879,9 @@ export default function ProgressPage() {
                 }}
               >
                 <div style={{ position: 'sticky', left: 0, zIndex: 5,
-                  alignSelf: 'stretch', background: '#F1F5F9' }}>
+                  alignSelf: 'stretch', background: T.bg }}>
                   <div style={{ position: 'absolute', bottom: 0, left: 11, right: 0,
-                    borderBottom: `1px solid ${T.cardBorder}` }} />
+                    borderBottom: `1px solid ${T.border}` }} />
                 </div>
                 {Array.from({ length: data.days_in_month }, (_, i) => {
                   const day = i + 1;
@@ -940,7 +899,7 @@ export default function ProgressPage() {
             </div>
 
             {/* Main table card */}
-            <div style={{ background: T.cardBg, borderRadius: 14, border: `1px solid ${T.cardBorder}`,
+            <div style={{ background: T.surface, borderRadius: 'var(--radius)', border: `1px solid ${T.border}`,
               boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 4px 16px -8px rgba(15,23,42,.08)',
               overflow: 'hidden' }}>
               <div ref={tableScrollRef} className="scrollbar-thin"
@@ -949,11 +908,11 @@ export default function ProgressPage() {
                   <thead>
                     <tr>
                       <th className="sticky-col-head" style={{
-                        width: 'var(--sticky-w)', minWidth: 'var(--sticky-w)', maxWidth: 'var(--sticky-w)', background: T.tableHead,
-                        borderBottom: `1px solid ${T.cardBorder}`,
+                        width: 'var(--sticky-w)', minWidth: 'var(--sticky-w)', maxWidth: 'var(--sticky-w)', background: T.bg,
+                        borderBottom: `1px solid ${T.border}`,
                         textAlign: 'left', padding: '12px 16px 12px 26px',
-                        color: T.textMuted, textTransform: 'uppercase',
-                        fontSize: 10, letterSpacing: '.08em' }}>
+                        color: T.muted, textTransform: 'uppercase',
+                        fontSize: 10, letterSpacing: TRACKING }}>
                         Goal
                       </th>
                       {Array.from({ length: data.days_in_month }, (_, i) => {
@@ -967,24 +926,24 @@ export default function ProgressPage() {
                           <th key={day}
                             ref={(el) => { if (isToday) todayThRef.current = el; }}
                             style={{ minWidth: 40, width: 40,
-                              background: isToday ? T.todayCol : T.tableHead,
-                              borderBottom: `1px solid ${T.cardBorder}`, padding: 0 }}>
+                              background: isToday ? T.accentTint : T.bg,
+                              borderBottom: `1px solid ${T.border}`, padding: 0 }}>
                             <button className="day-header-btn"
                               onClick={() => handleJournalClick(date)}
                               style={{ cursor: 'pointer', opacity: isFuture ? 0.4 : 1 }}>
-                              <div style={{ fontSize: 9, color: T.textMuted,
-                                fontWeight: 600, letterSpacing: '.04em', marginBottom: 1 }}>
+                              <div style={{ fontSize: 10, color: T.muted,
+                                fontWeight: 600, letterSpacing: TRACKING, marginBottom: 1 }}>
                                 {dow}
                               </div>
-                              <div style={{ fontSize: isToday ? 14 : 12, fontWeight: isToday ? 800 : 600,
-                                color: T.text, lineHeight: 1 }}>
+                              <div style={{ fontSize: 12, fontWeight: 600,
+                                color: isToday ? T.accent : T.ink, lineHeight: 1 }}>
                                 {day}
                               </div>
                             </button>
                           </th>
                         );
                       })}
-                      <th style={{ minWidth: 8, background: T.tableHead, borderBottom: `1px solid ${T.cardBorder}` }} />
+                      <th style={{ minWidth: 8, background: T.bg, borderBottom: `1px solid ${T.border}` }} />
                     </tr>
                   </thead>
                   <tbody>
@@ -996,13 +955,13 @@ export default function ProgressPage() {
                         className={`${draggingGoalId === goal.id ? 'dragging' : ''} ${dragOverGoalId === goal.id && draggingGoalId !== null && draggingGoalId !== goal.id ? 'drag-over' : ''}`}>
                         <td className="sticky-col goal-row-cell" draggable
                           onDragStart={() => handleDragStart(goal.id)}
-                          style={{ background: T.cardBg,
+                          style={{ background: T.surface,
                             padding: '8px 12px', cursor: 'grab' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 14, userSelect: 'none' }}>
                             {/* Name + description */}
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div onClick={(e) => openGoalEdit(goal, e)} title="Click to edit"
-                                style={{ fontWeight: 600, fontSize: 13.5, color: T.text, lineHeight: 1.3,
+                                style={{ fontWeight: 600, fontSize: 13, color: T.ink, lineHeight: 1.3,
                                   padding: '2px 6px', margin: '0 -6px', borderRadius: 6, cursor: 'grab',
                                   wordBreak: 'break-word',
                                   display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
@@ -1012,7 +971,7 @@ export default function ProgressPage() {
                               {goal.description && (
                                 <div onClick={(e) => openGoalEdit(goal, e)}
                                   title={`${goal.description}\n\nClick to edit`}
-                                  style={{ fontSize: 11, color: T.textFaint,
+                                  style={{ fontSize: 12, color: T.faint,
                                     lineHeight: 1.4, padding: '1px 6px', margin: '2px -6px 0', borderRadius: 4,
                                     cursor: 'grab',
                                     whiteSpace: 'pre-wrap', wordBreak: 'break-word',
@@ -1027,7 +986,7 @@ export default function ProgressPage() {
                             <button
                               onClick={(e) => openGoalEdit(goal, e)}
                               title="Edit goal" aria-label="Edit goal"
-                              style={{ border: `1px solid ${T.cardBorder}`, background: 'transparent', color: T.textMuted,
+                              style={{ border: `1px solid ${T.border}`, background: 'transparent', color: T.muted,
                                 cursor: 'pointer', padding: '4px 2px', lineHeight: 0, fontSize: 14,
                                 borderRadius: 4, flexShrink: 0, alignSelf: 'flex-start',
                                 display: 'flex', alignItems: 'center',
@@ -1050,62 +1009,61 @@ export default function ProgressPage() {
 
                           return (
                             <td key={day} style={{ textAlign: 'center', padding: '5px 2px',
-                              background: isToday ? T.todayCol : undefined }}>
+                              background: isToday ? T.accentTint : undefined }}>
                               {!isBeforeCreation && (
-                                <DiagCircle status={status} size={30} color={T.circFull}
+                                <ProgressCircle status={status} size={28}
                                   onClick={() => updateProgress(goal.id, date, status)}
                                   isFuture={isFuture} />
                               )}
                             </td>
                           );
                         })}
-                        <td style={{ background: T.cardBg }} />
+                        <td style={{ background: T.surface }} />
                       </tr>
                     ))}
 
                     {/* Add goal row */}
                     <tr>
                       <td className="sticky-col" colSpan={1}
-                        style={{ background: T.cardBg, padding: '6px 10px',
-                          borderBottom: `1px solid ${T.cardBorder}` }}>
+                        style={{ background: T.surface, padding: '6px 10px',
+                          borderBottom: `1px solid ${T.border}` }}>
                         <button onClick={openAddGoal}
                           style={{ width: '100%', textAlign: 'left', background: 'transparent',
                             border: 'none', cursor: 'pointer', padding: '7px 4px 7px 22px',
-                            fontFamily: 'inherit', fontSize: 13, color: T.textFaint, fontWeight: 500,
+                            fontFamily: 'inherit', fontSize: 13, color: T.faint, fontWeight: 500,
                             borderRadius: 6, transition: 'all .12s' }}
-                          onMouseEnter={(e) => { e.currentTarget.style.color = T.primary; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.color = T.textFaint; }}>
+                          onMouseEnter={(e) => { e.currentTarget.style.color = T.accent; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.color = T.faint; }}>
                           + Add a goal
                         </button>
                       </td>
                       <td colSpan={data.days_in_month + 1}
-                        style={{ background: T.cardBg, borderBottom: `1px solid ${T.cardBorder}` }} />
+                        style={{ background: T.surface, borderBottom: `1px solid ${T.border}` }} />
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               {/* Legend strip */}
-              <div style={{ padding: '10px 18px', borderTop: `1px solid ${T.cardBorder}`,
-                background: T.tableHead, display: 'flex', alignItems: 'center',
+              <div style={{ padding: '10px 18px', borderTop: `1px solid ${T.border}`,
+                background: T.bg, display: 'flex', alignItems: 'center',
                 justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-                <div style={{ display: 'flex', gap: 14, fontSize: 11, color: T.textMuted, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 14, fontSize: 11, color: T.muted, alignItems: 'center' }}>
                   {([['Empty', 0], ['Halfway', 1], ['Done', 2]] as const).map(([label, s]) => (
                     <span key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <DiagCircle status={s} size={14} color={T.circFull}
-                        onClick={() => {}} isFuture={false} />
+                      <ProgressCircle status={s} size={16} />
                       {label}
                     </span>
                   ))}
                   <span style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
                     <svg width="14" height="6" viewBox="0 0 44 16" preserveAspectRatio="none" style={{ display: 'block' }}>
                       <path d="M0 16 L6 3 Q7 0 10 0 L34 0 Q37 0 38 3 L44 16 Z"
-                        fill={T.tabFill} stroke={T.tabStroke} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                        fill={T.border} stroke={T.ringEmpty} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
                     </svg>
                     Journal entry
                   </span>
                 </div>
-                <div style={{ fontSize: 11, color: T.textFaint }}>
+                <div style={{ fontSize: 11, color: T.faint }}>
                   {data.goals.length} goal{data.goals.length === 1 ? '' : 's'} · drag to reorder
                 </div>
               </div>
@@ -1121,8 +1079,8 @@ export default function ProgressPage() {
           {/* Editorial intro */}
           <div className="max-w-2xl mx-auto mb-11 text-center">
             <h2
-              className="text-[36px] font-medium text-neutral-900 leading-[1.15] tracking-[-0.02em] mb-4"
-              style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+              className="text-[32px] font-medium text-neutral-900 leading-[1.15] tracking-[-0.02em] mb-4"
+              style={{ fontFamily: SERIF }}
             >
               The hardest part of a new goal is
               <br />
@@ -1137,16 +1095,16 @@ export default function ProgressPage() {
           <div className="max-w-[1000px] mx-auto mb-[10px]">
             <div className="flex items-baseline gap-3.5 mb-[10px] flex-wrap">
               <span
-                className="text-[38px] font-normal italic leading-none tracking-[-0.02em] text-primary-600"
-                style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+                className="text-[32px] font-normal italic leading-none tracking-[-0.02em] text-accent"
+                style={{ fontFamily: SERIF }}
               >
                 01
               </span>
-              <span className="text-[11px] font-semibold tracking-[.22em] uppercase text-neutral-500">
+              <span className="text-[11px] font-semibold tracking-[.08em] uppercase text-neutral-500">
                 Phase · Goal-initiating
               </span>
             </div>
-            <p className="text-[14.5px] leading-[1.7] text-neutral-500 max-w-[720px] mb-[22px]">
+            <p className="text-[15px] leading-[1.7] text-neutral-500 max-w-[720px] mb-[22px]">
               Motivation is highest on day one but reality hits fast. The goal turns out to be bigger than expected, obstacles you didn&apos;t plan for show up, and most people quietly abandon ship within the first two weeks. This app is built around two small forces that get you through this critical period:
             </p>
           </div>
@@ -1154,8 +1112,8 @@ export default function ProgressPage() {
           <div className="grid grid-cols-1 gap-4 max-w-[420px] mx-auto w-full">
 
             {/* Card 1: Honest Tracking */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
-              <div className="text-primary-600 h-8 flex items-center opacity-90">
+            <div className="bg-surface border border-edge rounded p-6 flex flex-col gap-3">
+              <div className="text-accent h-8 flex items-center opacity-90">
                 <svg viewBox="0 0 80 40" width="72" height="36" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="14" cy="20" r="10" fill="currentColor" />
                   <path d="M10 20 l3 3 6 -6" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
@@ -1165,32 +1123,32 @@ export default function ProgressPage() {
                 </svg>
               </div>
               <div>
-                <p className="text-[10px] font-semibold tracking-[.16em] uppercase text-neutral-400 mb-1.5">Honest Tracking</p>
+                <p className="text-[11px] font-semibold tracking-[.08em] uppercase text-neutral-400 mb-1.5">Honest Tracking</p>
                 <h3
                   className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
-                  style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+                  style={{ fontFamily: SERIF }}
                 >A circle that tells the truth</h3>
-                <p className="text-[13.5px] leading-[1.6] text-neutral-500">
+                <p className="text-[13px] leading-[1.6] text-neutral-500">
                   Each day you mark how it really went — done, partially done, or not done. No streaks to protect, no all-or-nothing pressure. A partial is still a day you showed up. Watching that honest record fill in across the weeks is quietly more motivating than any perfect streak could be.
                 </p>
               </div>
             </div>
 
             {/* Card 2: Reflection */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
-              <div className="text-primary-600 h-8 flex items-center opacity-90">
+            <div className="bg-surface border border-edge rounded p-6 flex flex-col gap-3">
+              <div className="text-accent h-8 flex items-center opacity-90">
                 <svg viewBox="0 0 80 40" width="64" height="32" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M8 14 h44 M8 22 h34 M8 30 h26" />
                   <path d="M62 8 l8 8 -22 22 h-8 v-8 z" />
                 </svg>
               </div>
               <div>
-                <p className="text-[10px] font-semibold tracking-[.16em] uppercase text-neutral-400 mb-1.5">Reflection</p>
+                <p className="text-[11px] font-semibold tracking-[.08em] uppercase text-neutral-400 mb-1.5">Reflection</p>
                 <h3
                   className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
-                  style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+                  style={{ fontFamily: SERIF }}
                 >A few lines a day changes everything</h3>
-                <p className="text-[13.5px] leading-[1.6] text-neutral-500">
+                <p className="text-[13px] leading-[1.6] text-neutral-500">
                   A short daily journal entry turns chaos into clarity. When something goes wrong, you write it down. When the goal feels too big, you write that down too. Patterns emerge fast — and so do the small adjustments that make the next day easier than the last.
                 </p>
               </div>
@@ -1200,7 +1158,7 @@ export default function ProgressPage() {
           {/* Then divider */}
           <div className="max-w-[1000px] mx-auto my-10 flex items-center gap-3.5 text-neutral-400">
             <div className="flex-1 h-px bg-neutral-200" />
-            <span className="text-[10px] font-semibold tracking-[.22em] uppercase">Then</span>
+            <span className="text-[11px] font-semibold tracking-[.08em] uppercase">Then</span>
             <div className="flex-1 h-px bg-neutral-200" />
           </div>
 
@@ -1208,16 +1166,16 @@ export default function ProgressPage() {
           <div className="max-w-[1000px] mx-auto mb-[10px]">
             <div className="flex items-baseline gap-3.5 mb-[10px] flex-wrap">
               <span
-                className="text-[38px] font-normal italic leading-none tracking-[-0.02em] text-primary-600"
-                style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+                className="text-[32px] font-normal italic leading-none tracking-[-0.02em] text-accent"
+                style={{ fontFamily: SERIF }}
               >
                 02
               </span>
-              <span className="text-[11px] font-semibold tracking-[.22em] uppercase text-neutral-500">
+              <span className="text-[11px] font-semibold tracking-[.08em] uppercase text-neutral-500">
                 Phase · Goal-tracking
               </span>
             </div>
-            <p className="text-[14.5px] leading-[1.7] text-neutral-500 max-w-[720px] mb-[22px]">
+            <p className="text-[15px] leading-[1.7] text-neutral-500 max-w-[720px] mb-[22px]">
               The hardest part is behind you. After the inital two weeks, the goal has been stress-tested, adjusted, and survived. Now the work shifts from figuring it out to showing up consistently — and that still requires a daily signal.
             </p>
           </div>
@@ -1225,8 +1183,8 @@ export default function ProgressPage() {
           <div className="grid grid-cols-1 gap-4 max-w-[420px] mx-auto w-full">
 
             {/* Card 3: Keep Filling the Circles */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-[22px] flex flex-col gap-3">
-              <div className="text-primary-600 h-8 flex items-center opacity-90">
+            <div className="bg-surface border border-edge rounded p-6 flex flex-col gap-3">
+              <div className="text-accent h-8 flex items-center opacity-90">
                 <svg viewBox="0 0 80 40" width="72" height="36" fill="currentColor">
                   <circle cx="8" cy="20" r="4" />
                   <circle cx="20" cy="20" r="4" />
@@ -1237,12 +1195,12 @@ export default function ProgressPage() {
                 </svg>
               </div>
               <div>
-                <p className="text-[10px] font-semibold tracking-[.16em] uppercase text-neutral-400 mb-1.5">Keep Filling the Circles</p>
+                <p className="text-[11px] font-semibold tracking-[.08em] uppercase text-neutral-400 mb-1.5">Keep Filling the Circles</p>
                 <h3
                   className="text-xl font-medium text-neutral-900 leading-snug tracking-[-0.01em] mb-2.5"
-                  style={{ fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif" }}
+                  style={{ fontFamily: SERIF }}
                 >Consistency is built, not assumed</h3>
-                <p className="text-[13.5px] leading-[1.6] text-neutral-500">
+                <p className="text-[13px] leading-[1.6] text-neutral-500">
                   Just because the habit is forming doesn&apos;t mean the check-in stops mattering. Filling in your circle each day keeps the goal visible and real. It takes seconds, but that small act of acknowledgment is what separates a habit that sticks from one that quietly fades.
                 </p>
               </div>

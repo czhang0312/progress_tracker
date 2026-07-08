@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import ProgressCircle from '@/components/ProgressCircle';
+import { T, SERIF, TRACKING, tint } from '@/lib/theme';
 import { RAILS_API_BASE } from '@/lib/config';
 import { todayLocalDateString } from '@/lib/dateUtils';
 import {
@@ -9,19 +11,6 @@ import {
   updateGuestJournalEntry,
   deleteGuestJournalEntry,
 } from '@/lib/guestStorage';
-
-// ─── Palette ────────────────────────────────────────────────────────────────
-const T = {
-  cardBg: '#ffffff',
-  cardBorder: '#E2E8F0',
-  tableHead: '#F8FAFC',
-  text: '#0F172A',
-  textMuted: '#64748B',
-  textFaint: '#94A3B8',
-  primary: '#2563EB',
-  btnPrimary: '#0F172A',
-  circFull: '#10B981',
-} as const;
 
 const PROMPTS = ["What went well?", "What's on my mind?", "One small win", "Tomorrow I will…"] as const;
 
@@ -44,23 +33,6 @@ interface Props {
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
-function StatusDot({ status, c }: { status: number; c: string }) {
-  const base: React.CSSProperties = {
-    width: 16, height: 16, borderRadius: '50%',
-    border: `1.5px solid ${c}`, flexShrink: 0,
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-  };
-  if (status === 2) return (
-    <span style={{ ...base, background: c }}>
-      <span style={{ color: '#fff', fontSize: 9, fontWeight: 800, lineHeight: 1, userSelect: 'none' }}>✓</span>
-    </span>
-  );
-  if (status === 1) return (
-    <span style={{ ...base, background: `linear-gradient(45deg, ${c} 50%, transparent 50%)` }} />
-  );
-  return <span style={{ ...base, background: 'transparent' }} />;
-}
-
 function NavBtn({
   label, onClick, disabled, fontSize,
 }: {
@@ -80,8 +52,8 @@ function NavBtn({
       style={{
         width: 30, height: 30, borderRadius: 7,
         border: 'none',
-        background: hov && !disabled ? T.tableHead : 'transparent',
-        color: disabled ? T.textFaint : T.textMuted,
+        background: hov && !disabled ? T.well : 'transparent',
+        color: disabled ? T.faint : T.muted,
         fontSize: fontSize ?? 17,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         cursor: disabled ? 'default' : 'pointer',
@@ -104,9 +76,9 @@ function GoalPill({
   const [hov, setHov] = useState(false);
 
   let bg: string, border: string, color: string;
-  if (status === 2) { bg = c + '14'; border = c + '55'; color = c; }
-  else if (status === 1) { bg = c + '0a'; border = c + '33'; color = T.text; }
-  else { bg = T.tableHead; border = T.cardBorder; color = T.textMuted; }
+  if (status === 2) { bg = tint(c, 8); border = tint(c, 33); color = c; }
+  else if (status === 1) { bg = tint(c, 4); border = tint(c, 20); color = T.ink; }
+  else { bg = T.well; border = T.border; color = T.muted; }
 
   return (
     <button
@@ -130,7 +102,7 @@ function GoalPill({
         transform: hov ? 'translateY(-1px)' : 'none',
       }}
     >
-      <StatusDot status={status} c={c} />
+      <ProgressCircle status={status} size={16} />
       {goal.name}
     </button>
   );
@@ -147,8 +119,8 @@ function PromptChip({ label, onClick }: { label: string; onClick: () => void }) 
       style={{
         display: 'inline-flex', padding: '4px 10px', borderRadius: 99,
         fontSize: 12, fontWeight: 500, cursor: 'pointer',
-        border: `1px solid ${hov ? T.primary : T.cardBorder}`,
-        color: hov ? T.primary : T.textMuted,
+        border: `1px solid ${hov ? T.accent : T.border}`,
+        color: hov ? T.accent : T.muted,
         background: 'transparent', fontFamily: 'inherit',
         transition: 'all .15s',
       }}
@@ -170,7 +142,7 @@ function DeleteBtn({ onClick }: { onClick: () => void }) {
       onMouseLeave={() => setHov(false)}
       style={{
         padding: 4, borderRadius: 6, background: 'transparent', border: 'none',
-        color: hov ? '#DC2626' : T.textFaint,
+        color: hov ? T.danger : T.faint,
         cursor: 'pointer',
         transition: 'color .12s',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -339,7 +311,7 @@ export default function JournalEntryModal({
   }, [handleClose, handleNavigate, isToday, isFuture]);
 
   const existingEntry = journal[date] ?? null;
-  const c = T.circFull;
+  const c = T.accent;
 
   return (
     <div
@@ -359,9 +331,9 @@ export default function JournalEntryModal({
       <div
         style={{
           width: '100%', maxWidth: 720,
-          borderRadius: 18,
-          background: T.cardBg, border: `1px solid ${T.cardBorder}`,
-          boxShadow: '0 40px 100px -20px rgba(0,0,0,.45), 0 12px 30px -10px rgba(0,0,0,.18)',
+          borderRadius: 'var(--radius)',
+          background: T.surface, border: `1px solid ${T.border}`,
+          boxShadow: 'var(--shadow-overlay)',
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
           animation: 'focusIn .32s cubic-bezier(.16,1,.3,1)',
         }}
@@ -370,7 +342,7 @@ export default function JournalEntryModal({
         {/* ── Section 1: Chrome ── */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '14px 18px', borderBottom: `1px solid ${T.cardBorder}`,
+          padding: '14px 18px', borderBottom: `1px solid ${T.border}`,
         }}>
           <div style={{ display: 'flex', gap: 2 }}>
             <NavBtn label="‹" onClick={() => handleNavigate(-1)} />
@@ -386,8 +358,8 @@ export default function JournalEntryModal({
             gap: 8, marginBottom: 10,
           }}>
             <span style={{
-              fontSize: 11, fontWeight: 600, color: T.textMuted,
-              letterSpacing: '0.18em', textTransform: 'uppercase',
+              fontSize: 11, fontWeight: 600, color: T.muted,
+              letterSpacing: TRACKING, textTransform: 'uppercase',
             }}>
               {weekdayName}
             </span>
@@ -395,12 +367,12 @@ export default function JournalEntryModal({
               <>
                 <span style={{
                   width: 3, height: 3, borderRadius: '50%',
-                  background: T.textFaint, display: 'inline-block', flexShrink: 0,
+                  background: T.faint, display: 'inline-block', flexShrink: 0,
                 }} />
                 <span style={{
                   fontSize: 11, fontWeight: 600,
-                  letterSpacing: '0.18em', textTransform: 'uppercase',
-                  color: isToday ? T.primary : T.textMuted,
+                  letterSpacing: TRACKING, textTransform: 'uppercase',
+                  color: isToday ? T.accent : T.muted,
                 }}>
                   {isToday ? 'Today' : 'Upcoming'}
                 </span>
@@ -408,8 +380,8 @@ export default function JournalEntryModal({
             )}
           </div>
           <h1 style={{
-            fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif",
-            fontSize: 'clamp(32px,8vw,48px)', fontWeight: 500, color: T.text,
+            fontFamily: SERIF,
+            fontSize: 'clamp(32px,8vw,48px)', fontWeight: 500, color: T.ink,
             lineHeight: 1.05, letterSpacing: '-0.02em', margin: 0,
           }}>
             {monthName}{' '}
@@ -442,12 +414,12 @@ export default function JournalEntryModal({
 
         {/* ── Section 4: Journal divider ── */}
         <div style={{ position: 'relative', padding: '0 var(--jmodal-px)', marginBottom: 18 }}>
-          <div style={{ height: 1, background: T.cardBorder }} />
+          <div style={{ height: 1, background: T.border }} />
           <span style={{
             position: 'absolute', top: -7, left: '50%', transform: 'translateX(-50%)',
-            background: T.cardBg, padding: '0 14px',
-            fontSize: 10, fontWeight: 600, color: T.textMuted,
-            textTransform: 'uppercase', letterSpacing: '0.16em', whiteSpace: 'nowrap',
+            background: T.surface, padding: '0 14px',
+            fontSize: 10, fontWeight: 600, color: T.muted,
+            textTransform: 'uppercase', letterSpacing: TRACKING, whiteSpace: 'nowrap',
           }}>
             Journal
           </span>
@@ -465,17 +437,17 @@ export default function JournalEntryModal({
             style={{
               width: '100%', border: 'none', outline: 'none', resize: 'none',
               background: 'transparent', padding: 0,
-              fontFamily: "'Source Serif 4', 'Source Serif Pro', Georgia, serif",
+              fontFamily: SERIF,
               fontSize: 18, lineHeight: 1.6, letterSpacing: '-0.005em',
-              color: T.text, minHeight: 200, overflow: 'hidden',
-              caretColor: T.primary,
+              color: T.ink, minHeight: 200, overflow: 'hidden',
+              caretColor: T.accent,
               fontStyle: 'normal',
               opacity: isFuture ? 0.5 : 1,
             }}
           />
           {!draft && !isFuture && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 16, alignItems: 'center' }}>
-              <span style={{ fontSize: 11, color: T.textFaint, fontWeight: 500, marginRight: 4, alignSelf: 'center' }}>
+              <span style={{ fontSize: 11, color: T.faint, fontWeight: 500, marginRight: 4, alignSelf: 'center' }}>
                 Try:
               </span>
               {PROMPTS.map(p => (
@@ -494,8 +466,8 @@ export default function JournalEntryModal({
 
         {/* ── Section 6: Footer ── */}
         <div style={{
-          padding: '12px 22px', borderTop: `1px solid ${T.cardBorder}`,
-          background: T.tableHead,
+          padding: '12px 22px', borderTop: `1px solid ${T.border}`,
+          background: T.well,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
         }}>
           <div style={{ minWidth: 28 }}>
@@ -505,10 +477,10 @@ export default function JournalEntryModal({
             type="button"
             onClick={handleClose}
             style={{
-              background: T.primary, color: '#fff',
-              padding: '7px 18px', fontSize: 13, fontWeight: 500,
-              borderRadius: 8, border: 'none', cursor: 'pointer',
-              fontFamily: 'inherit', letterSpacing: '-0.01em',
+              background: T.accent, color: '#fff',
+              padding: '8px 16px', fontSize: 13, fontWeight: 600,
+              borderRadius: 'var(--radius)', border: 'none', cursor: 'pointer',
+              fontFamily: 'inherit',
             }}
           >
             Done

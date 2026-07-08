@@ -2,17 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ExportFile, ImportSummary, parseAndValidate, importData } from '@/lib/dataTransfer';
-
-const T = {
-  cardBg: '#ffffff',
-  cardBorder: '#E2E8F0',
-  text: '#0F172A',
-  textMuted: '#64748B',
-  textFaint: '#94A3B8',
-  primary: '#2563EB',
-  danger: '#DC2626',
-  tableHead: '#F8FAFC',
-};
+import { T } from '@/lib/theme';
 
 interface Props {
   user: { is_guest?: boolean } | null | undefined;
@@ -87,9 +77,9 @@ export default function ImportModal({ user, onClose }: Props) {
       <div
         style={{
           width: '100%', maxWidth: 460,
-          borderRadius: 18,
-          background: T.cardBg, border: `1px solid ${T.cardBorder}`,
-          boxShadow: '0 40px 100px -20px rgba(0,0,0,.45), 0 12px 30px -10px rgba(0,0,0,.18)',
+          borderRadius: 'var(--radius)',
+          background: T.surface, border: `1px solid ${T.border}`,
+          boxShadow: 'var(--shadow-overlay)',
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
           animation: 'focusIn .32s cubic-bezier(.16,1,.3,1)',
         }}
@@ -98,9 +88,9 @@ export default function ImportModal({ user, onClose }: Props) {
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '18px 22px', borderBottom: `1px solid ${T.cardBorder}`,
+          padding: '18px 22px', borderBottom: `1px solid ${T.border}`,
         }}>
-          <h2 style={{ fontSize: 16, fontWeight: 600, color: T.text, margin: 0, letterSpacing: '-0.01em' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 600, color: T.ink, margin: 0, letterSpacing: '-0.01em' }}>
             Import data
           </h2>
           <button
@@ -108,7 +98,7 @@ export default function ImportModal({ user, onClose }: Props) {
             onClick={() => { if (!importing) onClose(); }}
             aria-label="Close"
             style={{
-              border: 'none', background: 'transparent', color: T.textMuted,
+              border: 'none', background: 'transparent', color: T.muted,
               fontSize: 19, cursor: 'pointer', lineHeight: 1, padding: 2,
             }}
           >
@@ -118,8 +108,8 @@ export default function ImportModal({ user, onClose }: Props) {
 
         {/* Body */}
         <div style={{ padding: '22px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 13.5, lineHeight: 1.6, color: T.textMuted, margin: 0 }}>
-            Choose a Progress Tracker export file (<code style={{ fontSize: 12.5 }}>.json</code>) to load.
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: T.muted, margin: 0 }}>
+            Choose a Progress Tracker export file (<code style={{ fontSize: 12 }}>.json</code>) to load.
           </p>
 
           <input
@@ -140,14 +130,14 @@ export default function ImportModal({ user, onClose }: Props) {
           </button>
 
           {fileName && !error && (
-            <div style={{ fontSize: 12.5, color: T.textFaint, marginTop: -6 }}>{fileName}</div>
+            <div style={{ fontSize: 12, color: T.faint, marginTop: -6 }}>{fileName}</div>
           )}
 
           {summary && !error && (
             <div style={{
-              padding: '12px 14px', borderRadius: 10,
-              background: T.tableHead, border: `1px solid ${T.cardBorder}`,
-              fontSize: 13, color: T.text,
+              padding: '12px 16px', borderRadius: 'var(--radius)',
+              background: T.well, border: `1px solid ${T.border}`,
+              fontSize: 13, color: T.ink,
             }}>
               Found{' '}
               <strong>{summary.goals}</strong> goal{summary.goals === 1 ? '' : 's'} ·{' '}
@@ -158,8 +148,8 @@ export default function ImportModal({ user, onClose }: Props) {
 
           {error && (
             <div style={{
-              padding: '12px 14px', borderRadius: 10,
-              background: '#FEF2F2', border: '1px solid #FECACA',
+              padding: '12px 16px', borderRadius: 'var(--radius)',
+              background: T.dangerTint, border: `1px solid ${T.dangerBorder}`,
               fontSize: 13, color: T.danger,
             }}>
               {error}
@@ -169,9 +159,9 @@ export default function ImportModal({ user, onClose }: Props) {
           {parsed && !error && (
             <div style={{
               display: 'flex', gap: 8, alignItems: 'flex-start',
-              padding: '12px 14px', borderRadius: 10,
-              background: '#FFFBEB', border: '1px solid #FDE68A',
-              fontSize: 12.5, lineHeight: 1.5, color: '#92400E',
+              padding: '12px 16px', borderRadius: 'var(--radius)',
+              background: T.well, border: `1px solid ${T.border}`,
+              fontSize: 13, lineHeight: 1.5, color: T.ink,
             }}>
               <span aria-hidden="true">⚠</span>
               <span>This will <strong>permanently replace</strong> all your current goals, progress, and journal entries.</span>
@@ -182,7 +172,7 @@ export default function ImportModal({ user, onClose }: Props) {
         {/* Footer */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8,
-          padding: '12px 22px', borderTop: `1px solid ${T.cardBorder}`, background: T.tableHead,
+          padding: '12px 22px', borderTop: `1px solid ${T.border}`, background: T.well,
         }}>
           <button
             type="button"
@@ -197,9 +187,9 @@ export default function ImportModal({ user, onClose }: Props) {
             onClick={handleImport}
             disabled={!parsed || !!error || importing}
             style={{
-              background: T.primary, color: '#fff',
-              padding: '7px 18px', fontSize: 13, fontWeight: 500,
-              borderRadius: 8, border: 'none',
+              background: T.accent, color: '#fff',
+              padding: '8px 16px', fontSize: 13, fontWeight: 600,
+              borderRadius: 'var(--radius)', border: 'none',
               cursor: !parsed || importing ? 'default' : 'pointer',
               fontFamily: 'inherit', letterSpacing: '-0.01em',
               opacity: !parsed || !!error || importing ? 0.5 : 1,

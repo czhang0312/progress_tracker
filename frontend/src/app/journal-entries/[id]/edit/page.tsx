@@ -179,7 +179,7 @@ export default function EditJournalEntryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-transparent">
       <div className="max-w-2xl mx-auto p-6">
         <div className="card animate-fade-in">
           <div className="card-body">
@@ -200,12 +200,12 @@ export default function EditJournalEntryPage() {
                   value={formData.date}
                   onChange={handleChange}
                   className={`form-input ${
-                    errors.date ? 'border-error-500 focus:ring-error-500' : ''
+                    errors.date ? 'border-danger focus:ring-danger' : ''
                   }`}
                   required
                 />
                 {errors.date && (
-                  <p className="mt-1 text-error-600">{errors.date}</p>
+                  <p className="mt-1 text-danger">{errors.date}</p>
                 )}
               </div>
 
@@ -221,11 +221,11 @@ export default function EditJournalEntryPage() {
                   rows={8}
                   placeholder="Write your journal entry here... (Leave empty to delete this entry)"
                   className={`form-input min-h-[180px] ${
-                    errors.content ? 'border-error-500 focus:ring-error-500' : ''
+                    errors.content ? 'border-danger focus:ring-danger' : ''
                   }`}
                 />
                 {errors.content && (
-                  <p className="mt-1 text-error-600">{errors.content}</p>
+                  <p className="mt-1 text-danger">{errors.content}</p>
                 )}
                 <p className="mt-1 text-neutral-500">
                   Leave the content empty to delete this journal entry.
