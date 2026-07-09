@@ -14,11 +14,26 @@ interface ExportGoal {
   description?: string;
   position?: number;
   started_at?: string;
+  target_pomodoros?: number | null;
   daily_progresses?: ExportProgress[];
 }
 interface ExportJournalEntry {
   date: string;
   content: string;
+}
+interface ExportSession {
+  date: string;
+  duration_minutes: number;
+}
+interface ExportTask {
+  name: string;
+  note?: string;
+  goal_name?: string | null;
+  estimated_pomodoros?: number;
+  completed_pomodoros?: number;
+  done?: boolean;
+  position?: number;
+  sessions?: ExportSession[];
 }
 export interface ExportFile {
   format: string;
@@ -26,25 +41,36 @@ export interface ExportFile {
   exported_at?: string;
   goals: ExportGoal[];
   journal_entries: ExportJournalEntry[];
+  tasks?: ExportTask[]; // absent in pre-pomodoro exports
 }
 
 export interface ImportSummary {
   goals: number;
   daily_progresses: number;
   journal_entries: number;
+  tasks: number;
 }
 
 type MaybeUser = { is_guest?: boolean } | null | undefined;
 
 // ─── Export ───────────────────────────────────────────────────────────────────
 function buildExportFromGuest(): ExportFile {
-  const { goals, journalEntries, dailyProgresses } = getGuestStore();
+  const { goals, journalEntries, dailyProgresses, tasks, pomodoroSessions } = getGuestStore();
 
   const progressByGoal = new Map<number, ExportProgress[]>();
   for (const dp of dailyProgresses) {
     const list = progressByGoal.get(dp.goal_id) ?? [];
     list.push({ date: dp.date, status: dp.status });
     progressByGoal.set(dp.goal_id, list);
+  }
+
+  const goalNames = new Map(goals.map((g) => [g.id, g.name]));
+  const sessionsByTask = new Map<number, ExportSession[]>();
+  for (const session of pomodoroSessions) {
+    if (session.task_id === null) continue;
+    const list = sessionsByTask.get(session.task_id) ?? [];
+    list.push({ date: session.date, duration_minutes: session.duration_minutes });
+    sessionsByTask.set(session.task_id, list);
   }
 
   return {
@@ -56,6 +82,7 @@ function buildExportFromGuest(): ExportFile {
       description: g.description,
       position: g.position,
       started_at: g.started_at,
+      target_pomodoros: g.target_pomodoros ?? null,
       daily_progresses: (progressByGoal.get(g.id) ?? []).sort((a, b) =>
         a.date.localeCompare(b.date)
       ),
@@ -64,6 +91,16 @@ function buildExportFromGuest(): ExportFile {
       .slice()
       .sort((a, b) => a.date.localeCompare(b.date))
       .map((e) => ({ date: e.date, content: e.content })),
+    tasks: tasks.map((t) => ({
+      name: t.name,
+      note: t.note,
+      goal_name: t.goal_id !== null ? goalNames.get(t.goal_id) ?? null : null,
+      estimated_pomodoros: t.estimated_pomodoros,
+      completed_pomodoros: t.completed_pomodoros,
+      done: t.done,
+      position: t.position,
+      sessions: (sessionsByTask.get(t.id) ?? []).sort((a, b) => a.date.localeCompare(b.date)),
+    })),
   };
 }
 
@@ -132,13 +169,26 @@ export function parseAndValidate(text: string): { data: ExportFile; summary: Imp
     }
   }
 
-  const data: ExportFile = { ...obj, goals: obj.goals, journal_entries: journalEntries } as ExportFile;
+  const tasks = Array.isArray(obj.tasks) ? obj.tasks : [];
+  for (const t of tasks) {
+    if (!t || typeof t.name !== 'string') {
+      throw new Error('File contains a task with no name.');
+    }
+  }
+
+  const data: ExportFile = {
+    ...obj,
+    goals: obj.goals,
+    journal_entries: journalEntries,
+    tasks,
+  } as ExportFile;
   return {
     data,
     summary: {
       goals: obj.goals.length,
       daily_progresses: progressCount,
       journal_entries: journalEntries.length,
+      tasks: tasks.length,
     },
   };
 }
@@ -149,6 +199,7 @@ export async function importData(user: MaybeUser, data: ExportFile): Promise<voi
     replaceGuestData({
       goals: data.goals,
       journalEntries: data.journal_entries,
+      tasks: data.tasks,
     });
     return;
   }

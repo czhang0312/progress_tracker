@@ -39,6 +39,14 @@ Rails.application.routes.draw do
     end
   end
 
+  # Pomodoro tasks and completed sessions
+  resources :tasks, only: [ :index, :create, :update, :destroy ] do
+    collection do
+      delete :clear_finished
+    end
+  end
+  resources :pomodoro_sessions, only: [ :create ]
+
   # Journal entries
   resources :journal_entries
 

@@ -28,7 +28,25 @@ class ExportImportTest < ActionDispatch::IntegrationTest
     learn_ruby = body["goals"].find { |g| g["name"] == "Learn Ruby" }
     assert_equal [ { "date" => "2025-06-24", "status" => 1 } ], learn_ruby["daily_progresses"]
 
+    exercise = body["goals"].find { |g| g["name"] == "Exercise Daily" }
+    assert_equal 2, exercise["target_pomodoros"]
+
     assert_equal 2, body["journal_entries"].length
+
+    task_names = body["tasks"].map { |t| t["name"] }
+    assert_includes task_names, "Write project outline"
+    assert_not_includes task_names, "Someone else's task"
+    linked = body["tasks"].find { |t| t["name"] == "Exercise Daily" }
+    assert_equal "Exercise Daily", linked["goal_name"]
+  end
+
+  test "export nests sessions under their task" do
+    sign_in @user
+    tasks(:linked).pomodoro_sessions.create!(user: @user, goal: goals(:two), date: "2026-07-09", duration_minutes: 25)
+
+    get export_url, as: :json
+    linked = JSON.parse(response.body)["tasks"].find { |t| t["name"] == "Exercise Daily" }
+    assert_equal [ { "date" => "2026-07-09", "duration_minutes" => 25 } ], linked["sessions"]
   end
 
   # ── Import ──────────────────────────────────────────────────────────────────
@@ -46,15 +64,33 @@ class ExportImportTest < ActionDispatch::IntegrationTest
 
     body = JSON.parse(response.body)
     assert_equal true, body["success"]
-    assert_equal({ "goals" => 1, "daily_progresses" => 2, "journal_entries" => 1 }, body["counts"])
+    assert_equal({ "goals" => 1, "daily_progresses" => 2, "journal_entries" => 1, "tasks" => 1 }, body["counts"])
 
     @user.reload
     assert_equal [ "Meditate" ], @user.goals.pluck(:name)
-    assert_equal 2, @user.goals.first.daily_progresses.count
+    goal = @user.goals.first
+    assert_equal 2, goal.daily_progresses.count
+    assert_equal 3, goal.target_pomodoros
     assert_equal [ "Imported note" ], @user.journal_entries.pluck(:content)
+
+    task = @user.tasks.sole
+    assert_equal "Meditate", task.name
+    assert_equal goal, task.goal
+    assert_equal 3, task.estimated_pomodoros
+    assert_equal 1, task.completed_pomodoros
+    session = @user.pomodoro_sessions.sole
+    assert_equal task, session.task
+    assert_equal goal, session.goal
 
     # The other user's data is untouched.
     assert_equal [ "Read Books" ], @other.goals.pluck(:name)
+  end
+
+  test "import accepts pre-pomodoro files without tasks" do
+    sign_in @user
+    post import_url, params: valid_payload.except(:tasks), as: :json
+    assert_response :success
+    assert_equal 0, @user.reload.tasks.count
   end
 
   test "import rejects an unrecognized format and changes nothing" do
@@ -98,6 +134,7 @@ class ExportImportTest < ActionDispatch::IntegrationTest
           description: "10 minutes",
           position: 1,
           started_at: "2026-02-01",
+          target_pomodoros: 3,
           daily_progresses: [
             { date: "2026-02-01", status: 2 },
             { date: "2026-02-02", status: 1 }
@@ -106,6 +143,19 @@ class ExportImportTest < ActionDispatch::IntegrationTest
       ],
       journal_entries: [
         { date: "2026-02-01", content: "Imported note" }
+      ],
+      tasks: [
+        {
+          name: "Meditate",
+          goal_name: "Meditate",
+          estimated_pomodoros: 3,
+          completed_pomodoros: 1,
+          done: false,
+          position: 1,
+          sessions: [
+            { date: "2026-02-01", duration_minutes: 25 }
+          ]
+        }
       ]
     }
   end

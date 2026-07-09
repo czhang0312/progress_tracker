@@ -143,6 +143,11 @@ export default function ImportModal({ user, onClose }: Props) {
               <strong>{summary.goals}</strong> goal{summary.goals === 1 ? '' : 's'} ·{' '}
               <strong>{summary.daily_progresses}</strong> tracked day{summary.daily_progresses === 1 ? '' : 's'} ·{' '}
               <strong>{summary.journal_entries}</strong> entr{summary.journal_entries === 1 ? 'y' : 'ies'}
+              {summary.tasks > 0 && (
+                <>
+                  {' '}· <strong>{summary.tasks}</strong> task{summary.tasks === 1 ? '' : 's'}
+                </>
+              )}
             </div>
           )}
 

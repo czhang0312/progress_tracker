@@ -26,6 +26,7 @@ export default function NavHeader() {
   const links = [
     { href: `/progress/${year}/${month}`, label: 'Progress', match: '/progress' },
     { href: '/journal-entries', label: 'Journal', match: '/journal-entries' },
+    { href: '/pomodoro', label: 'Pomodoro', match: '/pomodoro' },
   ];
 
   // Close the menu on outside click or Escape.

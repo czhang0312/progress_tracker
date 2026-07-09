@@ -49,7 +49,7 @@ class ApplicationController < ActionController::Base
   def allow_guest_access?
     return false if user_signed_in?
 
-    guest_enabled_controllers = %w[progress goals journal_entries]
+    guest_enabled_controllers = %w[progress goals journal_entries tasks pomodoro_sessions]
     guest_enabled_controllers.include?(controller_name)
   end
 end

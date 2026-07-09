@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_05_25_000001) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_09_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -60,6 +60,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_000001) do
     t.integer "position", default: 0
     t.bigint "user_id", null: false
     t.date "started_at", null: false
+    t.integer "target_pomodoros"
     t.index ["position"], name: "index_goals_on_position"
     t.index ["user_id"], name: "index_goals_on_user_id"
   end
@@ -71,6 +72,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_000001) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_journal_entries_on_user_id"
+  end
+
+  create_table "pomodoro_sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "task_id"
+    t.bigint "goal_id"
+    t.date "date", null: false
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.integer "duration_minutes", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goal_id", "date"], name: "index_pomodoro_sessions_on_goal_id_and_date"
+    t.index ["goal_id"], name: "index_pomodoro_sessions_on_goal_id"
+    t.index ["task_id"], name: "index_pomodoro_sessions_on_task_id"
+    t.index ["user_id", "date"], name: "index_pomodoro_sessions_on_user_id_and_date"
+    t.index ["user_id"], name: "index_pomodoro_sessions_on_user_id"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -194,6 +212,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_000001) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "tasks", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "goal_id"
+    t.string "name", null: false
+    t.text "note"
+    t.integer "estimated_pomodoros", default: 1, null: false
+    t.integer "completed_pomodoros", default: 0, null: false
+    t.boolean "done", default: false, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goal_id"], name: "index_tasks_on_goal_id"
+    t.index ["user_id", "position"], name: "index_tasks_on_user_id_and_position"
+    t.index ["user_id"], name: "index_tasks_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -211,10 +245,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_05_25_000001) do
   add_foreign_key "daily_progresses", "goals"
   add_foreign_key "goals", "users"
   add_foreign_key "journal_entries", "users"
+  add_foreign_key "pomodoro_sessions", "goals", on_delete: :nullify
+  add_foreign_key "pomodoro_sessions", "tasks", on_delete: :nullify
+  add_foreign_key "pomodoro_sessions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "tasks", "goals", on_delete: :nullify
+  add_foreign_key "tasks", "users"
 end

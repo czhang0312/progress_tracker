@@ -7,5 +7,7 @@ class User < ApplicationRecord
   # Associations
   has_many :goals, dependent: :destroy
   has_many :journal_entries, dependent: :destroy
+  has_many :tasks, dependent: :destroy
+  has_many :pomodoro_sessions, dependent: :destroy
   has_many :daily_progresses, through: :goals, dependent: :destroy
 end

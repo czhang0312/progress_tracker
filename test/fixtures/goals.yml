@@ -8,6 +8,7 @@ two:
   name: Exercise Daily
   description: Build a healthy habit
   started_at: 2026-01-01
+  target_pomodoros: 2
   user: one
 
 three:

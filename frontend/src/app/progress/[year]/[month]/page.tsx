@@ -29,6 +29,13 @@ interface Goal {
   position: number;
   created_at?: string;
   started_at?: string;
+  target_pomodoros?: number | null;
+}
+
+// Form fields hold the target as a string; empty = no daily pomodoro target.
+function parseTargetPomodoros(value: string): number | null {
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) || parsed < 1 ? null : parsed;
 }
 
 interface DailyProgress {
@@ -92,16 +99,16 @@ export default function ProgressPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
-  const [editFormData, setEditFormData] = useState({ name: '', description: '', started_at: '' });
+  const [editFormData, setEditFormData] = useState({ name: '', description: '', started_at: '', target_pomodoros: '' });
   const [editSaving, setEditSaving] = useState(false);
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
   const editPopoverRef = useRef<HTMLDivElement>(null);
   const editTdRef = useRef<HTMLElement | null>(null);
-  const editFormDataOriginal = useRef({ name: '', description: '', started_at: '' });
+  const editFormDataOriginal = useRef({ name: '', description: '', started_at: '', target_pomodoros: '' });
   const [editPopoverPos, setEditPopoverPos] = useState<{ top: number; left: number } | null>(null);
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [showAddDescription, setShowAddDescription] = useState(false);
-  const [addGoalFormData, setAddGoalFormData] = useState({ name: '', description: '' });
+  const [addGoalFormData, setAddGoalFormData] = useState({ name: '', description: '', target_pomodoros: '' });
   const [addGoalSaving, setAddGoalSaving] = useState(false);
   const [addGoalErrors, setAddGoalErrors] = useState<Record<string, string>>({});
   const addGoalPopoverRef = useRef<HTMLDivElement>(null);
@@ -191,8 +198,10 @@ export default function ProgressPage() {
   const isEditDirty = () =>
     editFormData.name !== editFormDataOriginal.current.name ||
     editFormData.description !== editFormDataOriginal.current.description ||
-    editFormData.started_at !== editFormDataOriginal.current.started_at;
-  const isAddDirty = () => addGoalFormData.name !== '' || addGoalFormData.description !== '';
+    editFormData.started_at !== editFormDataOriginal.current.started_at ||
+    editFormData.target_pomodoros !== editFormDataOriginal.current.target_pomodoros;
+  const isAddDirty = () =>
+    addGoalFormData.name !== '' || addGoalFormData.description !== '' || addGoalFormData.target_pomodoros !== '';
 
   useEffect(() => {
     if (!editingGoalId) return;
@@ -245,7 +254,7 @@ export default function ProgressPage() {
     addGoalTdRef.current = td as HTMLElement;
     const rect = td.getBoundingClientRect();
     setAddGoalPos({ top: rect.bottom, left: clampPopoverLeft(rect.left + 10) });
-    setAddGoalFormData({ name: '', description: '' });
+    setAddGoalFormData({ name: '', description: '', target_pomodoros: '' });
     setAddGoalErrors({});
     setShowAddDescription(false);
     setShowAddGoal(true);
@@ -256,11 +265,14 @@ export default function ProgressPage() {
     setAddGoalSaving(true);
     setAddGoalErrors({});
 
+    const addPayload = {
+      name: addGoalFormData.name,
+      description: addGoalFormData.description,
+      target_pomodoros: parseTargetPomodoros(addGoalFormData.target_pomodoros),
+    };
+
     if (user?.is_guest) {
-      const newGoal = createGuestGoal({
-        name: addGoalFormData.name,
-        description: addGoalFormData.description,
-      });
+      const newGoal = createGuestGoal(addPayload);
       setData(prev => prev ? { ...prev, goals: [...prev.goals, newGoal] } : prev);
       setShowAddGoal(false);
       setAddGoalSaving(false);
@@ -275,7 +287,7 @@ export default function ProgressPage() {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(addGoalFormData),
+        body: JSON.stringify(addPayload),
       });
 
       if (!response.ok) {
@@ -314,6 +326,7 @@ export default function ProgressPage() {
       name: goal.name,
       description: goal.description,
       started_at: goal.started_at ?? goal.created_at?.substring(0, 10) ?? '',
+      target_pomodoros: goal.target_pomodoros != null ? String(goal.target_pomodoros) : '',
     };
     setEditFormData(initial);
     editFormDataOriginal.current = initial;
@@ -358,19 +371,22 @@ export default function ProgressPage() {
     setEditSaving(true);
     setEditErrors({});
 
+    const editPayload = {
+      name: editFormData.name,
+      description: editFormData.description,
+      started_at: editFormData.started_at,
+      target_pomodoros: parseTargetPomodoros(editFormData.target_pomodoros),
+    };
+
     if (user?.is_guest) {
-      const updated = updateGuestGoal(editingGoalId, {
-        name: editFormData.name,
-        description: editFormData.description,
-        started_at: editFormData.started_at,
-      });
+      const updated = updateGuestGoal(editingGoalId, editPayload);
       if (updated) {
         setData(prev => {
           if (!prev) return prev;
           return {
             ...prev,
             goals: prev.goals.map(g =>
-              g.id === editingGoalId ? { ...g, ...editFormData } : g
+              g.id === editingGoalId ? { ...g, ...editPayload } : g
             ),
           };
         });
@@ -388,7 +404,7 @@ export default function ProgressPage() {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editFormData),
+        body: JSON.stringify(editPayload),
       });
 
       if (!response.ok) {
@@ -406,7 +422,7 @@ export default function ProgressPage() {
         return {
           ...prev,
           goals: prev.goals.map(g =>
-            g.id === editingGoalId ? { ...g, ...editFormData } : g
+            g.id === editingGoalId ? { ...g, ...editPayload } : g
           ),
         };
       });
@@ -669,6 +685,23 @@ export default function ProgressPage() {
             </div>
             {editErrors.name && <p className="mt-0.5 text-xs text-danger">{editErrors.name}</p>}
 
+            <label
+              className="flex items-center gap-2 text-[11px] text-neutral-500 w-fit"
+              title="Optional daily target — completed focus sessions on the Pomodoro page fill this goal's circle automatically"
+            >
+              Pomodoros/day
+              <input
+                type="number"
+                name="target_pomodoros"
+                min={1}
+                max={99}
+                value={editFormData.target_pomodoros}
+                onChange={handleGoalEditChange}
+                placeholder="–"
+                className="w-[52px] text-[11px] text-neutral-700 bg-transparent border border-neutral-200 rounded px-1.5 py-0.5 focus:ring-0 focus:outline-none focus:border-neutral-300 hover:border-neutral-300 transition-colors"
+              />
+            </label>
+
             {!showEditDescription ? (
               <button
                 type="button"
@@ -737,6 +770,23 @@ export default function ProgressPage() {
               />
               {addGoalErrors.name && <p className="mt-0.5 text-xs text-danger">{addGoalErrors.name}</p>}
             </div>
+
+            <label
+              className="flex items-center gap-2 text-[11px] text-neutral-500 w-fit"
+              title="Optional daily target — completed focus sessions on the Pomodoro page fill this goal's circle automatically"
+            >
+              Pomodoros/day
+              <input
+                type="number"
+                name="target_pomodoros"
+                min={1}
+                max={99}
+                value={addGoalFormData.target_pomodoros}
+                onChange={(e) => setAddGoalFormData(prev => ({ ...prev, target_pomodoros: e.target.value }))}
+                placeholder="–"
+                className="w-[52px] text-[11px] text-neutral-700 bg-transparent border border-neutral-200 rounded px-1.5 py-0.5 focus:ring-0 focus:outline-none focus:border-neutral-300 hover:border-neutral-300 transition-colors"
+              />
+            </label>
 
             {!showAddDescription ? (
               <button

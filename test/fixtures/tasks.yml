@@ -1,0 +1,32 @@
+one:
+  name: Write project outline
+  estimated_pomodoros: 2
+  completed_pomodoros: 0
+  done: false
+  position: 1
+  user: one
+
+linked:
+  name: Exercise Daily
+  estimated_pomodoros: 2
+  completed_pomodoros: 0
+  done: false
+  position: 2
+  user: one
+  goal: two
+
+finished:
+  name: Reply to emails
+  estimated_pomodoros: 1
+  completed_pomodoros: 1
+  done: true
+  position: 3
+  user: one
+
+other_user:
+  name: Someone else's task
+  estimated_pomodoros: 1
+  completed_pomodoros: 0
+  done: true
+  position: 1
+  user: two

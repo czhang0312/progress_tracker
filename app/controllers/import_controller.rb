@@ -16,19 +16,27 @@ class ImportController < ApplicationController
       return render_error("File is missing a goals list.")
     end
 
-    counts = { goals: 0, daily_progresses: 0, journal_entries: 0 }
+    tasks = params[:tasks].is_a?(Array) ? params[:tasks] : []
+
+    counts = { goals: 0, daily_progresses: 0, journal_entries: 0, tasks: 0 }
 
     ActiveRecord::Base.transaction do
       current_user.journal_entries.destroy_all
+      current_user.pomodoro_sessions.destroy_all
+      current_user.tasks.destroy_all
       current_user.goals.destroy_all
+
+      goals_by_name = {}
 
       goals.each_with_index do |g, index|
         goal = current_user.goals.create!(
           name: g[:name],
           description: g[:description],
           position: g[:position].presence || index + 1,
-          started_at: g[:started_at].presence || Date.today
+          started_at: g[:started_at].presence || Date.today,
+          target_pomodoros: g[:target_pomodoros].presence
         )
+        goals_by_name[goal.name] = goal
         counts[:goals] += 1
 
         Array(g[:daily_progresses]).each do |dp|
@@ -40,6 +48,29 @@ class ImportController < ApplicationController
       journal_entries.each do |entry|
         current_user.journal_entries.create!(date: entry[:date], content: entry[:content])
         counts[:journal_entries] += 1
+      end
+
+      tasks.each_with_index do |t, index|
+        goal = t[:goal_name].present? ? goals_by_name[t[:goal_name]] : nil
+        task = current_user.tasks.create!(
+          name: t[:name],
+          note: t[:note],
+          goal: goal,
+          estimated_pomodoros: t[:estimated_pomodoros].presence || 1,
+          completed_pomodoros: t[:completed_pomodoros].presence || 0,
+          done: !!t[:done],
+          position: t[:position].presence || index + 1
+        )
+        counts[:tasks] += 1
+
+        Array(t[:sessions]).each do |session|
+          current_user.pomodoro_sessions.create!(
+            task: task,
+            goal: goal,
+            date: session[:date],
+            duration_minutes: session[:duration_minutes]
+          )
+        end
       end
     end
 
