@@ -91,6 +91,7 @@ export default function TaskForm({
   const isEdit = !!task;
   const [name, setName] = useState(task?.name ?? '');
   const [note, setNote] = useState(task?.note ?? '');
+  const [showNote, setShowNote] = useState(!!task?.note);
   const [est, setEst] = useState(task?.estimated_pomodoros ?? 1);
   const [act, setAct] = useState(task?.completed_pomodoros ?? 0);
   const [goalId, setGoalId] = useState<number | null>(task?.goal_id ?? null);
@@ -164,18 +165,26 @@ export default function TaskForm({
         style={{ fontSize: 14, fontWeight: 500 }}
       />
 
-      <input
-        type="text"
-        className="form-input"
-        placeholder="Add a note (optional)"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') submit();
-          if (e.key === 'Escape') onCancel();
-        }}
-        style={{ fontSize: 13 }}
-      />
+      {!showNote ? (
+        <button
+          type="button"
+          onClick={() => setShowNote(true)}
+          className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors underline"
+        >
+          + Add a note
+        </button>
+      ) : (
+        <div>
+          <textarea
+            placeholder="Add a note (optional)"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={3}
+            autoFocus={!note}
+            className="w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0"
+          />
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
         <Stepper label="Est. pomodoros" value={est} min={1} onChange={setEst} />
