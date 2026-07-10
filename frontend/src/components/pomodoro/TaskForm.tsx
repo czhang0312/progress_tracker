@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { T, TRACKING, tint } from '@/lib/theme';
+import { T } from '@/lib/theme';
 import { PomodoroGoal, Task, TaskInput } from '@/lib/pomodoroData';
 
 function CountControl({
@@ -50,7 +50,7 @@ function Stepper({
 }) {
   return (
     <div>
-      <span className="form-label">{label}</span>
+      <span className="form-label" style={{ fontSize: 9 }}>{label}</span>
       <CountControl value={value} min={min} onChange={onChange} ariaLabel={label} />
     </div>
   );
@@ -87,8 +87,8 @@ function GoalChip({ goal, selected, onClick }: { goal: PomodoroGoal; selected?: 
   );
 }
 
-// Inline add/edit card (Pomofocus-style). In add mode, "From your goals"
-// chips create a linked task in one tap; in edit mode they link/unlink.
+// Inline add/edit card (Pomofocus-style). Goal chips are hidden behind a
+// "+ Link Goal" toggle in both modes and just link/unlink the task's goal.
 export default function TaskForm({
   task,
   goals,
@@ -111,6 +111,7 @@ export default function TaskForm({
   const [est, setEst] = useState(task?.estimated_pomodoros ?? 1);
   const [act, setAct] = useState(task?.completed_pomodoros ?? 0);
   const [goalId, setGoalId] = useState<number | null>(task?.goal_id ?? null);
+  const [showLinkGoal, setShowLinkGoal] = useState(!!task?.goal_id);
 
   const pickerGoals = isEdit
     ? goals
@@ -137,39 +138,8 @@ export default function TaskForm({
         display: 'flex', flexDirection: 'column', gap: 14,
       }}
     >
-      {/* One-tap add from goals */}
-      {!isEdit && pickerGoals.length > 0 && (
-        <div>
-          <span
-            style={{
-              display: 'block', fontSize: 10, fontWeight: 600, color: T.muted,
-              letterSpacing: TRACKING, textTransform: 'uppercase', marginBottom: 8,
-            }}
-          >
-            From your goals
-          </span>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {pickerGoals.map((goal) => (
-              <GoalChip
-                key={goal.id}
-                goal={goal}
-                onClick={() =>
-                  onSave({
-                    name: goal.name,
-                    goal_id: goal.id,
-                    estimated_pomodoros: goal.target_pomodoros ?? 1,
-                  })
-                }
-              />
-            ))}
-          </div>
-          <div style={{ height: 1, background: T.well, margin: '14px 0 0' }} />
-        </div>
-      )}
-
       <input
         type="text"
-        className="form-input"
         placeholder="Add task name"
         value={name}
         autoFocus
@@ -178,34 +148,14 @@ export default function TaskForm({
           if (e.key === 'Enter') submit();
           if (e.key === 'Escape') onCancel();
         }}
-        style={{ fontSize: 14, fontWeight: 500 }}
+        className="w-full bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300"
+        style={{ fontSize: '15px' }}
       />
-
-      {!showNote ? (
-        <button
-          type="button"
-          onClick={() => setShowNote(true)}
-          className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors underline"
-        >
-          + Add a note
-        </button>
-      ) : (
-        <div>
-          <textarea
-            placeholder="Add a note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            rows={3}
-            autoFocus={!note}
-            className="w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0"
-          />
-        </div>
-      )}
 
       <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
         {isEdit ? (
           <div>
-            <span className="form-label">Pomodoros completed</span>
+            <span className="form-label" style={{ fontSize: 9 }}>Pomodoros completed</span>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
               <CountControl value={act} min={0} onChange={setAct} ariaLabel="Completed pomodoros" />
               <span style={{ fontSize: 15, fontWeight: 600, color: T.faint }}>/</span>
@@ -216,13 +166,26 @@ export default function TaskForm({
           <Stepper label="Est. pomodoros" value={est} min={1} onChange={setEst} />
         )}
       </div>
-
-      {/* Link to goal (edit mode) */}
-      {isEdit && goals.length > 0 && (
+      
+      {showNote && (
         <div>
-          <span className="form-label">Linked goal</span>
+          <textarea
+            placeholder="Add a description"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={3}
+            autoFocus={!note}
+            className="w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0"
+          />
+        </div>
+      )}
+
+      {/* Link to goal */}
+      {showLinkGoal && pickerGoals.length > 0 && (
+        <div>
+          <span className="form-label" style={{ fontSize: 9 }}>Linked goals</span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {goals.map((goal) => (
+            {pickerGoals.map((goal) => (
               <GoalChip
                 key={goal.id}
                 goal={goal}
@@ -234,40 +197,62 @@ export default function TaskForm({
         </div>
       )}
 
-      <div
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          borderTop: `1px solid ${T.well}`, paddingTop: 12, gap: 8,
-        }}
-      >
-        <div>
-          {isEdit && onDelete && (
+      {(!showNote || (!showLinkGoal && pickerGoals.length > 0)) && (
+        <div style={{ display: 'flex', gap: 16 }}>
+          {!showNote && (
             <button
               type="button"
-              onClick={onDelete}
-              className="btn-ghost"
-              style={{ color: T.danger, padding: '6px 10px', fontSize: 13 }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = tint(T.danger, 8))}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              onClick={() => setShowNote(true)}
+              className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors underline"
             >
-              Delete
+              + Add a description
+            </button>
+          )}
+          {!showLinkGoal && pickerGoals.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowLinkGoal(true)}
+              className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors underline"
+            >
+              + Link Goal
             </button>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="btn-ghost" style={{ padding: '6px 12px', fontSize: 13 }} onClick={onCancel}>
-            Cancel
-          </button>
+      )}
+
+      <div
+        style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          borderTop: `1px solid ${T.well}`, paddingTop: 12,
+        }}
+      >
+        <button
+          type="button"
+          className="btn-primary"
+          style={{ padding: '6px 16px', fontSize: 13 }}
+          disabled={!name.trim()}
+          onClick={submit}
+        >
+          Save
+        </button>
+        <button type="button" className="btn-ghost" style={{ padding: '6px 12px', fontSize: 13 }} onClick={onCancel}>
+          Cancel
+        </button>
+        {isEdit && onDelete && (
           <button
             type="button"
-            className="btn-primary"
-            style={{ padding: '6px 16px', fontSize: 13 }}
-            disabled={!name.trim()}
-            onClick={submit}
+            onClick={onDelete}
+            className="ml-auto text-neutral-400 hover:text-danger p-1.5 rounded transition-colors"
+            title="Delete task"
           >
-            Save
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14H6L5 6" />
+              <path d="M10 11v6M14 11v6" />
+              <path d="M9 6V4h6v2" />
+            </svg>
           </button>
-        </div>
+        )}
       </div>
     </div>
   );
