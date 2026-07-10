@@ -71,7 +71,7 @@ function JournalTabButton({ entry, isFuture, onClick }: {
     <button className={cls} disabled={isFuture} onClick={onClick} title={title}
       aria-label={entry ? 'Open journal entry' : isFuture ? 'Future date' : 'Add journal entry'}>
       <svg viewBox="0 0 44 16" preserveAspectRatio="none" width="100%" height="16">
-        <path d="M0 16 L6 3 Q7 0 10 0 L34 0 Q37 0 38 3 L44 16 Z"
+        <path d="M2.2 16 Q0 16 0.9 13.9 L6 4 Q7.2 1 10 1 L34 1 Q36.8 1 38 4 L43.1 13.9 Q44 16 41.8 16 Z"
           fill={fill} stroke={stroke} strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
       </svg>
     </button>
