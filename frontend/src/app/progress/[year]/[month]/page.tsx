@@ -119,6 +119,7 @@ export default function ProgressPage() {
   const [draggingGoalId, setDraggingGoalId] = useState<number | null>(null);
   const draggingGoalIdRef = useRef<number | null>(null);
   const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
+  const [hoveredGoalId, setHoveredGoalId] = useState<number | null>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const tabsStripRef = useRef<HTMLDivElement>(null);
   const tabsGridRef = useRef<HTMLDivElement>(null);
@@ -997,11 +998,15 @@ export default function ProgressPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.goals.map((goal) => (
+                    {data.goals.map((goal) => {
+                      const hov = hoveredGoalId === goal.id;
+                      return (
                       <tr key={goal.id}
                         onDragOver={(e) => handleDragOver(e, goal.id)}
                         onDrop={(e) => handleDrop(e, goal.id)}
                         onDragEnd={handleDragEnd}
+                        onMouseEnter={() => setHoveredGoalId(goal.id)}
+                        onMouseLeave={() => setHoveredGoalId(null)}
                         className={`${draggingGoalId === goal.id ? 'dragging' : ''} ${dragOverGoalId === goal.id && draggingGoalId !== null && draggingGoalId !== goal.id ? 'drag-over' : ''}`}>
                         <td className="sticky-col goal-row-cell" draggable
                           onDragStart={() => handleDragStart(goal.id)}
@@ -1010,7 +1015,7 @@ export default function ProgressPage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 14, userSelect: 'none' }}>
                             {/* Name + description */}
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div onClick={(e) => openGoalEdit(goal, e)} title="Click to edit"
+                              <div
                                 style={{ fontWeight: 600, fontSize: 13, color: T.ink, lineHeight: 1.3,
                                   padding: '2px 6px', margin: '0 -6px', borderRadius: 6, cursor: 'grab',
                                   wordBreak: 'break-word',
@@ -1019,8 +1024,7 @@ export default function ProgressPage() {
                                 {goal.name}
                               </div>
                               {goal.description && (
-                                <div onClick={(e) => openGoalEdit(goal, e)}
-                                  title={`${goal.description}\n\nClick to edit`}
+                                <div title={goal.description}
                                   style={{ fontSize: 12, color: T.faint,
                                     lineHeight: 1.4, padding: '1px 6px', margin: '2px -6px 0', borderRadius: 4,
                                     cursor: 'grab',
@@ -1032,19 +1036,18 @@ export default function ProgressPage() {
                               )}
                             </div>
 
-                            {/* Edit menu — 3-dot vertical */}
+                            {/* Edit goal */}
                             <button
                               onClick={(e) => openGoalEdit(goal, e)}
                               title="Edit goal" aria-label="Edit goal"
-                              style={{ border: `1px solid ${T.border}`, background: 'transparent', color: T.muted,
-                                cursor: 'pointer', padding: '4px 2px', lineHeight: 0, fontSize: 14,
-                                borderRadius: 4, flexShrink: 0, alignSelf: 'flex-start',
-                                display: 'flex', alignItems: 'center',
-                                justifyContent: 'center', width: 22, height: 24 }}>
-                              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style={{ opacity: 0.6 }}>
-                                <circle cx="8" cy="3" r="1.5" />
-                                <circle cx="8" cy="8" r="1.5" />
-                                <circle cx="8" cy="13" r="1.5" />
+                              style={{ padding: 5, borderRadius: 6, border: 'none',
+                                background: 'transparent', cursor: 'pointer',
+                                color: hov ? T.muted : T.faint,
+                                opacity: hov ? 1 : 0.45,
+                                display: 'flex', transition: 'all .12s', flexShrink: 0,
+                                alignSelf: 'flex-start' }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                               </svg>
                             </button>
                           </div>
@@ -1070,7 +1073,8 @@ export default function ProgressPage() {
                         })}
                         <td style={{ background: T.surface }} />
                       </tr>
-                    ))}
+                      );
+                    })}
 
                     {/* Add goal row */}
                     <tr>
