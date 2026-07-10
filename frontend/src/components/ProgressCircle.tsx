@@ -58,6 +58,7 @@ export default function ProgressCircle({
         cursor: interactive ? 'pointer' : 'default',
         opacity: isFuture ? 0.25 : 1,
         display: 'inline-flex',
+        verticalAlign: 'middle',
         flexShrink: 0,
         transform: pop ? 'scale(1.15)' : 'scale(1)',
         transition: 'transform .18s cubic-bezier(.34,1.56,.64,1)',
