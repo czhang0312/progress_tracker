@@ -170,7 +170,7 @@ export default function TaskForm({
       <input
         type="text"
         className="form-input"
-        placeholder="What are you working on?"
+        placeholder="Add task name"
         value={name}
         autoFocus
         onChange={(e) => setName(e.target.value)}
