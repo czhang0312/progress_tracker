@@ -4,6 +4,39 @@ import { useState } from 'react';
 import { T, TRACKING, tint } from '@/lib/theme';
 import { PomodoroGoal, Task, TaskInput } from '@/lib/pomodoroData';
 
+function CountControl({
+  value,
+  min,
+  onChange,
+  ariaLabel,
+}: {
+  value: number;
+  min: number;
+  onChange: (value: number) => void;
+  ariaLabel: string;
+}) {
+  const btnStyle: React.CSSProperties = {
+    width: 28, height: 28, borderRadius: 'var(--radius)',
+    border: `1px solid ${T.border}`, background: T.surface,
+    color: T.muted, fontSize: 15, lineHeight: 1, cursor: 'pointer',
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: 'inherit',
+  };
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+      <button type="button" style={btnStyle} aria-label={`Decrease ${ariaLabel}`} onClick={() => onChange(Math.max(min, value - 1))}>
+        −
+      </button>
+      <span style={{ fontSize: 14, fontWeight: 600, color: T.ink, minWidth: 20, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+        {value}
+      </span>
+      <button type="button" style={btnStyle} aria-label={`Increase ${ariaLabel}`} onClick={() => onChange(value + 1)}>
+        +
+      </button>
+    </div>
+  );
+}
+
 function Stepper({
   label,
   value,
@@ -15,27 +48,10 @@ function Stepper({
   min: number;
   onChange: (value: number) => void;
 }) {
-  const btnStyle: React.CSSProperties = {
-    width: 28, height: 28, borderRadius: 'var(--radius)',
-    border: `1px solid ${T.border}`, background: T.surface,
-    color: T.muted, fontSize: 15, lineHeight: 1, cursor: 'pointer',
-    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-    fontFamily: 'inherit',
-  };
   return (
     <div>
       <span className="form-label">{label}</span>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-        <button type="button" style={btnStyle} aria-label={`Decrease ${label}`} onClick={() => onChange(Math.max(min, value - 1))}>
-          −
-        </button>
-        <span style={{ fontSize: 14, fontWeight: 600, color: T.ink, minWidth: 20, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
-          {value}
-        </span>
-        <button type="button" style={btnStyle} aria-label={`Increase ${label}`} onClick={() => onChange(value + 1)}>
-          +
-        </button>
-      </div>
+      <CountControl value={value} min={min} onChange={onChange} ariaLabel={label} />
     </div>
   );
 }
@@ -176,7 +192,7 @@ export default function TaskForm({
       ) : (
         <div>
           <textarea
-            placeholder="Add a note (optional)"
+            placeholder="Add a note"
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
@@ -187,8 +203,18 @@ export default function TaskForm({
       )}
 
       <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-        <Stepper label="Est. pomodoros" value={est} min={1} onChange={setEst} />
-        {isEdit && <Stepper label="Completed" value={act} min={0} onChange={setAct} />}
+        {isEdit ? (
+          <div>
+            <span className="form-label">Pomodoros completed</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
+              <CountControl value={act} min={0} onChange={setAct} ariaLabel="Completed pomodoros" />
+              <span style={{ fontSize: 15, fontWeight: 600, color: T.faint }}>/</span>
+              <CountControl value={est} min={1} onChange={setEst} ariaLabel="Estimated pomodoros" />
+            </div>
+          </div>
+        ) : (
+          <Stepper label="Est. pomodoros" value={est} min={1} onChange={setEst} />
+        )}
       </div>
 
       {/* Link to goal (edit mode) */}
