@@ -8,6 +8,7 @@ import NavHeader from '@/components/NavHeader';
 import PageLoader from '@/components/PageLoader';
 import JournalEntryModal from '@/components/JournalEntryModal';
 import ProgressCircle from '@/components/ProgressCircle';
+import GoalForm, { GoalFormValues } from '@/components/GoalForm';
 import { T, SERIF, TRACKING } from '@/lib/theme';
 import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal, reorderGuestGoals } from '@/lib/guestStorage';
@@ -335,9 +336,11 @@ export default function ProgressPage() {
     setEditErrors({});
   };
 
-  const handleGoalEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setEditFormData(prev => ({ ...prev, [name]: value }));
+  const handleEditFieldChange = (field: keyof typeof editFormData, value: string) =>
+    setEditFormData(prev => ({ ...prev, [field]: value }));
+  const handleAddFieldChange = (field: keyof GoalFormValues, value: string) => {
+    if (field === 'started_at') return;
+    setAddGoalFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleGoalDelete = async () => {
@@ -662,92 +665,19 @@ export default function ProgressPage() {
           className="fixed z-[200] w-[480px] max-w-[calc(100vw-16px)] bg-surface border border-edge rounded overflow-hidden"
           style={{ top: editPopoverPos.top, left: editPopoverPos.left, boxShadow: 'var(--shadow-overlay)' }}
         >
-          <form id="edit-goal-form" onSubmit={handleGoalEditSubmit} className="space-y-3 p-4 pb-3">
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                name="name"
-                value={editFormData.name}
-                onChange={handleGoalEditChange}
-                placeholder="Add goal name"
-                className={`flex-1 min-w-0 bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300 ${editErrors.name ? 'text-danger' : ''}`}
-                style={{ fontSize: '15px' }}
-                required
-              />
-              <input
-                type="date"
-                name="started_at"
-                value={editFormData.started_at}
-                onChange={handleGoalEditChange}
-                className="text-[11px] text-neutral-500 bg-transparent border border-neutral-200 rounded px-1.5 py-0.5 w-auto shrink-0 focus:ring-0 focus:outline-none focus:border-neutral-300 hover:border-neutral-300 transition-colors"
-                required
-                title="Start date — progress circles hidden before this date"
-              />
-            </div>
-            {editErrors.name && <p className="mt-0.5 text-xs text-danger">{editErrors.name}</p>}
-
-            <label
-              className="flex items-center gap-2 text-[11px] text-neutral-500 w-fit"
-              title="Optional daily target — completed focus sessions on the Pomodoro page fill this goal's circle automatically"
-            >
-              Pomodoros/day
-              <input
-                type="number"
-                name="target_pomodoros"
-                min={1}
-                max={99}
-                value={editFormData.target_pomodoros}
-                onChange={handleGoalEditChange}
-                placeholder="–"
-                className="w-[52px] text-[11px] text-neutral-700 bg-transparent border border-neutral-200 rounded px-1.5 py-0.5 focus:ring-0 focus:outline-none focus:border-neutral-300 hover:border-neutral-300 transition-colors"
-              />
-            </label>
-
-            {!showEditDescription ? (
-              <button
-                type="button"
-                onClick={() => setShowEditDescription(true)}
-                className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors underline"
-              >
-                + Add description
-              </button>
-            ) : (
-              <div>
-                <textarea
-                  name="description"
-                  value={editFormData.description}
-                  onChange={handleGoalEditChange}
-                  rows={3}
-                  placeholder="Add goal description"
-                  autoFocus={!editFormData.description}
-                  className={`w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0 ${editErrors.description ? 'ring-2 ring-danger' : ''}`}
-                />
-                {editErrors.description && <p className="mt-0.5 text-xs text-danger">{editErrors.description}</p>}
-              </div>
-            )}
-
-          </form>
-          <div className="flex items-center gap-2 px-4 py-2 bg-neutral-50 border-t border-neutral-100">
-            <button type="submit" form="edit-goal-form" disabled={editSaving} className="btn-primary px-3 py-2 text-xs">
-              {editSaving ? 'Saving...' : 'Save'}
-            </button>
-            <button type="button" onClick={() => { if (confirmCancel(isEditDirty())) setEditingGoalId(null); }} className="btn-ghost px-3 py-2 text-xs border-none">
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleGoalDelete}
-              className="ml-auto text-neutral-400 hover:text-danger p-1.5 rounded transition-colors"
-              title="Delete goal"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14H6L5 6" />
-                <path d="M10 11v6M14 11v6" />
-                <path d="M9 6V4h6v2" />
-              </svg>
-            </button>
-          </div>
+          <GoalForm
+            formId="edit-goal-form"
+            isEdit
+            values={editFormData}
+            onChange={handleEditFieldChange}
+            errors={editErrors}
+            saving={editSaving}
+            showDescription={showEditDescription}
+            onShowDescription={() => setShowEditDescription(true)}
+            onSubmit={handleGoalEditSubmit}
+            onCancel={() => { if (confirmCancel(isEditDirty())) setEditingGoalId(null); }}
+            onDelete={handleGoalDelete}
+          />
         </div>
       )}
       {showAddGoal && addGoalPos && (
@@ -756,70 +686,18 @@ export default function ProgressPage() {
           className="fixed z-[200] w-[480px] max-w-[calc(100vw-16px)] bg-surface border border-edge rounded overflow-hidden"
           style={{ top: addGoalPos.top, left: addGoalPos.left, boxShadow: 'var(--shadow-overlay)' }}
         >
-          <form id="add-goal-form" onSubmit={handleAddGoalSubmit} className="space-y-3 p-4 pb-3">
-            <div>
-              <input
-                type="text"
-                name="name"
-                value={addGoalFormData.name}
-                onChange={(e) => setAddGoalFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Add goal name"
-                className={`w-full bg-transparent border-none outline-none focus:ring-0 font-semibold text-neutral-800 placeholder:text-neutral-300 ${addGoalErrors.name ? 'text-danger' : ''}`}
-                style={{ fontSize: '15px' }}
-                autoFocus
-                required
-              />
-              {addGoalErrors.name && <p className="mt-0.5 text-xs text-danger">{addGoalErrors.name}</p>}
-            </div>
-
-            <label
-              className="flex items-center gap-2 text-[11px] text-neutral-500 w-fit"
-              title="Optional daily target — completed focus sessions on the Pomodoro page fill this goal's circle automatically"
-            >
-              Pomodoros/day
-              <input
-                type="number"
-                name="target_pomodoros"
-                min={1}
-                max={99}
-                value={addGoalFormData.target_pomodoros}
-                onChange={(e) => setAddGoalFormData(prev => ({ ...prev, target_pomodoros: e.target.value }))}
-                placeholder="–"
-                className="w-[52px] text-[11px] text-neutral-700 bg-transparent border border-neutral-200 rounded px-1.5 py-0.5 focus:ring-0 focus:outline-none focus:border-neutral-300 hover:border-neutral-300 transition-colors"
-              />
-            </label>
-
-            {!showAddDescription ? (
-              <button
-                type="button"
-                onClick={() => setShowAddDescription(true)}
-                className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors underline"
-              >
-                + Add description
-              </button>
-            ) : (
-              <div>
-                <textarea
-                  name="description"
-                  value={addGoalFormData.description}
-                  onChange={(e) => setAddGoalFormData(prev => ({ ...prev, description: e.target.value }))}
-                  rows={3}
-                  placeholder="Add goal description"
-                  autoFocus
-                  className="w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0"
-                />
-              </div>
-            )}
-
-          </form>
-          <div className="flex gap-2 px-4 py-2 bg-neutral-50 border-t border-neutral-100">
-            <button type="submit" form="add-goal-form" disabled={addGoalSaving} className="btn-primary px-3 py-2 text-xs">
-              {addGoalSaving ? 'Saving...' : 'Save'}
-            </button>
-            <button type="button" onClick={() => { if (confirmCancel(isAddDirty())) setShowAddGoal(false); }} className="btn-ghost px-3 py-2 text-xs border-none">
-              Cancel
-            </button>
-          </div>
+          <GoalForm
+            formId="add-goal-form"
+            isEdit={false}
+            values={{ ...addGoalFormData, started_at: '' }}
+            onChange={handleAddFieldChange}
+            errors={addGoalErrors}
+            saving={addGoalSaving}
+            showDescription={showAddDescription}
+            onShowDescription={() => setShowAddDescription(true)}
+            onSubmit={handleAddGoalSubmit}
+            onCancel={() => { if (confirmCancel(isAddDirty())) setShowAddGoal(false); }}
+          />
         </div>
       )}
       {journalModalDate && data && (
