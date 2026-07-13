@@ -5,6 +5,7 @@ import {
   createGuestTask,
   deleteGuestTask,
   getGuestTasks,
+  resetGuestPomodoros,
   updateGuestTask,
 } from './guestStorage';
 
@@ -94,6 +95,16 @@ export async function clearFinishedTasks(user: MaybeUser): Promise<void> {
     return;
   }
   await request<{ success: boolean }>('/tasks/clear_finished', { method: 'DELETE' });
+}
+
+// Zeroes out every task's completed pomodoro count so tasks can be reused on
+// a fresh day without losing their name/estimate/goal link.
+export async function resetPomodoros(user: MaybeUser): Promise<void> {
+  if (user?.is_guest) {
+    resetGuestPomodoros();
+    return;
+  }
+  await request<{ success: boolean }>('/tasks/reset_pomodoros', { method: 'PATCH' });
 }
 
 // Records a completed pomodoro; for goal-linked tasks the backend (or the

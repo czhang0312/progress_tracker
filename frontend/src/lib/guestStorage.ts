@@ -335,6 +335,21 @@ export function clearGuestFinishedTasks(): number {
   return finishedIds.size;
 }
 
+// Zeroes out every task's completed pomodoro count so tasks can be reused on
+// a fresh day without losing their name/estimate/goal link.
+export function resetGuestPomodoros(): number {
+  const store = readStore();
+  let updated = 0;
+  store.tasks.forEach((task) => {
+    if (task.completed_pomodoros !== 0) {
+      task.completed_pomodoros = 0;
+      updated += 1;
+    }
+  });
+  writeStore(store);
+  return updated;
+}
+
 // Guest mirror of the server's session-completion transaction: records the
 // session, bumps the task counter, and auto-fills the goal's circle for the
 // day (upgrade-only — never downgrades a manually set status).

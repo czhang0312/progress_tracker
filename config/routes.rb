@@ -43,6 +43,7 @@ Rails.application.routes.draw do
   resources :tasks, only: [ :index, :create, :update, :destroy ] do
     collection do
       delete :clear_finished
+      patch :reset_pomodoros
     end
   end
   resources :pomodoro_sessions, only: [ :create ]

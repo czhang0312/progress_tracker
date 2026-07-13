@@ -50,6 +50,14 @@ class TasksController < ApplicationController
     render json: { success: true, deleted: deleted }
   end
 
+  # PATCH /tasks/reset_pomodoros
+  # Zeroes out each task's completed pomodoro count so tasks can be reused
+  # on a new day without losing their name/estimate/goal link.
+  def reset_pomodoros
+    updated = current_user.tasks.where.not(completed_pomodoros: 0).update_all(completed_pomodoros: 0)
+    render json: { success: true, updated: updated }
+  end
+
   private
     def set_task
       @task = current_user.tasks.find(params[:id])

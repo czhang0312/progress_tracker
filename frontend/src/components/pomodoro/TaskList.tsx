@@ -18,6 +18,7 @@ export default function TaskList({
   onDelete,
   onToggleDone,
   onClearFinished,
+  onResetPomodoros,
 }: {
   tasks: Task[];
   goals: PomodoroGoal[];
@@ -29,6 +30,7 @@ export default function TaskList({
   onDelete: (taskId: number) => void;
   onToggleDone: (task: Task) => void;
   onClearFinished: () => void;
+  onResetPomodoros: () => void;
 }) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -41,6 +43,7 @@ export default function TaskList({
   );
 
   const hasFinished = tasks.some((t) => t.done);
+  const hasCompletedPomodoros = tasks.some((t) => t.completed_pomodoros > 0);
   const totalEst = tasks.reduce((sum, t) => sum + t.estimated_pomodoros, 0);
   const totalAct = tasks.reduce((sum, t) => sum + t.completed_pomodoros, 0);
   const remainingPomodoros = tasks
@@ -67,18 +70,32 @@ export default function TaskList({
         <span style={{ fontSize: 11, fontWeight: 600, color: T.muted, letterSpacing: TRACKING, textTransform: 'uppercase' }}>
           Tasks
         </span>
-        {hasFinished && (
-          <button
-            type="button"
-            className="btn-ghost"
-            style={{ fontSize: 12, padding: '4px 8px' }}
-            onClick={() => {
-              if (window.confirm('Remove all finished tasks?')) onClearFinished();
-            }}
-          >
-            Clear finished
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: 4 }}>
+          {hasCompletedPomodoros && (
+            <button
+              type="button"
+              className="btn-ghost"
+              style={{ fontSize: 12, padding: '4px 8px' }}
+              onClick={() => {
+                if (window.confirm('Reset every task’s completed pomodoros to 0?')) onResetPomodoros();
+              }}
+            >
+              Reset pomodoros
+            </button>
+          )}
+          {hasFinished && (
+            <button
+              type="button"
+              className="btn-ghost"
+              style={{ fontSize: 12, padding: '4px 8px' }}
+              onClick={() => {
+                if (window.confirm('Remove all finished tasks?')) onClearFinished();
+              }}
+            >
+              Clear finished
+            </button>
+          )}
+        </div>
       </div>
 
       {tasks.length === 0 && !adding && (

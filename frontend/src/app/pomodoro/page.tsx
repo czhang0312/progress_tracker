@@ -23,6 +23,7 @@ import {
   createTask,
   deleteTask,
   listTasks,
+  resetPomodoros,
   updateTask,
 } from '@/lib/pomodoroData';
 import { RAILS_API_BASE } from '@/lib/config';
@@ -177,6 +178,15 @@ export default function PomodoroPage() {
     }
   }, [user, timer]);
 
+  const handleResetPomodoros = useCallback(async () => {
+    try {
+      await resetPomodoros(user);
+      setTasks((prev) => prev.map((t) => (t.completed_pomodoros === 0 ? t : { ...t, completed_pomodoros: 0 })));
+    } catch (err) {
+      console.error('Failed to reset pomodoros:', err);
+    }
+  }, [user]);
+
   if (loading || dataLoading) {
     return <PageLoader />;
   }
@@ -223,6 +233,7 @@ export default function PomodoroPage() {
           onDelete={handleDelete}
           onToggleDone={handleToggleDone}
           onClearFinished={handleClearFinished}
+          onResetPomodoros={handleResetPomodoros}
         />
       </main>
 
