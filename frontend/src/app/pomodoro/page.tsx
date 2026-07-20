@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import NavHeader from '@/components/NavHeader';
 import PageLoader from '@/components/PageLoader';
@@ -23,6 +23,7 @@ import {
   createTask,
   deleteTask,
   listTasks,
+  reorderTasks,
   resetPomodoros,
   updateTask,
 } from '@/lib/pomodoroData';
@@ -51,6 +52,9 @@ export default function PomodoroPage() {
   const [settings, setSettings] = useState<PomodoroSettings>(DEFAULT_SETTINGS);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [draggingTaskId, setDraggingTaskId] = useState<number | null>(null);
+  const draggingTaskIdRef = useRef<number | null>(null);
+  const [dragOverTaskId, setDragOverTaskId] = useState<number | null>(null);
 
   // Settings live in localStorage; read after mount to avoid an SSR mismatch.
   useEffect(() => {
@@ -187,6 +191,48 @@ export default function PomodoroPage() {
     }
   }, [user]);
 
+  const handleTaskDragStart = useCallback((taskId: number) => {
+    setDraggingTaskId(taskId);
+    draggingTaskIdRef.current = taskId;
+  }, []);
+
+  const handleTaskDragOver = useCallback((e: React.DragEvent, taskId: number) => {
+    e.preventDefault();
+    if (draggingTaskIdRef.current !== taskId) setDragOverTaskId(taskId);
+  }, []);
+
+  const handleTaskDrop = useCallback(
+    async (e: React.DragEvent, targetTaskId: number) => {
+      e.preventDefault();
+      const sourceTaskId = draggingTaskIdRef.current;
+      setDraggingTaskId(null);
+      draggingTaskIdRef.current = null;
+      setDragOverTaskId(null);
+      if (!sourceTaskId || sourceTaskId === targetTaskId) return;
+
+      const reordered = [...tasks];
+      const sourceIndex = reordered.findIndex((t) => t.id === sourceTaskId);
+      const targetIndex = reordered.findIndex((t) => t.id === targetTaskId);
+      if (sourceIndex === -1 || targetIndex === -1) return;
+      const [removed] = reordered.splice(sourceIndex, 1);
+      reordered.splice(targetIndex, 0, removed);
+      setTasks(reordered);
+
+      try {
+        await reorderTasks(user, reordered.map((t) => t.id));
+      } catch (err) {
+        console.error('Failed to reorder tasks:', err);
+      }
+    },
+    [tasks, user]
+  );
+
+  const handleTaskDragEnd = useCallback(() => {
+    setDraggingTaskId(null);
+    draggingTaskIdRef.current = null;
+    setDragOverTaskId(null);
+  }, []);
+
   if (loading || dataLoading) {
     return <PageLoader />;
   }
@@ -234,6 +280,12 @@ export default function PomodoroPage() {
           onToggleDone={handleToggleDone}
           onClearFinished={handleClearFinished}
           onResetPomodoros={handleResetPomodoros}
+          draggingTaskId={draggingTaskId}
+          dragOverTaskId={dragOverTaskId}
+          onTaskDragStart={handleTaskDragStart}
+          onTaskDragOver={handleTaskDragOver}
+          onTaskDrop={handleTaskDrop}
+          onTaskDragEnd={handleTaskDragEnd}
         />
       </main>
 

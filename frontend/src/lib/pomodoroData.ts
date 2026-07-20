@@ -5,6 +5,7 @@ import {
   createGuestTask,
   deleteGuestTask,
   getGuestTasks,
+  reorderGuestTasks,
   resetGuestPomodoros,
   updateGuestTask,
 } from './guestStorage';
@@ -87,6 +88,17 @@ export async function deleteTask(user: MaybeUser, taskId: number): Promise<void>
     return;
   }
   await request<void>(`/tasks/${taskId}`, { method: 'DELETE' });
+}
+
+export async function reorderTasks(user: MaybeUser, taskIds: number[]): Promise<void> {
+  if (user?.is_guest) {
+    reorderGuestTasks(taskIds);
+    return;
+  }
+  await request<{ success: boolean }>('/tasks/reorder', {
+    method: 'PATCH',
+    body: JSON.stringify({ task_ids: taskIds }),
+  });
 }
 
 export async function clearFinishedTasks(user: MaybeUser): Promise<void> {

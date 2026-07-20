@@ -324,6 +324,20 @@ export function deleteGuestTask(taskId: number) {
   writeStore(store);
 }
 
+export function reorderGuestTasks(taskIds: number[]) {
+  const store = readStore();
+  const taskMap = new Map(store.tasks.map((task) => [task.id, task]));
+
+  taskIds.forEach((taskId, index) => {
+    const task = taskMap.get(taskId);
+    if (task) {
+      task.position = index + 1;
+    }
+  });
+
+  writeStore(store);
+}
+
 export function clearGuestFinishedTasks(): number {
   const store = readStore();
   const finishedIds = new Set(store.tasks.filter((task) => task.done).map((task) => task.id));

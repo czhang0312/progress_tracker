@@ -9,16 +9,28 @@ export default function TaskItem({
   task,
   goalName,
   isActive,
+  isDragging,
+  isDragOver,
   onSelect,
   onToggleDone,
   onEdit,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
 }: {
   task: Task;
   goalName: string | null;
   isActive: boolean;
+  isDragging: boolean;
+  isDragOver: boolean;
   onSelect: () => void;
   onToggleDone: () => void;
   onEdit: () => void;
+  onDragStart: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
 }) {
   const [hov, setHov] = useState(false);
 
@@ -26,6 +38,7 @@ export default function TaskItem({
     <div
       role="button"
       tabIndex={0}
+      draggable
       onClick={onSelect}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -35,6 +48,10 @@ export default function TaskItem({
       }}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
       aria-pressed={isActive}
       title={isActive ? 'Current focus task' : 'Set as focus task'}
       style={{
@@ -42,8 +59,10 @@ export default function TaskItem({
         padding: '12px 14px 12px 11px',
         borderLeft: `3px solid ${isActive ? T.accent : 'transparent'}`,
         borderBottom: `1px solid ${T.well}`,
+        boxShadow: isDragOver ? `inset 0 2px 0 ${T.accent}` : 'none',
         background: hov ? tint(T.well, 60) : 'transparent',
-        cursor: 'pointer',
+        opacity: isDragging ? 0.4 : 1,
+        cursor: 'grab',
         transition: 'background .12s, border-color .15s',
       }}
     >

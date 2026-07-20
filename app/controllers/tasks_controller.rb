@@ -58,6 +58,20 @@ class TasksController < ApplicationController
     render json: { success: true, updated: updated }
   end
 
+  # PATCH /tasks/reorder
+  def reorder
+    task_ids = params[:task_ids]
+
+    if task_ids.is_a?(Array)
+      task_ids.each_with_index do |task_id, index|
+        current_user.tasks.where(id: task_id).update_all(position: index + 1)
+      end
+      render json: { success: true }
+    else
+      render json: { error: "Invalid task_ids parameter" }, status: :bad_request
+    end
+  end
+
   private
     def set_task
       @task = current_user.tasks.find(params[:id])

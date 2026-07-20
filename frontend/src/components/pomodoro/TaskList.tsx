@@ -19,6 +19,12 @@ export default function TaskList({
   onToggleDone,
   onClearFinished,
   onResetPomodoros,
+  draggingTaskId,
+  dragOverTaskId,
+  onTaskDragStart,
+  onTaskDragOver,
+  onTaskDrop,
+  onTaskDragEnd,
 }: {
   tasks: Task[];
   goals: PomodoroGoal[];
@@ -31,6 +37,12 @@ export default function TaskList({
   onToggleDone: (task: Task) => void;
   onClearFinished: () => void;
   onResetPomodoros: () => void;
+  draggingTaskId: number | null;
+  dragOverTaskId: number | null;
+  onTaskDragStart: (taskId: number) => void;
+  onTaskDragOver: (e: React.DragEvent, taskId: number) => void;
+  onTaskDrop: (e: React.DragEvent, taskId: number) => void;
+  onTaskDragEnd: () => void;
 }) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -131,12 +143,18 @@ export default function TaskList({
               task={task}
               goalName={task.goal_id !== null ? goalNames.get(task.goal_id) ?? null : null}
               isActive={task.id === activeTaskId}
+              isDragging={task.id === draggingTaskId}
+              isDragOver={task.id === dragOverTaskId}
               onSelect={() => onSelectTask(task.id)}
               onToggleDone={() => onToggleDone(task)}
               onEdit={() => {
                 setAdding(false);
                 setEditingId(task.id);
               }}
+              onDragStart={() => onTaskDragStart(task.id)}
+              onDragOver={(e) => onTaskDragOver(e, task.id)}
+              onDrop={(e) => onTaskDrop(e, task.id)}
+              onDragEnd={onTaskDragEnd}
             />
           )
         )}

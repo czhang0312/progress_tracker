@@ -44,6 +44,7 @@ Rails.application.routes.draw do
     collection do
       delete :clear_finished
       patch :reset_pomodoros
+      patch :reorder
     end
   end
   resources :pomodoro_sessions, only: [ :create ]
