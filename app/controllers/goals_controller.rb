@@ -2,7 +2,7 @@ class GoalsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   before_action :require_auth_for_write!, except: [ :index, :show ]
-  before_action :set_goal, only: [ :show, :edit, :update, :destroy, :move_up, :move_down ]
+  before_action :set_goal, only: [ :show, :edit, :update, :destroy ]
 
   # GET /goals
   def index
@@ -69,33 +69,6 @@ class GoalsController < ApplicationController
       format.html { redirect_to goals_url, notice: "Goal was successfully destroyed." }
       format.json { head :no_content }
     end
-  end
-
-  # PATCH /goals/1/move_up
-  def move_up
-    if @goal.position > 1
-      previous_goal = current_user.goals.find_by(position: @goal.position - 1)
-      if previous_goal
-        previous_goal.update(position: @goal.position)
-        @goal.update(position: @goal.position - 1)
-      end
-    end
-
-    redirect_to goals_url
-  end
-
-  # PATCH /goals/1/move_down
-  def move_down
-    max_position = current_user.goals.maximum(:position)
-    if @goal.position < max_position
-      next_goal = current_user.goals.find_by(position: @goal.position + 1)
-      if next_goal
-        next_goal.update(position: @goal.position)
-        @goal.update(position: @goal.position + 1)
-      end
-    end
-
-    redirect_to goals_url
   end
 
   # PATCH /goals/reorder

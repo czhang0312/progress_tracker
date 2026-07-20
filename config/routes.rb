@@ -30,10 +30,6 @@ Rails.application.routes.draw do
 
   # Goals management
   resources :goals do
-    member do
-      patch :move_up
-      patch :move_down
-    end
     collection do
       patch :reorder
     end
