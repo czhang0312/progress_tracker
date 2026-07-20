@@ -120,7 +120,6 @@ export default function ProgressPage() {
   const [draggingGoalId, setDraggingGoalId] = useState<number | null>(null);
   const draggingGoalIdRef = useRef<number | null>(null);
   const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
-  const [hoveredGoalId, setHoveredGoalId] = useState<number | null>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const tabsStripRef = useRef<HTMLDivElement>(null);
   const tabsGridRef = useRef<HTMLDivElement>(null);
@@ -877,14 +876,11 @@ export default function ProgressPage() {
                   </thead>
                   <tbody>
                     {data.goals.map((goal) => {
-                      const hov = hoveredGoalId === goal.id;
                       return (
                       <tr key={goal.id}
                         onDragOver={(e) => handleDragOver(e, goal.id)}
                         onDrop={(e) => handleDrop(e, goal.id)}
                         onDragEnd={handleDragEnd}
-                        onMouseEnter={() => setHoveredGoalId(goal.id)}
-                        onMouseLeave={() => setHoveredGoalId(null)}
                         className={`${draggingGoalId === goal.id ? 'dragging' : ''} ${dragOverGoalId === goal.id && draggingGoalId !== null && draggingGoalId !== goal.id ? 'drag-over' : ''}`}>
                         <td className="sticky-col goal-row-cell" draggable
                           onDragStart={() => handleDragStart(goal.id)}
@@ -920,10 +916,12 @@ export default function ProgressPage() {
                               title="Edit goal" aria-label="Edit goal"
                               style={{ padding: 5, borderRadius: 6, border: 'none',
                                 background: 'transparent', cursor: 'pointer',
-                                color: hov ? T.muted : T.faint,
-                                opacity: hov ? 1 : 0.45,
+                                color: T.faint,
+                                opacity: 0.45,
                                 display: 'flex', transition: 'all .12s', flexShrink: 0,
-                                alignSelf: 'flex-start' }}>
+                                alignSelf: 'flex-start' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.color = T.muted; e.currentTarget.style.opacity = '1'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.color = T.faint; e.currentTarget.style.opacity = '0.45'; }}>
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                               </svg>
