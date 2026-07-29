@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { T } from '@/lib/theme';
 import { PomodoroGoal, Task, TaskInput } from '@/lib/pomodoroData';
 
@@ -112,6 +112,14 @@ export default function TaskForm({
   const [act, setAct] = useState(task?.completed_pomodoros ?? 0);
   const [goalId, setGoalId] = useState<number | null>(task?.goal_id ?? null);
   const [showLinkGoal, setShowLinkGoal] = useState(!!task?.goal_id);
+  const noteRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (showNote && noteRef.current) {
+      noteRef.current.style.height = 'auto';
+      noteRef.current.style.height = `${noteRef.current.scrollHeight}px`;
+    }
+  }, [note, showNote]);
 
   const pickerGoals = isEdit
     ? goals
@@ -170,12 +178,14 @@ export default function TaskForm({
       {showNote && (
         <div>
           <textarea
+            ref={noteRef}
             placeholder="Add a description"
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
             autoFocus={!note}
-            className="w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0"
+            className="w-full rounded-lg bg-neutral-100 border-none outline-none text-xs px-3 py-2 text-neutral-700 placeholder:text-neutral-400 focus:ring-0 resize-none overflow-hidden"
+            style={{ minHeight: 60 }}
           />
         </div>
       )}
