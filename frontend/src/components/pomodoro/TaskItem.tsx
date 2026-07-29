@@ -69,36 +69,35 @@ export default function TaskItem({
       <ProgressCircle status={task.done ? 2 : 0} size={20} onClick={onToggleDone} />
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div
-          style={{
-            fontSize: 14, fontWeight: 500,
-            color: task.done ? T.faint : T.ink,
-            textDecoration: task.done ? 'line-through' : 'none',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}
-        >
-          {task.name}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <div
+            style={{
+              fontSize: 14, fontWeight: 500,
+              color: task.done ? T.faint : T.ink,
+              textDecoration: task.done ? 'line-through' : 'none',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              minWidth: 0,
+            }}
+          >
+            {task.name}
+          </div>
+          {goalName && (
+            <span
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                fontSize: 11, fontWeight: 500, color: T.accent,
+                background: T.accentTint, borderRadius: 99,
+                padding: '2px 8px', flexShrink: 0,
+              }}
+            >
+              <span style={{ width: 4, height: 4, borderRadius: '50%', background: T.accent }} />
+              {goalName}
+            </span>
+          )}
         </div>
-        {(goalName || task.note) && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3, minWidth: 0 }}>
-            {goalName && (
-              <span
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  fontSize: 11, fontWeight: 500, color: T.accent,
-                  background: T.accentTint, borderRadius: 99,
-                  padding: '2px 8px', flexShrink: 0,
-                }}
-              >
-                <span style={{ width: 4, height: 4, borderRadius: '50%', background: T.accent }} />
-                {goalName}
-              </span>
-            )}
-            {task.note && (
-              <span style={{ fontSize: 12, color: T.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {task.note}
-              </span>
-            )}
+        {task.note && (
+          <div style={{ marginTop: 3, fontSize: 12, color: T.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {task.note}
           </div>
         )}
       </div>
