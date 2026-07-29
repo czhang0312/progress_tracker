@@ -96,7 +96,16 @@ export default function TaskItem({
           )}
         </div>
         {task.note && (
-          <div style={{ marginTop: 3, fontSize: 12, color: T.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div
+            style={{
+              marginTop: 3, fontSize: 12, color: T.muted,
+              whiteSpace: 'pre-wrap',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}
+          >
             {task.note}
           </div>
         )}
