@@ -14,15 +14,6 @@ import { RAILS_API_BASE } from '@/lib/config';
 import { getGuestMonthlyProgress, setGuestProgressStatus, updateGuestGoal, deleteGuestGoal, createGuestGoal, reorderGuestGoals } from '@/lib/guestStorage';
 import { localDateString, todayLocalDateString } from '@/lib/dateUtils';
 
-// Whether the browser can drive an animation off a scroll container's position
-// on the compositor. When true we sync the journal tabs to the table with a CSS
-// scroll-driven animation (zero lag, no scroll listener); otherwise we fall back
-// to mirroring scrollLeft from a JS scroll event.
-const SUPPORTS_SCROLL_TIMELINE =
-  typeof CSS !== 'undefined' && !!CSS.supports &&
-  CSS.supports('animation-timeline: scroll()') &&
-  CSS.supports('timeline-scope: --x');
-
 interface Goal {
   id: number;
   name: string;
@@ -49,34 +40,6 @@ interface JournalEntry {
   id: number;
   date: string;
   content: string;
-}
-
-function JournalTabButton({ entry, isFuture, onClick }: {
-  entry: JournalEntry | null;
-  isFuture: boolean;
-  onClick: () => void;
-}) {
-  const isFilled = !!entry;
-  const fill = T.border;
-  const stroke = T.ringEmpty;
-
-  const cls = isFuture ? 'journal-tab journal-tab-future'
-    : isFilled ? 'journal-tab journal-tab-filled'
-    : 'journal-tab journal-tab-empty';
-
-  const title = entry
-    ? entry.content.slice(0, 80) + (entry.content.length > 80 ? '…' : '')
-    : isFuture ? '' : 'Add journal entry';
-
-  return (
-    <button className={cls} disabled={isFuture} onClick={onClick} title={title}
-      aria-label={entry ? 'Open journal entry' : isFuture ? 'Future date' : 'Add journal entry'}>
-      <svg viewBox="0 0 44 16" preserveAspectRatio="none" width="100%" height="16">
-        <path d="M2.2 16 Q0 16 0.9 13.9 L6 4 Q7.2 1 10 1 L34 1 Q36.8 1 38 4 L43.1 13.9 Q44 16 41.8 16 Z"
-          fill={fill} stroke={stroke} strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
-      </svg>
-    </button>
-  );
 }
 
 interface ProgressData {
@@ -121,8 +84,6 @@ export default function ProgressPage() {
   const draggingGoalIdRef = useRef<number | null>(null);
   const [dragOverGoalId, setDragOverGoalId] = useState<number | null>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
-  const tabsStripRef = useRef<HTMLDivElement>(null);
-  const tabsGridRef = useRef<HTMLDivElement>(null);
   const todayThRef = useRef<HTMLTableCellElement | null>(null);
   const hasScrolledToTodayRef = useRef(false);
 
@@ -149,38 +110,6 @@ export default function ProgressPage() {
       container.scrollLeft + (todayRect.left - containerRect.left) - stickyWidth - availableWidth / 2 + todayRect.width / 2;
     container.scrollLeft = Math.max(0, targetScrollLeft);
     hasScrolledToTodayRef.current = true;
-  }, [loading, data]);
-
-  // Keep the journal-tabs strip horizontally aligned with the table when it overflows.
-  // Preferred path: a CSS scroll-driven animation reads the table scroller's position
-  // on the compositor, so the tabs track it with zero lag (no scroll event listener).
-  // We only need JS to keep the animation's end-translate equal to the scroll range.
-  useEffect(() => {
-    if (loading || !data) return;
-    const tableEl = tableScrollRef.current;
-    const tabsEl = tabsStripRef.current;
-    const gridEl = tabsGridRef.current;
-    if (!tableEl || !tabsEl) return;
-
-    if (SUPPORTS_SCROLL_TIMELINE && gridEl) {
-      const setMax = () => {
-        const max = tableEl.scrollWidth - tableEl.clientWidth;
-        gridEl.style.setProperty('--tabs-max', `${-max}px`);
-      };
-      setMax();
-      const ro = new ResizeObserver(setMax);
-      ro.observe(tableEl);
-      window.addEventListener('resize', setMax);
-      return () => { ro.disconnect(); window.removeEventListener('resize', setMax); };
-    }
-
-    // Fallback for browsers without scroll-driven animations: mirror scrollLeft.
-    const sync = () => {
-      if (tabsEl.scrollLeft !== tableEl.scrollLeft) tabsEl.scrollLeft = tableEl.scrollLeft;
-    };
-    sync();
-    tableEl.addEventListener('scroll', sync, { passive: true });
-    return () => tableEl.removeEventListener('scroll', sync);
   }, [loading, data]);
 
   useEffect(() => {
@@ -776,62 +705,13 @@ export default function ProgressPage() {
             </div>
           </div>
 
-          <div className="animate-fade-in mt-4" style={{ timelineScope: '--tableScroll' }}>
-            {/* Journal tab strip — sits above the table card, one tab per day */}
-            <div style={{ marginRight: 10 }}>
-            <div
-              ref={tabsStripRef}
-              className="journal-tabs-strip"
-              style={SUPPORTS_SCROLL_TIMELINE ? { overflowX: 'hidden' } : undefined}
-            >
-              {/* In transform mode the grid's sticky cell can't stick (no real scroll),
-                  so this non-translated cover masks tabs sliding under the first column. */}
-              {SUPPORTS_SCROLL_TIMELINE && (
-                <div aria-hidden="true" style={{ position: 'absolute', top: 0, bottom: 0, left: 0,
-                  width: 'var(--sticky-w)', background: T.bg, zIndex: 6 }}>
-                  <div style={{ position: 'absolute', bottom: 0, left: 11, right: 0,
-                    borderBottom: `1px solid ${T.border}` }} />
-                </div>
-              )}
-              <div
-                ref={tabsGridRef}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: `var(--sticky-w) repeat(${data.days_in_month}, 40px) 8px`,
-                  alignItems: 'end', width: 'min-content',
-                  ...(SUPPORTS_SCROLL_TIMELINE ? {
-                    animationName: 'tabsSync', animationDuration: '1ms',
-                    animationTimingFunction: 'linear', animationFillMode: 'both',
-                    animationTimeline: '--tableScroll', willChange: 'transform',
-                  } : null),
-                }}
-              >
-                <div style={{ position: 'sticky', left: 0, zIndex: 5,
-                  alignSelf: 'stretch', background: T.bg }}>
-                  <div style={{ position: 'absolute', bottom: 0, left: 11, right: 0,
-                    borderBottom: `1px solid ${T.border}` }} />
-                </div>
-                {Array.from({ length: data.days_in_month }, (_, i) => {
-                  const day = i + 1;
-                  const date = localDateString(new Date(year, month - 1, day));
-                  return (
-                    <JournalTabButton key={day}
-                      entry={getJournalEntry(date)}
-                      isFuture={date > todayLocalDateString()}
-                      onClick={() => handleJournalClick(date)} />
-                  );
-                })}
-                <div />
-              </div>
-            </div>
-            </div>
-
+          <div className="animate-fade-in mt-4">
             {/* Main table card */}
             <div style={{ background: T.surface, borderRadius: 'var(--radius)', border: `1px solid ${T.border}`,
               boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 4px 16px -8px rgba(15,23,42,.08)',
               overflow: 'hidden' }}>
               <div ref={tableScrollRef} className="scrollbar-thin"
-                style={{ overflowX: 'auto', overscrollBehaviorX: 'none', scrollTimelineName: '--tableScroll', scrollTimelineAxis: 'x' }}>
+                style={{ overflowX: 'auto', overscrollBehaviorX: 'none' }}>
                 <table className="progress-table" style={{ minWidth: 'min-content' }}>
                   <thead>
                     <tr>
@@ -848,16 +728,22 @@ export default function ProgressPage() {
                         const date = localDateString(new Date(year, month - 1, day));
                         const isToday = date === todayLocalDateString();
                         const isFuture = date > todayLocalDateString();
+                        const journalEntry = getJournalEntry(date);
                         const jsDate = new Date(year, month - 1, day);
                         const dow = jsDate.toLocaleDateString('en-US', { weekday: 'narrow' });
+                        const journalTitle = journalEntry
+                          ? journalEntry.content.slice(0, 80) + (journalEntry.content.length > 80 ? '…' : '')
+                          : isFuture ? undefined : 'Add journal entry';
                         return (
                           <th key={day}
                             ref={(el) => { if (isToday) todayThRef.current = el; }}
                             style={{ minWidth: 40, width: 40,
-                              background: isToday ? T.accentTint : T.bg,
+                              background: journalEntry ? T.accentTint : T.bg,
                               borderBottom: `1px solid ${T.border}`, padding: 0 }}>
                             <button className="day-header-btn"
                               onClick={() => handleJournalClick(date)}
+                              title={journalTitle}
+                              aria-label={journalEntry ? 'Open journal entry' : isFuture ? 'Future date' : 'Add journal entry'}
                               style={{ cursor: 'pointer', opacity: isFuture ? 0.4 : 1 }}>
                               <div style={{ fontSize: 10, color: T.muted,
                                 fontWeight: 600, letterSpacing: TRACKING, marginBottom: 1 }}>
@@ -986,10 +872,8 @@ export default function ProgressPage() {
                     </span>
                   ))}
                   <span style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
-                    <svg width="14" height="6" viewBox="0 0 44 16" preserveAspectRatio="none" style={{ display: 'block' }}>
-                      <path d="M0 16 L6 3 Q7 0 10 0 L34 0 Q37 0 38 3 L44 16 Z"
-                        fill={T.border} stroke={T.ringEmpty} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-                    </svg>
+                    <span style={{ width: 14, height: 14, borderRadius: 4,
+                      background: T.accentTint, border: `1px solid ${T.border}`, display: 'block' }} />
                     Journal entry
                   </span>
                 </div>

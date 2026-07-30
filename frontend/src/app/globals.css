@@ -132,24 +132,6 @@
     letter-spacing: 0.08em;
   }
 
-  .journal-tab {
-    padding: 0;
-    margin: 0;
-    background: transparent;
-    cursor: pointer;
-    height: 16px;
-    width: 100%;
-    display: block;
-    transition: transform .15s cubic-bezier(.34,1.56,.64,1);
-  }
-  .journal-tab:disabled { cursor: default; }
-  .journal-tab svg { display: block; transition: opacity .15s; }
-  .journal-tab-empty svg { opacity: .28; }
-  .journal-tab-empty:not(:disabled):hover { transform: translateY(-2px); }
-  .journal-tab-empty:not(:disabled):hover svg { opacity: .85; }
-  .journal-tab-filled:not(:disabled):hover { transform: translateY(-2px); }
-  .journal-tab-future svg { opacity: .1; }
-
   /* ── Progress table ──────────────────────────────────────────────────── */
   .progress-table { border-collapse: collapse; width: 100%; }
   .progress-table th, .progress-table td { padding: 0; vertical-align: middle; }
@@ -175,17 +157,6 @@
   .progress-table tr:hover .goal-row-cell .goal-actions { opacity: 1; pointer-events: auto; }
   .progress-table tr.dragging { opacity: .4; }
   .progress-table tr.drag-over td.goal-row-cell { box-shadow: inset 0 2px 0 var(--accent), inset -1px 0 0 var(--border); }
-
-  /* Journal tabs strip — sits above the table card */
-  .journal-tabs-strip { position: relative; z-index: 2; margin-bottom: -1px;
-    padding-top: 8px;
-    overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
-  .journal-tabs-strip::-webkit-scrollbar { display: none; }
-
-  /* Drives the journal-tabs row off the table's horizontal scroll, on the
-     compositor (no JS scroll listener → no lag). --tabs-max is set to the
-     negative scroll range in JS so the tabs track the table 1:1. */
-  @keyframes tabsSync { to { transform: translateX(var(--tabs-max, 0px)); } }
 }
 
 @layer components {
