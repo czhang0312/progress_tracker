@@ -4,6 +4,47 @@ import { useState } from 'react';
 import { T, TRACKING } from '@/lib/theme';
 import { PomodoroSettings } from '@/lib/pomodoroSettings';
 
+function NumberField({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  const [raw, setRaw] = useState(String(value));
+
+  return (
+    <label style={{ display: 'block' }}>
+      <span className="form-label">{label}</span>
+      <input
+        type="number"
+        min={min}
+        max={max}
+        className="form-input"
+        value={raw}
+        onChange={(e) => {
+          const next = e.target.value;
+          setRaw(next);
+          const parsed = parseInt(next, 10);
+          if (!Number.isNaN(parsed)) onChange(Math.min(max, Math.max(min, parsed)));
+        }}
+        onBlur={() => {
+          const parsed = parseInt(raw, 10);
+          const clamped = Number.isNaN(parsed) ? min : Math.min(max, Math.max(min, parsed));
+          setRaw(String(clamped));
+          onChange(clamped);
+        }}
+      />
+    </label>
+  );
+}
+
 function MinutesField({
   label,
   value,
@@ -13,22 +54,7 @@ function MinutesField({
   value: number;
   onChange: (value: number) => void;
 }) {
-  return (
-    <label style={{ display: 'block' }}>
-      <span className="form-label">{label}</span>
-      <input
-        type="number"
-        min={1}
-        max={999}
-        className="form-input"
-        value={value}
-        onChange={(e) => {
-          const parsed = parseInt(e.target.value, 10);
-          if (!Number.isNaN(parsed)) onChange(Math.min(999, Math.max(1, parsed)));
-        }}
-      />
-    </label>
-  );
+  return <NumberField label={label} value={value} min={1} max={999} onChange={onChange} />;
 }
 
 function ToggleRow({
@@ -114,20 +140,13 @@ export default function TimerSettingsModal({
             <MinutesField label="Long break" value={draft.longBreakMinutes} onChange={(v) => set('longBreakMinutes', v)} />
           </div>
 
-          <label style={{ display: 'block' }}>
-            <span className="form-label">Long break every (pomodoros)</span>
-            <input
-              type="number"
-              min={1}
-              max={12}
-              className="form-input"
-              value={draft.longBreakInterval}
-              onChange={(e) => {
-                const parsed = parseInt(e.target.value, 10);
-                if (!Number.isNaN(parsed)) set('longBreakInterval', Math.min(12, Math.max(1, parsed)));
-              }}
-            />
-          </label>
+          <NumberField
+            label="Long break every (pomodoros)"
+            value={draft.longBreakInterval}
+            min={1}
+            max={12}
+            onChange={(v) => set('longBreakInterval', v)}
+          />
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <ToggleRow label="Auto-start breaks" checked={draft.autoStartBreaks} onChange={(v) => set('autoStartBreaks', v)} />
