@@ -738,14 +738,14 @@ export default function ProgressPage() {
                           <th key={day}
                             ref={(el) => { if (isToday) todayThRef.current = el; }}
                             style={{ minWidth: 40, width: 40,
-                              background: journalEntry ? T.accentTint : T.bg,
+                              background: journalEntry ? '#DCEEFB' : T.bg,
                               borderBottom: `1px solid ${T.border}`, padding: 0 }}>
                             <button className="day-header-btn"
                               onClick={() => handleJournalClick(date)}
                               title={journalTitle}
                               aria-label={journalEntry ? 'Open journal entry' : isFuture ? 'Future date' : 'Add journal entry'}
                               style={{ cursor: 'pointer', opacity: isFuture ? 0.4 : 1 }}>
-                              <div style={{ fontSize: 10, color: T.muted,
+                              <div style={{ fontSize: 10, color: isToday ? T.accent : T.muted,
                                 fontWeight: 600, letterSpacing: TRACKING, marginBottom: 1 }}>
                                 {dow}
                               </div>
@@ -873,7 +873,7 @@ export default function ProgressPage() {
                   ))}
                   <span style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
                     <span style={{ width: 14, height: 14, borderRadius: 4,
-                      background: T.accentTint, border: `1px solid ${T.border}`, display: 'block' }} />
+                      background: '#DCEEFB', border: `1px solid ${T.border}`, display: 'block' }} />
                     Journal entry
                   </span>
                 </div>
